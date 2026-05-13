@@ -229,15 +229,17 @@
     bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
     bg.querySelector('#cCancel').onclick = () => bg.remove();
     bg.querySelector('#cSave').onclick = async () => {
+      const rules = [
+        { selector: '#cTs', message: T('validate.ts') || 'Выберите ТС' },
+        { selector: '#cTip', message: T('validate.type') || 'Выберите тип ремонта' },
+      ];
+      if (!window.validateForm(bg, rules)) return;
       const body = {
         ts_id: +bg.querySelector('#cTs').value,
         tip_remonta_id: +bg.querySelector('#cTip').value,
         prioritet: +bg.querySelector('#cPrio').value,
         opisanie: bg.querySelector('#cDesc').value || null,
       };
-      if (!body.ts_id || !body.tip_remonta_id) {
-        return window.toast(T('requests.fill_required'), 'error');
-      }
       try {
         await window.api('/api/zayavki', { method: 'POST', body: JSON.stringify(body) });
         window.toast(T('requests.created'), 'success');

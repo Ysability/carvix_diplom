@@ -22,6 +22,7 @@
       case 'excel/expenses': path = '/api/finance/exports/excel/expenses'; break;
       case 'excel/budgets':  path = '/api/finance/exports/excel/budgets'; break;
       case 'excel/audit':    path = '/api/finance/exports/excel/audit'; break;
+      case 'excel/analyst':  path = '/api/finance/exports/excel/analyst'; break;
       case 'pdf/receipt':    path = `/api/finance/exports/pdf/receipt/${params.id}`; break;
       case 'pdf/monthly':    path = `/api/finance/exports/pdf/monthly/${params.pdId}/${params.god}/${params.m}`; break;
       case 'pdf/writeoff':   path = `/api/finance/exports/pdf/writeoff/${params.remontId}`; break;
@@ -116,8 +117,7 @@
      ========================================================= */
   async function decorateDashboard(head) {
     try {
-      const pds = await window.api('/api/auth/podrazdeleniya');
-      if (!pds.length) return;
+      const role = window.CURRENT_USER?.rol_nazvanie;
 
       // Контейнер кнопок справа
       let actions = head.querySelector('.section__actions');
@@ -126,6 +126,20 @@
         actions.className = 'section__actions';
         head.appendChild(actions);
       }
+
+      // Аналитик — кнопка экспорта
+      if (role === 'Аналитик') {
+        const exportBtn = document.createElement('button');
+        exportBtn.className = 'btn';
+        exportBtn.innerHTML = `📊 ${T('export.analyst') || 'Скачать Excel-отчёт'}`;
+        exportBtn.onclick = () => openExportInNewTab('excel/analyst', { god: new Date().getFullYear() });
+        actions.appendChild(exportBtn);
+        return;
+      }
+
+      // Директор — месячный PDF
+      const pds = await window.api('/api/auth/podrazdeleniya');
+      if (!pds.length) return;
 
       const btn = document.createElement('button');
       btn.className = 'btn';

@@ -1357,3 +1357,17 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
    Budget editor: wider sum column
    ────────────────────────────────────────────────────────── */
 .be-grid .be-sum { min-width: 110px; white-space: nowrap; }
+
+/* ──────────────────────────────────────────────────────────
+   Form validation
+   ────────────────────────────────────────────────────────── */
+.field-error input,
+.field-error select,
+.field-error textarea { border-color: var(--c-bad, #e53935) !important; box-shadow: 0 0 0 2px rgba(229,57,53,.15); }
+.field-error-msg {
+  display: block;
+  color: var(--c-bad, #e53935);
+  font-size: 11px;
+  margin-top: 3px;
+  line-height: 1.3;
+}

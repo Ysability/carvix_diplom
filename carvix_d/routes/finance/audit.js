@@ -80,4 +80,28 @@ router.get(
   }
 );
 
+// GET /api/finance/audit-log/my — last 10 actions of the current user (for profile)
+router.get(
+  '/my',
+  authRequired,
+  async (req, res) => {
+    try {
+      const sql = `
+        SELECT l.id, l.data_operatsii, l.tip_operatsii,
+               l.obyekt_tablitsa, l.obyekt_id,
+               l.summa, l.kommentariy
+          FROM finansoviy_log l
+         WHERE l.sotrudnik_id = $1
+         ORDER BY l.data_operatsii DESC
+         LIMIT 10
+      `;
+      const { rows } = await pool.pool.query(sql, [req.user.id]);
+      res.json(rows);
+    } catch (e) {
+      console.error('[audit-log/my] error:', e);
+      res.status(500).json({ error: 'Ошибка' });
+    }
+  }
+);
+
 module.exports = router;

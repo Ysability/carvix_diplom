@@ -124,6 +124,13 @@ router.get('/dashboard', authRequired, requireFinanceRead, async (req, res) => {
   try {
     // Период по умолчанию — последние 12 месяцев. Можно фильтровать через ?god=
     const god = parseInt(req.query.god, 10) || new Date().getFullYear();
+    const pdId = req.query.podrazdelenie_id ? parseInt(req.query.podrazdelenie_id, 10) : null;
+
+    // Фильтр подразделения для v_fakt и v_byudzhet
+    const pdWhere = pdId ? ` AND podrazdelenie_id = ${parseInt(pdId, 10)}` : '';
+    const pdWhereTco = pdId
+      ? ` WHERE podrazdelenie_nazvanie = (SELECT nazvanie FROM podrazdelenie WHERE id = ${parseInt(pdId, 10)})`
+      : '';
 
     const queries = await Promise.all([
       // 1. Расходы по месяцам (динамика за год)
@@ -136,7 +143,7 @@ router.get('/dashboard', authRequired, requireFinanceRead, async (req, res) => {
                          THEN fakt_summa ELSE 0 END)                              AS prochee,
                 SUM(fakt_summa)                                                   AS total
            FROM v_fakt_po_podrazdeleniyu
-          WHERE god = $1
+          WHERE god = $1${pdWhere}
           GROUP BY mesyats
           ORDER BY mesyats`,
         [god]
@@ -146,7 +153,7 @@ router.get('/dashboard', authRequired, requireFinanceRead, async (req, res) => {
       pool.pool.query(
         `SELECT kategoriya, SUM(fakt_summa) AS summa
            FROM v_fakt_po_podrazdeleniyu
-          WHERE god = $1
+          WHERE god = $1${pdWhere}
           GROUP BY kategoriya
           ORDER BY summa DESC`,
         [god]
@@ -157,6 +164,7 @@ router.get('/dashboard', authRequired, requireFinanceRead, async (req, res) => {
         `SELECT ts_id, gos_nomer, marka_nazvanie, model_nazvanie,
                 podrazdelenie_nazvanie, tco_obshchee, kolvo_remontov
            FROM v_tco_ts
+          ${pdWhereTco}
           ORDER BY tco_obshchee DESC
           LIMIT 5`
       ),
@@ -168,7 +176,7 @@ router.get('/dashboard', authRequired, requireFinanceRead, async (req, res) => {
            SUM(fakt_summa)              AS fakt,
            SUM(plan_summa - fakt_summa) AS otklonenie
          FROM v_byudzhet_plan_fakt
-         WHERE god = $1`,
+         WHERE god = $1${pdWhere}`,
         [god]
       ),
 
@@ -190,7 +198,7 @@ router.get('/dashboard', authRequired, requireFinanceRead, async (req, res) => {
            SUM(CASE WHEN god=$1 AND mesyats=$2     THEN fakt_summa ELSE 0 END) AS tek_mesyats,
            SUM(CASE WHEN god=$1 AND mesyats=$2 - 1 THEN fakt_summa ELSE 0 END) AS pred_mesyats
          FROM v_fakt_po_podrazdeleniyu
-         WHERE god=$1`,
+         WHERE god=$1${pdWhere}`,
         [god, new Date().getMonth() + 1]
       ),
     ]);

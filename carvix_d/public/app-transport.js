@@ -267,9 +267,14 @@
 
     // ---- Сохранение ----
     bg.querySelector('#tSave').onclick = async () => {
+      const rules = [
+        { selector: '#tGos', message: T('validate.gos') || 'Укажите гос. номер' },
+        { selector: '#tInv', message: T('validate.inv') || 'Укажите инв. номер' },
+        { selector: '#tMarka', message: T('validate.marka') || 'Выберите марку' },
+      ];
+      if (!window.validateForm(bg, rules)) return;
       const gos = bg.querySelector('#tGos').value.trim();
       const inv = bg.querySelector('#tInv').value.trim();
-      if (!gos || !inv) return window.toast(T('transport.fill_required'), 'error');
 
       // Резолв марки: либо id, либо создать новую
       let markaId = elMarka.value;

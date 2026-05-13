@@ -142,6 +142,38 @@ function renderPager(container, { total, limit, offset, onChange }) {
 }
 window.renderPager = renderPager;
 
+/* ----------------- Form validation utility ----------------- */
+function validateForm(container, rules) {
+  container.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+  container.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+  let valid = true;
+  for (const { selector, message } of rules) {
+    const el = container.querySelector(selector);
+    if (!el) continue;
+    const val = el.value?.trim();
+    const isEmpty = !val || val === '0';
+    if (isEmpty) {
+      const label = el.closest('label') || el.parentElement;
+      label.classList.add('field-error');
+      const msg = document.createElement('span');
+      msg.className = 'field-error-msg';
+      msg.textContent = message || T('validate.required') || 'Обязательное поле';
+      label.appendChild(msg);
+      el.addEventListener('input', () => {
+        label.classList.remove('field-error');
+        label.querySelector('.field-error-msg')?.remove();
+      }, { once: true });
+      el.addEventListener('change', () => {
+        label.classList.remove('field-error');
+        label.querySelector('.field-error-msg')?.remove();
+      }, { once: true });
+      valid = false;
+    }
+  }
+  return valid;
+}
+window.validateForm = validateForm;
+
 /* ----------------- Accessibility: Escape & focus-trap ----------------- */
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
@@ -406,8 +438,51 @@ async function renderProfile(root) {
           </button>
         </div>
       </div>
+
+      <!-- Activity log card -->
+      <div class="pf-card" style="grid-column: 1 / -1">
+        <div class="pf-card__header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="22" height="22"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>
+          <h3>${T('profile.activity') || 'Последние действия'}</h3>
+        </div>
+        <div id="pfActivity"><div class="loading-screen"><div class="spinner"></div></div></div>
+      </div>
     </div>
   `;
+
+  // Load activity log
+  api('/api/finance/audit-log/my').then(items => {
+    const el = $('#pfActivity');
+    if (!items || !items.length) {
+      el.innerHTML = `<div class="empty" style="padding:14px">${T('common.no_data')}</div>`;
+      return;
+    }
+    el.innerHTML = `
+      <table class="tbl" style="font-size:13px">
+        <thead><tr>
+          <th>${T('audit.col_when') || 'Когда'}</th>
+          <th>${T('audit.col_op') || 'Операция'}</th>
+          <th>${T('audit.col_obj') || 'Объект'}</th>
+          <th class="num">${T('audit.col_sum') || 'Сумма'}</th>
+          <th>${T('audit.col_comment') || 'Комментарий'}</th>
+        </tr></thead>
+        <tbody>
+          ${items.map(it => `
+            <tr>
+              <td>${fmtDateTime(it.data_operatsii)}</td>
+              <td><span class="chip blue">${escape(it.tip_operatsii)}</span></td>
+              <td>${escape(it.obyekt_tablitsa || '')}${it.obyekt_id ? ' #' + it.obyekt_id : ''}</td>
+              <td class="num">${it.summa ? fmtMoney(it.summa) : '—'}</td>
+              <td>${escape(it.kommentariy || '—')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }).catch(() => {
+    const el = $('#pfActivity');
+    if (el) el.innerHTML = `<div class="empty" style="padding:14px">${T('common.no_data')}</div>`;
+  });
 
   $('#pfSave').onclick = async () => {
     const fio = $('#pfFio').value.trim();
@@ -497,20 +572,7 @@ async function renderDashboard(root) {
     return renderAnalystDashboard(root);
   }
   const year = new Date().getFullYear();
-  const data = await api(`/api/finance/reports/dashboard?god=${year}`);
-
-  // Месяцы — короткие, через Intl чтобы локализовалось автоматически.
-  const monthNames = Array.from({ length: 12 }, (_, i) =>
-    new Date(2000, i, 1).toLocaleDateString(LOC(), { month: 'short' })
-  );
-  const kpi = data.kpi;
-  const tickColor = getComputedStyle(document.documentElement).getPropertyValue('--c-muted').trim();
-  const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--c-border').trim();
-
-  const deltaArrow =
-    kpi.delta_pct == null ? '' :
-    kpi.delta_pct > 0 ? `<span class="kpi-card__hint up">${T('dashboard.delta_up',   { n: kpi.delta_pct })}</span>` :
-                        `<span class="kpi-card__hint down">${T('dashboard.delta_down', { n: kpi.delta_pct })}</span>`;
+  const pds = await api('/api/auth/podrazdeleniya').catch(() => []);
 
   root.innerHTML = `
     <div class="section__head">
@@ -519,6 +581,39 @@ async function renderDashboard(root) {
         <div class="section__subtitle">${T('dashboard.subtitle', { year })}</div>
       </div>
     </div>
+    <div class="filters" style="margin-bottom:14px">
+      <label>${T('filter.division') || 'Подразделение'}
+        <select id="dPd">
+          <option value="">${T('common.all') || 'Все'}</option>
+          ${pds.map(p => `<option value="${p.id}">${p.nazvanie}</option>`).join('')}
+        </select>
+      </label>
+    </div>
+    <div id="dashContent"><div class="loading-screen"><div class="spinner"></div></div></div>
+  `;
+
+  async function loadDash() {
+    // Destroy previous charts
+    CURRENT_CHARTS.forEach(c => c.destroy());
+    CURRENT_CHARTS.length = 0;
+
+    const pdId = $('#dPd').value;
+    const qs = `god=${year}${pdId ? '&podrazdelenie_id=' + pdId : ''}`;
+    const data = await api(`/api/finance/reports/dashboard?${qs}`);
+
+    const monthNames = Array.from({ length: 12 }, (_, i) =>
+      new Date(2000, i, 1).toLocaleDateString(LOC(), { month: 'short' })
+    );
+    const kpi = data.kpi;
+    const tickColor = getComputedStyle(document.documentElement).getPropertyValue('--c-muted').trim();
+    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--c-border').trim();
+
+    const deltaArrow =
+      kpi.delta_pct == null ? '' :
+      kpi.delta_pct > 0 ? `<span class="kpi-card__hint up">${T('dashboard.delta_up',   { n: kpi.delta_pct })}</span>` :
+                          `<span class="kpi-card__hint down">${T('dashboard.delta_down', { n: kpi.delta_pct })}</span>`;
+
+    $('#dashContent').innerHTML = `
 
     <div class="cards-grid">
       <div class="kpi-card">
@@ -576,45 +671,49 @@ async function renderDashboard(root) {
         </tbody>
       </table>
     </div>
-  `;
+    `;
 
-  // Линейный график
-  CURRENT_CHARTS.push(new Chart($('#dynChart'), {
-    type: 'line',
-    data: {
-      labels: data.dynamics.map(d => monthNames[d.mesyats - 1]),
-      datasets: [
-        { label: T('cat.remont'),    data: data.dynamics.map(d => +d.remont),    borderColor: '#b89460', backgroundColor: 'rgba(184,148,96,.15)', fill: true, tension: .35 },
-        { label: T('cat.zapchasti'), data: data.dynamics.map(d => +d.zapchasti), borderColor: '#2f5a9c', backgroundColor: 'rgba(47,90,156,.10)',  fill: true, tension: .35 },
-        { label: T('cat.topliv'),    data: data.dynamics.map(d => +d.topliv),    borderColor: '#2f8f5e', backgroundColor: 'rgba(47,143,94,.10)',  fill: true, tension: .35 },
-        { label: T('cat.prochee'),   data: data.dynamics.map(d => +d.prochee),   borderColor: '#b94a48', backgroundColor: 'rgba(185,74,72,.10)',  fill: true, tension: .35 },
-      ],
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: tickColor } } },
-      scales: {
-        x: { ticks: { color: tickColor }, grid: { color: gridColor } },
-        y: { ticks: { color: tickColor, callback: v => Intl.NumberFormat(LOC(), { notation: 'compact' }).format(v) }, grid: { color: gridColor } },
+    // Линейный график
+    CURRENT_CHARTS.push(new Chart($('#dynChart'), {
+      type: 'line',
+      data: {
+        labels: data.dynamics.map(d => monthNames[d.mesyats - 1]),
+        datasets: [
+          { label: T('cat.remont'),    data: data.dynamics.map(d => +d.remont),    borderColor: '#b89460', backgroundColor: 'rgba(184,148,96,.15)', fill: true, tension: .35 },
+          { label: T('cat.zapchasti'), data: data.dynamics.map(d => +d.zapchasti), borderColor: '#2f5a9c', backgroundColor: 'rgba(47,90,156,.10)',  fill: true, tension: .35 },
+          { label: T('cat.topliv'),    data: data.dynamics.map(d => +d.topliv),    borderColor: '#2f8f5e', backgroundColor: 'rgba(47,143,94,.10)',  fill: true, tension: .35 },
+          { label: T('cat.prochee'),   data: data.dynamics.map(d => +d.prochee),   borderColor: '#b94a48', backgroundColor: 'rgba(185,74,72,.10)',  fill: true, tension: .35 },
+        ],
       },
-    },
-  }));
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: tickColor } } },
+        scales: {
+          x: { ticks: { color: tickColor }, grid: { color: gridColor } },
+          y: { ticks: { color: tickColor, callback: v => Intl.NumberFormat(LOC(), { notation: 'compact' }).format(v) }, grid: { color: gridColor } },
+        },
+      },
+    }));
 
-  // Pie
-  CURRENT_CHARTS.push(new Chart($('#pieChart'), {
-    type: 'doughnut',
-    data: {
-      labels: data.struktura.map(s => catLabel(s.kategoriya)),
-      datasets: [{
-        data: data.struktura.map(s => +s.summa),
-        backgroundColor: ['#b89460','#2f5a9c','#2f8f5e','#b94a48','#c69317','#776e63','#9b6b9b'],
-      }],
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: tickColor } } },
-    },
-  }));
+    // Pie
+    CURRENT_CHARTS.push(new Chart($('#pieChart'), {
+      type: 'doughnut',
+      data: {
+        labels: data.struktura.map(s => catLabel(s.kategoriya)),
+        datasets: [{
+          data: data.struktura.map(s => +s.summa),
+          backgroundColor: ['#b89460','#2f5a9c','#2f8f5e','#b94a48','#c69317','#776e63','#9b6b9b'],
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: tickColor } } },
+      },
+    }));
+  }
+
+  $('#dPd').onchange = loadDash;
+  loadDash();
 }
 
 /* =========================================================
@@ -808,7 +907,15 @@ async function openExpenseModal(onSaved) {
   trapFocus(bg.querySelector('.modal'));
   $('#mCancel', bg).onclick = () => bg.remove();
   $('#mSave', bg).onclick = async () => {
+    const rules = [
+      { selector: '#mData', message: T('validate.date') || 'Укажите дату' },
+      { selector: '#mSum', message: T('validate.sum') || 'Укажите сумму' },
+    ];
+    if (!validateForm(bg, rules)) return;
     const tsVal = $('#mTs', bg).value;
+    if (!tsVal && !$('#mPd', bg).value) {
+      return toast(T('expenses.need_ts_or_pd') || 'Укажите ТС или подразделение', 'error');
+    }
     const body = {
       kategoriya:       $('#mKat', bg).value,
       data:             $('#mData', bg).value,
@@ -817,8 +924,6 @@ async function openExpenseModal(onSaved) {
       podrazdelenie_id: $('#mPd', bg).value ? +$('#mPd', bg).value : null,
       opisanie:         $('#mDesc', bg).value || null,
     };
-    if (!body.summa || !body.data) return toast(T('toast.fill_required'), 'error');
-    if (!body.ts_id && !body.podrazdelenie_id) return toast(T('expenses.need_ts_or_pd') || 'Укажите ТС или подразделение', 'error');
     try {
       await api('/api/finance/expenses', { method: 'POST', body: JSON.stringify(body) });
       toast(T('toast.expense_added'), 'success');

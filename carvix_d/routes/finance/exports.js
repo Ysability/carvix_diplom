@@ -879,5 +879,100 @@ router.get('/pdf/writeoff/:remontId', authForExport, requireFinanceRead, async (
     res.status(e.status || 500).json({ error: e.message }); }
 });
 
+router.get('/excel/analyst', authForExport, requireFinanceRead, async (req, res) => {
+  try { sendBuffer(res, await genExcelAnalyst(req.query), 'attachment'); }
+  catch (e) { console.error('[exports/excel/analyst]', e);
+    res.status(e.status || 500).json({ error: e.message }); }
+});
+
 module.exports = router;
+
+/* =========================================================
+   Excel: Аналитический отчёт
+   ========================================================= */
+async function genExcelAnalyst({ god }) {
+  const year = parseInt(god, 10) || new Date().getFullYear();
+
+  const [mekh, tipStats, statusStats] = await Promise.all([
+    pool.pool.query(
+      `SELECT s.fio, pd.nazvanie AS podrazdelenie,
+              CAST(COALESCE(SUM(CASE WHEN r.data_okonchaniya IS NULL THEN 1 ELSE 0 END), 0) AS INT) AS aktivnyh,
+              CAST(COALESCE(SUM(CASE WHEN r.data_okonchaniya >= NOW() - INTERVAL '30 days' THEN 1 ELSE 0 END), 0) AS INT) AS za_30_dney,
+              CAST(COUNT(r.id) AS INT) AS vsego
+         FROM sotrudnik s
+         JOIN rol rl ON rl.id = s.rol_id
+         JOIN podrazdelenie pd ON pd.id = s.podrazdelenie_id
+         LEFT JOIN remont r ON r.mekhanik_id = s.id
+        WHERE rl.nazvanie = 'Механик'
+        GROUP BY s.fio, pd.nazvanie
+        ORDER BY aktivnyh DESC, s.fio`
+    ),
+    pool.pool.query(
+      `SELECT tr.nazvanie AS tip, tr.kategoriya,
+              COUNT(*)::int AS kolvo,
+              COALESCE(SUM(r.stoimost_rabot + r.stoimost_zapchastey), 0) AS summa,
+              ROUND(AVG(CASE WHEN r.data_nachala IS NOT NULL AND r.data_okonchaniya IS NOT NULL
+                THEN EXTRACT(EPOCH FROM (r.data_okonchaniya - r.data_nachala)) / 86400 END), 1) AS avg_days
+         FROM remont r
+         JOIN zayavka z ON z.id = r.zayavka_id
+         JOIN tip_remonta tr ON tr.id = z.tip_remonta_id
+        WHERE EXTRACT(YEAR FROM COALESCE(r.data_okonchaniya, r.data_nachala, NOW())) = $1
+        GROUP BY tr.nazvanie, tr.kategoriya
+        ORDER BY summa DESC`,
+      [year]
+    ),
+    pool.pool.query(
+      `SELECT st.nazvanie AS status, COUNT(*)::int AS kolvo
+         FROM zayavka z
+         JOIN status st ON st.id = z.status_id
+        GROUP BY st.nazvanie
+        ORDER BY kolvo DESC`
+    ),
+  ]);
+
+  const ExcelJS = require('exceljs');
+  const wb = new ExcelJS.Workbook();
+
+  // Sheet 1: Загрузка механиков
+  const ws1 = wb.addWorksheet('Загрузка механиков');
+  ws1.mergeCells('A1:E1');
+  ws1.getCell('A1').value = `Аналитический отчёт — ${year}`;
+  ws1.getCell('A1').font = { bold: true, size: 14 };
+  ws1.addRow([]);
+  const h1 = ws1.addRow(['Механик', 'Подразделение', 'Активных', 'За 30 дн.', 'Всего']);
+  styleHeaderRow(h1);
+  mekh.rows.forEach(m => {
+    const row = ws1.addRow([m.fio, m.podrazdelenie, m.aktivnyh, m.za_30_dney, m.vsego]);
+    applyBorders(row);
+  });
+  [24, 20, 12, 12, 12].forEach((w, i) => ws1.getColumn(i + 1).width = w);
+
+  // Sheet 2: Типы ремонта
+  const ws2 = wb.addWorksheet('Типы ремонта');
+  const h2 = ws2.addRow(['Тип', 'Категория', 'Кол-во', 'Сумма, ₽', 'Ср. дней']);
+  styleHeaderRow(h2);
+  tipStats.rows.forEach(t => {
+    const row = ws2.addRow([t.tip, t.kategoriya || '—', t.kolvo, Number(t.summa), t.avg_days != null ? Number(t.avg_days) : '']);
+    applyMoneyFormat(row.getCell(4));
+    applyBorders(row);
+  });
+  [24, 16, 10, 16, 12].forEach((w, i) => ws2.getColumn(i + 1).width = w);
+
+  // Sheet 3: Статусы заявок
+  const ws3 = wb.addWorksheet('Заявки по статусам');
+  const h3 = ws3.addRow(['Статус', 'Кол-во']);
+  styleHeaderRow(h3);
+  statusStats.rows.forEach(s => {
+    const row = ws3.addRow([s.status, s.kolvo]);
+    applyBorders(row);
+  });
+  [24, 12].forEach((w, i) => ws3.getColumn(i + 1).width = w);
+
+  const buffer = await wb.xlsx.writeBuffer();
+  return {
+    buffer,
+    filename: `carvix-analyst-${year}.xlsx`,
+    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  };
+}
 
