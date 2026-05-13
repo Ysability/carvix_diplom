@@ -52,6 +52,8 @@
     const role = ROLE();
     const isCreator   = ['Пользователь','Диспетчер','Главный механик','Директор'].includes(role);
     const isDispatcher = ['Диспетчер','Главный механик','Директор','Аналитик'].includes(role);
+    const PAGE_SIZE = 20;
+    let currentOffset = 0;
 
     root.innerHTML = `
       <div class="section__head">
@@ -66,6 +68,7 @@
       </div>
 
       <div class="filters">
+        <input type="text" class="search-input" id="fReqSearch" placeholder="${window.t('common.search') || 'Поиск…'}" />
         <label>${T('requests.filter_status')}
           <select id="fStatus"><option value="">${T('common.all')}</option></select>
         </label>
@@ -79,6 +82,7 @@
       <div id="reqList" class="req-list">
         <div class="loading-screen"><div class="spinner"></div></div>
       </div>
+      <div id="reqPager" class="pager"></div>
     `;
 
     const statusy = await window.api('/api/zayavki/dict/statusy');
@@ -94,13 +98,18 @@
       const list = $('#reqList');
       list.innerHTML = `<div class="loading-screen"><div class="spinner"></div></div>`;
       const qs = new URLSearchParams();
+      if ($('#fReqSearch').value.trim()) qs.set('q', $('#fReqSearch').value.trim());
       if (fStatus.value) qs.set('status', fStatus.value);
       const fMineEl = $('#fMine');
       if (fMineEl?.checked) qs.set('mine', '1');
+      qs.set('limit', PAGE_SIZE);
+      qs.set('offset', currentOffset);
 
-      const { items } = await window.api('/api/zayavki?' + qs);
+      const data = await window.api('/api/zayavki?' + qs);
+      const items = data.items || [];
       if (!items.length) {
         list.innerHTML = `<div class="empty">${T('requests.empty')}</div>`;
+        $('#reqPager').innerHTML = '';
         return;
       }
       list.innerHTML = items.map(z => `
@@ -138,6 +147,11 @@
         </div>
       `).join('');
 
+      window.renderPager($('#reqPager'), {
+        total: data.total, limit: PAGE_SIZE, offset: currentOffset,
+        onChange: off => { currentOffset = off; load(); },
+      });
+
       // Делегируем клики
       list.querySelectorAll('button[data-action]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -151,8 +165,13 @@
       });
     }
 
-    fStatus.addEventListener('change', load);
-    $('#fMine')?.addEventListener('change', load);
+    let _searchTimer;
+    $('#fReqSearch').oninput = () => {
+      clearTimeout(_searchTimer);
+      _searchTimer = setTimeout(() => { currentOffset = 0; load(); }, 350);
+    };
+    fStatus.addEventListener('change', () => { currentOffset = 0; load(); });
+    $('#fMine')?.addEventListener('change', () => { currentOffset = 0; load(); });
     $('#btnReload').addEventListener('click', load);
     if (isCreator) {
       $('#btnNewReq').addEventListener('click', () => openCreateRequest(load));
@@ -485,7 +504,7 @@
     }
 
     $('#btnAutoAll').addEventListener('click', async () => {
-      if (!confirm(T('dispatch.auto_all_confirm'))) return;
+      if (!await window.confirmDialog(T('dispatch.auto_all_confirm'), { icon: '⚙️', danger: false, title: T('dispatch.auto_all_confirm') })) return;
       const { items } = await window.api('/api/zayavki?status=1');
       const queue = items.filter(z => !z.mekhanik_id);
       if (!queue.length) return window.toast(T('dispatch.queue_empty'), '');

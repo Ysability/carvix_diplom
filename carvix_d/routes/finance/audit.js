@@ -40,6 +40,11 @@ router.get(
         params.push(tip_operatsii);
         where.push(`l.tip_operatsii = $${params.length}`);
       }
+      if (req.query.q) {
+        const q = `%${req.query.q.trim()}%`;
+        params.push(q, q, q);
+        where.push(`(l.kommentariy ILIKE $${params.length - 2} OR l.tip_operatsii ILIKE $${params.length - 1} OR s.fio ILIKE $${params.length})`);
+      }
 
       const whereSQL = where.length ? 'WHERE ' + where.join(' AND ') : '';
       const lim = Math.min(parseInt(limit, 10) || 100, 500);

@@ -25,6 +25,7 @@
       'common.all':            'Все',
       'common.theme':          'Тема',
       'common.language':       'Язык',
+      'common.search':         'Поиск…',
 
       // ---- Auth (страница входа) ----
       'auth.tab_login':        'Вход',
@@ -263,6 +264,8 @@
       'expenses.sum_total':    'Сумма: {sum}',
       'expenses.modal_title':  'Добавить расход',
       'expenses.no_division':  '— не указано —',
+      'expenses.no_ts':        '— без ТС —',
+      'expenses.need_ts_or_pd':'Укажите ТС или подразделение',
 
       // ---- Budgets ----
       'budgets.title':         'Бюджеты — план / факт',
@@ -473,6 +476,7 @@
       'common.all':            'All',
       'common.theme':          'Theme',
       'common.language':       'Language',
+      'common.search':         'Search…',
 
       // ---- Auth ----
       'auth.tab_login':        'Sign in',
@@ -710,6 +714,8 @@
       'expenses.sum_total':    'Total: {sum}',
       'expenses.modal_title':  'Add expense',
       'expenses.no_division':  '— not set —',
+      'expenses.no_ts':        '— no vehicle —',
+      'expenses.need_ts_or_pd':'Specify a vehicle or division',
 
       // ---- Budgets ----
       'budgets.title':         'Budgets — plan / actual',

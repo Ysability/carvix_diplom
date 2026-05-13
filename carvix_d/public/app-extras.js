@@ -1049,8 +1049,8 @@
           location.reload();
         }
         // Сразу предложим открыть PDF M-15
-        setTimeout(() => {
-          if (confirm('Открыть PDF приходной накладной М-15?')) {
+        setTimeout(async () => {
+          if (await window.confirmDialog('Открыть PDF приходной накладной М-15?', { icon: '📄', danger: false, title: 'PDF M-15' })) {
             openExportInNewTab('pdf/receipt', { id: created.id });
           }
         }, 600);

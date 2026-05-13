@@ -165,7 +165,9 @@ router.get(
  *   ?podrazdelenie_id=<id>  — фильтр по подразделению ТС
  *   ?mine=1                 — только заявки, в которых я создатель
  *                             ИЛИ механик (для механика — назначенные)
- *   ?limit=<n>              — лимит (по умолчанию 100, максимум 500)
+ *   ?limit=<n>              — лимит (по умолчанию 50, максимум 500)
+ *   ?offset=<n>             — смещение для пагинации
+ *   ?q=<text>               — полнотекстовый поиск по гос. номеру, ФИО, описанию
  *
  * Видимость по ролям:
  *   • Пользователь — всегда mine=1 (force).
@@ -181,10 +183,17 @@ router.get('/', authRequired, async (req, res) => {
     const forceMine =
       role === 'Пользователь' || role === 'Механик';
 
-    const limit = Math.min(Number(req.query.limit) || 100, 500);
+    const limit = Math.min(Number(req.query.limit) || 50, 500);
+    const offset = parseInt(req.query.offset, 10) || 0;
 
     const where = [];
     const params = [];
+
+    if (req.query.q) {
+      const q = `%${req.query.q.trim()}%`;
+      params.push(q, q, q);
+      where.push(`(ts.gos_nomer ILIKE ? OR s.fio ILIKE ? OR z.opisanie ILIKE ?)`);
+    }
 
     if (req.query.status) {
       where.push('z.status_id = ?');
@@ -239,11 +248,24 @@ router.get('/', authRequired, async (req, res) => {
          LEFT JOIN sotrudnik      ms ON ms.id = r.mekhanik_id
          ${whereSql}
          ORDER BY z.data_sozdaniya DESC, z.id DESC
-         LIMIT ${limit}`,
+         LIMIT ${limit} OFFSET ${offset}`,
       params
     );
 
-    res.json({ items: rows, total: rows.length });
+    const [countRows] = await pool.execute(
+      `SELECT COUNT(*)::int AS total
+         FROM zayavka z
+         JOIN status              st ON st.id = z.status_id
+         JOIN tip_remonta         tr ON tr.id = z.tip_remonta_id
+         JOIN transportnoe_sredstvo ts ON ts.id = z.ts_id
+         JOIN sotrudnik           s  ON s.id = z.sozdatel_id
+         LEFT JOIN remont         r  ON r.zayavka_id = z.id
+         LEFT JOIN sotrudnik      ms ON ms.id = r.mekhanik_id
+         ${whereSql}`,
+      params
+    );
+
+    res.json({ items: rows, total: countRows[0]?.total || rows.length, limit, offset });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Ошибка получения заявок' });

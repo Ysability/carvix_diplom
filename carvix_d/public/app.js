@@ -47,6 +47,98 @@ function toast(msg, type = '') {
   setTimeout(() => t.classList.remove('show'), 2400);
 }
 
+/* ----------------- Styled confirm dialog ----------------- */
+function confirmDialog(text, { title, icon = '⚠️', danger = true } = {}) {
+  return new Promise(resolve => {
+    const bg = document.createElement('div');
+    bg.className = 'modal-bg';
+    bg.innerHTML = `
+      <div class="confirm-dialog">
+        <div class="confirm-dialog__icon">${icon}</div>
+        <div class="confirm-dialog__title">${title || T('common.confirm_delete')}</div>
+        <div class="confirm-dialog__text">${text}</div>
+        <div class="confirm-dialog__actions">
+          <button class="btn" id="cdCancel">${T('common.cancel')}</button>
+          <button class="btn ${danger ? 'danger' : 'dark'}" id="cdOk">${danger ? T('common.delete') : 'OK'}</button>
+        </div>
+      </div>`;
+    document.body.appendChild(bg);
+    bg.querySelector('#cdCancel').onclick = () => { bg.remove(); resolve(false); };
+    bg.querySelector('#cdOk').onclick    = () => { bg.remove(); resolve(true); };
+    bg.addEventListener('click', e => { if (e.target === bg) { bg.remove(); resolve(false); } });
+  });
+}
+window.confirmDialog = confirmDialog;
+
+/* ----------------- Nav badge notifications ----------------- */
+let _badgeTimer = null;
+async function refreshNavBadges() {
+  try {
+    const role = CURRENT_USER?.rol_nazvanie;
+    if (!role) return;
+    const allowed = ['Директор','Аналитик','Главный механик','Диспетчер'];
+    if (!allowed.includes(role)) return;
+
+    const [zData, bData] = await Promise.all([
+      api('/api/zayavki?limit=1&status=1').catch(() => null),
+      api('/api/finance/budgets/plan-fakt?god=' + new Date().getFullYear()).catch(() => null),
+    ]);
+
+    // Заявки: кол-во со статусом «Новая» (status_id=1)
+    const newCount = zData?.total || 0;
+    setBadge('requests', newCount);
+
+    // Бюджеты: кол-во месяцев с превышением плана
+    let overCount = 0;
+    if (Array.isArray(bData)) {
+      bData.forEach(r => { if (Number(r.fakt_summa) > Number(r.plan_summa) && Number(r.plan_summa) > 0) overCount++; });
+    }
+    setBadge('budgets', overCount);
+  } catch (_) { /* silent */ }
+}
+function setBadge(section, count) {
+  const link = document.querySelector(`.nav__item[data-section="${section}"]`);
+  if (!link) return;
+  let badge = link.querySelector('.nav-badge');
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.className = 'nav-badge';
+    link.appendChild(badge);
+  }
+  badge.textContent = count > 0 ? (count > 99 ? '99+' : count) : '';
+}
+function startBadgePolling() {
+  refreshNavBadges();
+  _badgeTimer = setInterval(refreshNavBadges, 60000);
+}
+function stopBadgePolling() { if (_badgeTimer) clearInterval(_badgeTimer); }
+
+/* ----------------- Pagination helper ----------------- */
+function renderPager(container, { total, limit, offset, onChange }) {
+  const pages = Math.ceil(total / limit);
+  if (pages <= 1) { container.innerHTML = ''; return; }
+  const curPage = Math.floor(offset / limit);
+
+  let html = `<button class="pager__btn" data-p="0" ${curPage === 0 ? 'disabled' : ''}>«</button>`;
+  const range = 2;
+  for (let p = 0; p < pages; p++) {
+    if (p === 0 || p === pages - 1 || (p >= curPage - range && p <= curPage + range)) {
+      html += `<button class="pager__btn ${p === curPage ? 'active' : ''}" data-p="${p}">${p + 1}</button>`;
+    } else if (p === curPage - range - 1 || p === curPage + range + 1) {
+      html += `<span class="pager__info">…</span>`;
+    }
+  }
+  html += `<button class="pager__btn" data-p="${pages - 1}" ${curPage === pages - 1 ? 'disabled' : ''}>»</button>`;
+  container.innerHTML = html;
+  container.querySelectorAll('.pager__btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = parseInt(btn.dataset.p, 10);
+      if (!isNaN(p)) onChange(p * limit);
+    });
+  });
+}
+window.renderPager = renderPager;
+
 /* ----------------- API ----------------- */
 async function api(path, options = {}) {
   const opts = {
@@ -351,7 +443,7 @@ async function renderProfile(root) {
   const delBtn = $('#pfAvatarDel');
   if (delBtn) {
     delBtn.onclick = async () => {
-      if (!confirm(T('profile.avatar_confirm'))) return;
+      if (!await confirmDialog(T('profile.avatar_confirm'), { icon: '🗑️' })) return;
       try {
         const data = await api('/api/auth/avatar', { method: 'DELETE' });
         Object.assign(CURRENT_USER, data);
@@ -503,6 +595,9 @@ async function renderDashboard(root) {
    2. РЕЕСТР РАСХОДОВ
    ========================================================= */
 async function renderExpenses(root) {
+  const PAGE_SIZE = 30;
+  let currentOffset = 0;
+
   root.innerHTML = `
     <div class="section__head">
       <div>
@@ -513,6 +608,7 @@ async function renderExpenses(root) {
     </div>
 
     <div class="filters">
+      <input type="text" class="search-input" id="fSearch" placeholder="${T('common.search') || 'Поиск…'}" />
       <label>${T('filter.from')} <input type="date" id="fFrom" /></label>
       <label>${T('filter.to')}   <input type="date" id="fTo" /></label>
       <label>${T('filter.category')}
@@ -542,16 +638,19 @@ async function renderExpenses(root) {
 
     <div class="table-card">
       <div id="expensesTbl"><div class="loading-screen"><div class="spinner"></div></div></div>
+      <div id="expPager" class="pager"></div>
     </div>
   `;
 
   async function load() {
     const params = new URLSearchParams();
+    if ($('#fSearch').value.trim()) params.set('q', $('#fSearch').value.trim());
     if ($('#fFrom').value) params.set('from', $('#fFrom').value);
     if ($('#fTo').value)   params.set('to', $('#fTo').value);
     if ($('#fKat').value)  params.set('kategoriya', $('#fKat').value);
     if ($('#fSrc').value)  params.set('source', $('#fSrc').value);
-    params.set('limit', '200');
+    params.set('limit', PAGE_SIZE);
+    params.set('offset', currentOffset);
 
     const data = await api('/api/finance/expenses?' + params);
     const html = `
@@ -585,9 +684,14 @@ async function renderExpenses(root) {
     `;
     $('#expensesTbl').innerHTML = html;
 
+    renderPager($('#expPager'), {
+      total: data.total, limit: PAGE_SIZE, offset: currentOffset,
+      onChange: off => { currentOffset = off; load(); },
+    });
+
     $$('button[data-del]', $('#expensesTbl')).forEach(b => {
       b.onclick = async () => {
-        if (!confirm(T('common.confirm_delete'))) return;
+        if (!await confirmDialog(T('common.confirm_delete'), { icon: '🗑️' })) return;
         try {
           await api('/api/finance/expenses/' + b.dataset.del, { method: 'DELETE' });
           toast(T('toast.deleted'), 'success');
@@ -597,10 +701,16 @@ async function renderExpenses(root) {
     });
   }
 
-  $('#applyBtn').onclick = load;
+  let _searchTimer;
+  $('#fSearch').oninput = () => {
+    clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(() => { currentOffset = 0; load(); }, 350);
+  };
+  $('#applyBtn').onclick = () => { currentOffset = 0; load(); };
   $('#resetBtn').onclick = () => {
     $$('.filters input, .filters select').forEach(el => { el.value = ''; });
     $('#fSrc').value = 'all';
+    currentOffset = 0;
     load();
   };
   $('#addExpenseBtn').onclick = () => openExpenseModal(load);
@@ -617,10 +727,9 @@ function chipColor(k) {
 
 async function openExpenseModal(onSaved) {
   // Подгружаем подразделения и ТС для select
-  const [pd, ts] = await Promise.all([
+  const [pd, tsList] = await Promise.all([
     api('/api/auth/podrazdeleniya'),
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${TOKEN}` } })
-      .then(() => Promise.resolve([])), // ts эндпоинта пока нет — сделаем без него
+    api('/api/zayavki/dict/ts'),
   ]);
 
   const bg = document.createElement('div');
@@ -644,6 +753,12 @@ async function openExpenseModal(onSaved) {
         <label>${T('expenses.col_sum')}, ₽
           <input type="number" id="mSum" min="1" step="100" />
         </label>
+        <label class="full">${T('expenses.col_plate')}
+          <select id="mTs">
+            <option value="">${T('expenses.no_ts') || '— без ТС —'}</option>
+            ${tsList.map(t => `<option value="${t.id}" data-pd="${t.podrazdelenie}">${escape(t.gos_nomer)} — ${escape(t.marka)} ${escape(t.model)}</option>`).join('')}
+          </select>
+        </label>
         <label class="full">${T('expenses.col_division')}
           <select id="mPd">
             <option value="">${T('expenses.no_division')}</option>
@@ -664,14 +779,17 @@ async function openExpenseModal(onSaved) {
   bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
   $('#mCancel', bg).onclick = () => bg.remove();
   $('#mSave', bg).onclick = async () => {
+    const tsVal = $('#mTs', bg).value;
     const body = {
       kategoriya:       $('#mKat', bg).value,
       data:             $('#mData', bg).value,
       summa:            +$('#mSum', bg).value,
+      ts_id:            tsVal ? +tsVal : null,
       podrazdelenie_id: $('#mPd', bg).value ? +$('#mPd', bg).value : null,
       opisanie:         $('#mDesc', bg).value || null,
     };
     if (!body.summa || !body.data) return toast(T('toast.fill_required'), 'error');
+    if (!body.ts_id && !body.podrazdelenie_id) return toast(T('expenses.need_ts_or_pd') || 'Укажите ТС или подразделение', 'error');
     try {
       await api('/api/finance/expenses', { method: 'POST', body: JSON.stringify(body) });
       toast(T('toast.expense_added'), 'success');
@@ -974,6 +1092,9 @@ async function renderReceipts(root) {
    6. АУДИТ-ЛОГ
    ========================================================= */
 async function renderAudit(root) {
+  const PAGE_SIZE = 30;
+  let currentOffset = 0;
+
   root.innerHTML = `
     <div class="section__head">
       <div>
@@ -981,37 +1102,60 @@ async function renderAudit(root) {
         <div class="section__subtitle">${T('audit.subtitle')}</div>
       </div>
     </div>
+    <div class="filters">
+      <input type="text" class="search-input" id="aSearch" placeholder="${T('common.search') || 'Поиск…'}" />
+    </div>
     <div class="table-card">
       <div id="aTbl"><div class="loading-screen"><div class="spinner"></div></div></div>
+      <div id="aPager" class="pager"></div>
     </div>
   `;
 
-  const data = await api('/api/finance/audit-log?limit=200');
-  $('#aTbl').innerHTML = `
-    <table class="tbl">
-      <thead><tr>
-        <th>${T('audit.col_when')}</th><th>${T('audit.col_user')}</th><th>${T('audit.col_role')}</th>
-        <th>${T('audit.col_op')}</th><th>${T('audit.col_obj')}</th>
-        <th class="num">${T('audit.col_sum')}</th><th>${T('audit.col_comment')}</th>
-      </tr></thead>
-      <tbody>
-        ${data.items.map(it => `
-          <tr>
-            <td>${fmtDateTime(it.data_operatsii)}</td>
-            <td><strong>${escape(it.sotrudnik_fio || '—')}</strong></td>
-            <td>${escape(it.sotrudnik_rol || '—')}</td>
-            <td><span class="chip blue">${escape(it.tip_operatsii)}</span></td>
-            <td>${escape(it.obyekt_tablitsa || '')}${it.obyekt_id ? ' #' + it.obyekt_id : ''}</td>
-            <td class="num">${it.summa ? fmtMoney(it.summa) : '—'}</td>
-            <td>${escape(it.kommentariy || '')}</td>
-          </tr>
-        `).join('') || `<tr><td colspan="7" class="empty">${T('audit.empty')}</td></tr>`}
-      </tbody>
-    </table>
-    <div class="tbl-foot">
-      <span>${T('audit.records', { n: data.total })}</span>
-    </div>
-  `;
+  async function load() {
+    const params = new URLSearchParams();
+    if ($('#aSearch').value.trim()) params.set('q', $('#aSearch').value.trim());
+    params.set('limit', PAGE_SIZE);
+    params.set('offset', currentOffset);
+
+    const data = await api('/api/finance/audit-log?' + params);
+    $('#aTbl').innerHTML = `
+      <table class="tbl">
+        <thead><tr>
+          <th>${T('audit.col_when')}</th><th>${T('audit.col_user')}</th><th>${T('audit.col_role')}</th>
+          <th>${T('audit.col_op')}</th><th>${T('audit.col_obj')}</th>
+          <th class="num">${T('audit.col_sum')}</th><th>${T('audit.col_comment')}</th>
+        </tr></thead>
+        <tbody>
+          ${data.items.map(it => `
+            <tr>
+              <td>${fmtDateTime(it.data_operatsii)}</td>
+              <td><strong>${escape(it.sotrudnik_fio || '—')}</strong></td>
+              <td>${escape(it.sotrudnik_rol || '—')}</td>
+              <td><span class="chip blue">${escape(it.tip_operatsii)}</span></td>
+              <td>${escape(it.obyekt_tablitsa || '')}${it.obyekt_id ? ' #' + it.obyekt_id : ''}</td>
+              <td class="num">${it.summa ? fmtMoney(it.summa) : '—'}</td>
+              <td>${escape(it.kommentariy || '')}</td>
+            </tr>
+          `).join('') || `<tr><td colspan="7" class="empty">${T('audit.empty')}</td></tr>`}
+        </tbody>
+      </table>
+      <div class="tbl-foot">
+        <span>${T('audit.records', { n: data.total })}</span>
+      </div>
+    `;
+
+    renderPager($('#aPager'), {
+      total: data.total, limit: PAGE_SIZE, offset: currentOffset,
+      onChange: off => { currentOffset = off; load(); },
+    });
+  }
+
+  let _searchTimer;
+  $('#aSearch').oninput = () => {
+    clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(() => { currentOffset = 0; load(); }, 350);
+  };
+  load();
 }
 
 /* =========================================================
@@ -1323,7 +1467,7 @@ async function renderMechanicDashboard(root) {
 
 /* ----------------- Bootstrap ----------------- */
 loadUser()
-  .then(navigate)
+  .then(() => { navigate(); startBadgePolling(); })
   .catch(e => {
     console.error(e);
     $('#content').innerHTML = `<div class="empty">${T('toast.auth_error')}: ${escape(e.message)}</div>`;

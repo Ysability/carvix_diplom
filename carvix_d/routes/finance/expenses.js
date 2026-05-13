@@ -108,6 +108,11 @@ router.get('/', authRequired, requireFinanceRead, async (req, res) => {
       params.push(source);
       where.push(`x.source = $${params.length}`);
     }
+    if (req.query.q) {
+      const q = `%${req.query.q.trim()}%`;
+      params.push(q, q, q);
+      where.push(`(x.gos_nomer ILIKE $${params.length - 2} OR x.opisanie ILIKE $${params.length - 1} OR x.podrazdelenie_nazvanie ILIKE $${params.length})`);
+    }
 
     const whereSQL = where.length ? 'WHERE ' + where.join(' AND ') : '';
 

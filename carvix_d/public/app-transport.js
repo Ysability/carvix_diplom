@@ -565,7 +565,7 @@
      УДАЛЕНИЕ ТС
      ────────────────────────────────────────────────────────── */
   async function deleteTs(id, onDone) {
-    if (!confirm(T('transport.confirm_delete'))) return;
+    if (!await window.confirmDialog(T('transport.confirm_delete'), { icon: '🗑️' })) return;
     try {
       await window.api(`/api/transport/${id}`, { method: 'DELETE' });
       window.toast(T('transport.deleted'), 'success');
