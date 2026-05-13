@@ -65,7 +65,8 @@ const requireZayavkaReadAll = requireRole(
 const requireDispetcher = requireRole(
   'Диспетчер',
   'Главный механик',
-  'Директор'
+  'Директор',
+  'Аналитик'
 );
 
 // Работа с ремонтом (старт, финиш, журнал нормо-часов)

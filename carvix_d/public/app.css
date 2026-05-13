@@ -494,7 +494,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
 
 /* -------- Filters bar -------- */
 .filters {
-  display: flex; flex-wrap: wrap; gap: 10px; align-items: end;
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
   margin-bottom: 16px;
   background: var(--c-card);
   border: 1px solid var(--c-border);
@@ -505,6 +505,15 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
   display: flex; flex-direction: column; gap: 4px;
   font-size: 11px; color: var(--c-muted); text-transform: uppercase; letter-spacing: .04em;
 }
+.filters label:has(input[type="checkbox"]) {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.filters label:has(input[type="checkbox"]) input { width: 16px; height: 16px; margin: 0; }
 .filters input,
 .filters select {
   font: inherit;
@@ -549,14 +558,14 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
 .modal {
   background: var(--c-card);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 28px;
   width: min(540px, 92vw);
   box-shadow: var(--shadow-md);
   max-height: 90vh; overflow-y: auto;
 }
-.modal h3 { margin: 0 0 16px; font-size: 18px; }
+.modal h3 { margin: 0 0 18px; font-size: 18px; }
 .modal .form-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
 }
 .modal label {
   display: flex; flex-direction: column; gap: 4px;
@@ -566,14 +575,21 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
 .modal input, .modal select, .modal textarea {
   font: inherit;
   color: var(--c-text);
-  padding: 9px 10px;
+  padding: 10px 12px;
   border: 1px solid var(--c-border);
   border-radius: 8px;
   background: var(--c-input-bg);
+  min-height: 42px;
 }
-.modal .modal-actions {
+.modal textarea { min-height: 72px; }
+.modal .modal-actions,
+.modal .modal__actions {
   display: flex; justify-content: flex-end; gap: 8px;
-  margin-top: 16px;
+  margin-top: 20px;
+}
+.modal__actions {
+  display: flex; justify-content: flex-end; gap: 8px;
+  margin-top: 20px;
 }
 
 /* -------- Loading / Empty -------- */

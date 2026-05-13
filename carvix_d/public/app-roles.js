@@ -51,7 +51,7 @@
   async function renderRequests(root) {
     const role = ROLE();
     const isCreator   = ['Пользователь','Диспетчер','Главный механик','Директор'].includes(role);
-    const isDispatcher = ['Диспетчер','Главный механик','Директор'].includes(role);
+    const isDispatcher = ['Диспетчер','Главный механик','Директор','Аналитик'].includes(role);
 
     root.innerHTML = `
       <div class="section__head">
