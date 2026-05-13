@@ -72,6 +72,17 @@ async function api(path, options = {}) {
   return data;
 }
 
+/* ----------------- Avatar helpers ----------------- */
+function updateSidebarAvatar(user) {
+  const el = $('#userAvatar');
+  if (user.avatar_url) {
+    el.innerHTML = `<img src="${user.avatar_url}?t=${Date.now()}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  } else {
+    el.textContent = user.fio[0] || '?';
+  }
+}
+window.updateSidebarAvatar = updateSidebarAvatar;
+
 /* ----------------- Auth ----------------- */
 async function loadUser() {
   CURRENT_USER = await api('/api/auth/me');
@@ -87,7 +98,7 @@ async function loadUser() {
     'Диспетчер': 'dispatch',
     'Пользователь': 'user',
   }[CURRENT_USER.rol_nazvanie] || 'user';
-  $('#userAvatar').textContent = CURRENT_USER.fio[0] || '?';
+  updateSidebarAvatar(CURRENT_USER);
 
   // ---- Видимость пунктов меню по ролям ----------------------
   const role = CURRENT_USER.rol_nazvanie;
@@ -198,8 +209,17 @@ async function renderProfile(root) {
       <div class="pf-hero">
         <div class="pf-hero__bg"></div>
         <div class="pf-hero__body">
-          <div class="pf-avatar pf-avatar--${roleCls}">
-            <span>${escape(u.fio[0] || '?')}</span>
+          <div class="pf-avatar-wrap">
+            <div class="pf-avatar pf-avatar--${roleCls}" id="pfAvatarPreview">
+              ${u.avatar_url
+                ? `<img src="${u.avatar_url}?t=${Date.now()}" alt="">`
+                : `<span>${escape(u.fio[0] || '?')}</span>`}
+            </div>
+            <div class="pf-avatar-overlay" id="pfAvatarOverlay" title="${T('profile.avatar_change')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <input type="file" id="pfAvatarInput" accept="image/jpeg,image/png,image/gif,image/webp" hidden />
+            ${u.avatar_url ? `<button class="pf-avatar-del" id="pfAvatarDel" title="${T('profile.avatar_delete')}">×</button>` : ''}
           </div>
           <h2 class="pf-hero__name">${escape(u.fio)}</h2>
           <span class="role-badge role-badge--${roleCls}" style="font-size:11px;padding:3px 12px">${escape(u.rol_nazvanie)}</span>
@@ -293,7 +313,7 @@ async function renderProfile(root) {
       });
       Object.assign(CURRENT_USER, updated);
       $('#userName').textContent = updated.fio;
-      $('#userAvatar').textContent = updated.fio[0] || '?';
+      updateSidebarAvatar(updated);
       toast(T('profile.saved'), 'success');
       $('#pfOldPwd').value = '';
       $('#pfNewPwd').value = '';
@@ -302,6 +322,47 @@ async function renderProfile(root) {
       toast(e.message, 'error');
     }
   };
+
+  // Avatar upload
+  $('#pfAvatarOverlay').onclick = () => $('#pfAvatarInput').click();
+  $('#pfAvatarInput').onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('avatar', file);
+    try {
+      const res = await fetch('/api/auth/avatar', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${TOKEN}` },
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      Object.assign(CURRENT_USER, data);
+      updateSidebarAvatar(data);
+      toast(T('profile.avatar_ok'), 'success');
+      renderProfile(root); // re-render
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  };
+
+  // Avatar delete
+  const delBtn = $('#pfAvatarDel');
+  if (delBtn) {
+    delBtn.onclick = async () => {
+      if (!confirm(T('profile.avatar_confirm'))) return;
+      try {
+        const data = await api('/api/auth/avatar', { method: 'DELETE' });
+        Object.assign(CURRENT_USER, data);
+        updateSidebarAvatar(data);
+        toast(T('profile.avatar_removed'), 'success');
+        renderProfile(root);
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    };
+  }
 }
 
 /* =========================================================

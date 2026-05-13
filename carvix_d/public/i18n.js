@@ -67,6 +67,11 @@
       'profile.change_pass':  'Смена пароля',
       'profile.pwd_mismatch':  'Пароли не совпадают',
       'profile.saved':         'Профиль обновлён',
+      'profile.avatar_change': 'Сменить аватарку',
+      'profile.avatar_delete': 'Удалить аватарку',
+      'profile.avatar_ok':     'Аватарка обновлена',
+      'profile.avatar_removed':'Аватарка удалена',
+      'profile.avatar_confirm':'Удалить аватарку?',
 
       // ---- Dashboard: Главный механик ----
       'dashboard.mech_subtitle':    'Обзор заявок и ремонтов',
@@ -488,9 +493,14 @@
       'profile.edit':          'Edit',
       'profile.old_pass':      'Current password',
       'profile.new_pass':      'New password',
-      'profile.change_pass':  'Change password',
+      'profile.change_pass':   'Change password',
       'profile.pwd_mismatch':  'Passwords do not match',
       'profile.saved':         'Profile updated',
+      'profile.avatar_change': 'Change avatar',
+      'profile.avatar_delete': 'Delete avatar',
+      'profile.avatar_ok':     'Avatar updated',
+      'profile.avatar_removed':'Avatar deleted',
+      'profile.avatar_confirm':'Delete avatar?',
 
       // ---- Dashboard: Chief mechanic ----
       'dashboard.mech_subtitle':    'Requests & repairs overview',

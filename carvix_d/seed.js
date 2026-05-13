@@ -123,8 +123,19 @@ async function resetDemoPasswordsIfNeeded() {
   }
 }
 
+async function migrateAvatarColumn() {
+  try {
+    await pool.raw(`
+      ALTER TABLE sotrudnik ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(512) DEFAULT NULL
+    `);
+  } catch (e) {
+    // колонка уже существует — ок
+  }
+}
+
 async function seed() {
   await applySchema();
+  await migrateAvatarColumn();
   await ensureRows('rol', ROLES);
   await ensureRows('podrazdelenie', DEFAULT_PODRAZDELENIYA);
   await autoSeedDemoIfEmpty();

@@ -264,6 +264,41 @@ body.app-body {
 .pf-avatar--dispatch  { background: linear-gradient(145deg, #c69317, #e0b84a); }
 .pf-avatar--user      { background: linear-gradient(145deg, #666, #999); }
 
+/* Avatar wrap with overlay */
+.pf-avatar-wrap {
+  position: relative;
+  display: inline-block;
+}
+.pf-avatar img {
+  width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+}
+.pf-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity .2s;
+  border: 4px solid transparent;
+}
+.pf-avatar-wrap:hover .pf-avatar-overlay { opacity: 1; }
+.pf-avatar-del {
+  position: absolute; top: -4px; right: -4px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--c-bad, #d33); color: #fff;
+  border: 2px solid var(--c-card);
+  font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.pf-avatar-wrap:hover .pf-avatar-del { opacity: 1; }
+
 .pf-hero__name {
   font-size: 20px; font-weight: 700; margin: 0 0 6px;
   color: var(--c-text);

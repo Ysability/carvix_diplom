@@ -1,10 +1,42 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const pool = require('../db');
 const { authRequired } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Multer для загрузки аватарок
+const avatarStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '..', 'uploads', 'avatars');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `avatar_${req.user.id}_${Date.now()}${ext}`);
+  },
+});
+const uploadAvatar = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ok = /^image\/(jpeg|png|gif|webp)$/.test(file.mimetype);
+    cb(ok ? null : new Error('Only images allowed'), ok);
+  },
+}).single('avatar');
+
+const USER_SELECT = `
+  SELECT s.id, s.fio, s.login, s.rol_id, r.nazvanie AS rol_nazvanie,
+         s.podrazdelenie_id, p.nazvanie AS podrazdelenie_nazvanie,
+         s.avatar_url
+    FROM sotrudnik s
+    JOIN rol r ON r.id = s.rol_id
+    JOIN podrazdelenie p ON p.id = s.podrazdelenie_id`;
 
 // GET /api/auth/roles
 router.get('/roles', async (req, res) => {
@@ -79,12 +111,7 @@ router.post('/register', async (req, res) => {
 
     const userId = inserted[0].id;
     const [rows] = await pool.execute(
-      `SELECT s.id, s.fio, s.login, s.rol_id, r.nazvanie AS rol_nazvanie,
-              s.podrazdelenie_id, p.nazvanie AS podrazdelenie_nazvanie
-         FROM sotrudnik s
-         JOIN rol r ON r.id = s.rol_id
-         JOIN podrazdelenie p ON p.id = s.podrazdelenie_id
-        WHERE s.id = ?`,
+      USER_SELECT + ' WHERE s.id = ?',
       [userId]
     );
     const user = rows[0];
@@ -118,7 +145,7 @@ router.post('/login', async (req, res) => {
 
     const [rows] = await pool.execute(
       `SELECT s.id, s.fio, s.login, s.parol_hash, s.rol_id, r.nazvanie AS rol_nazvanie,
-              s.podrazdelenie_id, p.nazvanie AS podrazdelenie_nazvanie
+              s.podrazdelenie_id, p.nazvanie AS podrazdelenie_nazvanie, s.avatar_url
          FROM sotrudnik s
          JOIN rol r ON r.id = s.rol_id
          JOIN podrazdelenie p ON p.id = s.podrazdelenie_id
@@ -162,12 +189,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', authRequired, async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      `SELECT s.id, s.fio, s.login, s.rol_id, r.nazvanie AS rol_nazvanie,
-              s.podrazdelenie_id, p.nazvanie AS podrazdelenie_nazvanie
-         FROM sotrudnik s
-         JOIN rol r ON r.id = s.rol_id
-         JOIN podrazdelenie p ON p.id = s.podrazdelenie_id
-        WHERE s.id = ?`,
+      USER_SELECT + ' WHERE s.id = ?',
       [req.user.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Не найден' });
@@ -215,18 +237,59 @@ router.put('/profile', authRequired, async (req, res) => {
 
     // Возвращаем обновлённые данные
     const [rows] = await pool.execute(
-      `SELECT s.id, s.fio, s.login, s.rol_id, r.nazvanie AS rol_nazvanie,
-              s.podrazdelenie_id, p.nazvanie AS podrazdelenie_nazvanie
-         FROM sotrudnik s
-         JOIN rol r ON r.id = s.rol_id
-         JOIN podrazdelenie p ON p.id = s.podrazdelenie_id
-        WHERE s.id = ?`,
+      USER_SELECT + ' WHERE s.id = ?',
       [userId]
     );
     res.json(rows[0]);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Ошибка обновления профиля' });
+  }
+});
+
+// POST /api/auth/avatar — загрузка аватарки
+router.post('/avatar', authRequired, (req, res) => {
+  uploadAvatar(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ error: err.message || 'Ошибка загрузки' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: 'Файл не выбран' });
+    }
+    try {
+      const userId = req.user.id;
+      // Удаляем старый аватар с диска
+      const [old] = await pool.execute('SELECT avatar_url FROM sotrudnik WHERE id = ?', [userId]);
+      if (old[0]?.avatar_url) {
+        const oldPath = path.join(__dirname, '..', old[0].avatar_url);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      const avatarUrl = '/uploads/avatars/' + req.file.filename;
+      await pool.execute('UPDATE sotrudnik SET avatar_url = ? WHERE id = ?', [avatarUrl, userId]);
+      const [rows] = await pool.execute(USER_SELECT + ' WHERE s.id = ?', [userId]);
+      res.json(rows[0]);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: 'Ошибка сохранения аватарки' });
+    }
+  });
+});
+
+// DELETE /api/auth/avatar — удаление аватарки
+router.delete('/avatar', authRequired, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const [old] = await pool.execute('SELECT avatar_url FROM sotrudnik WHERE id = ?', [userId]);
+    if (old[0]?.avatar_url) {
+      const oldPath = path.join(__dirname, '..', old[0].avatar_url);
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    }
+    await pool.execute('UPDATE sotrudnik SET avatar_url = NULL WHERE id = ?', [userId]);
+    const [rows] = await pool.execute(USER_SELECT + ' WHERE s.id = ?', [userId]);
+    res.json(rows[0]);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Ошибка удаления аватарки' });
   }
 });
 
