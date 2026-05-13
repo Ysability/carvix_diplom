@@ -63,7 +63,7 @@ router.get(
          ORDER BY l.data_operatsii DESC, l.id DESC
          LIMIT ${lim} OFFSET ${off}
       `;
-      const totalSQL = `SELECT COUNT(*)::int AS total FROM finansoviy_log l ${whereSQL}`;
+      const totalSQL = `SELECT COUNT(*)::int AS total FROM finansoviy_log l LEFT JOIN sotrudnik s ON s.id = l.sotrudnik_id ${whereSQL}`;
 
       const [{ rows: items }, { rows: total }] = await Promise.all([
         pool.pool.query(sql, params),
