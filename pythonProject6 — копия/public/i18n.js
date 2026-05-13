@@ -1,0 +1,860 @@
+/* ============================================================
+   Carvix — i18n (RU / EN).
+   Использование:
+     1. Подключите <script src="/i18n.js"></script> ДО любого app-кода.
+     2. Для статичных строк HTML  — атрибут data-i18n="key".
+        Поддерживается также data-i18n-placeholder, data-i18n-title.
+     3. Для динамических строк JS — функция t('key', vars?).
+     4. Сменить язык: setLang('en') | setLang('ru').
+   Текущий язык хранится в localStorage.carvix_lang.
+   ============================================================ */
+(function () {
+  const DICT = {
+    ru: {
+      // ---- Общее ----
+      'common.logout':         'Выйти',
+      'common.add':            'Добавить',
+      'common.cancel':         'Отмена',
+      'common.save':           'Сохранить',
+      'common.apply':          'Применить',
+      'common.reset':          'Сбросить',
+      'common.delete':         'Удалить',
+      'common.confirm_delete': 'Удалить эту запись?',
+      'common.loading':        'Загрузка…',
+      'common.no_data':        'Нет данных',
+      'common.all':            'Все',
+      'common.theme':          'Тема',
+      'common.language':       'Язык',
+
+      // ---- Auth (страница входа) ----
+      'auth.tab_login':        'Вход',
+      'auth.tab_register':     'Регистрация',
+      'auth.login':            'Логин',
+      'auth.password':         'Пароль',
+      'auth.fio':              'ФИО',
+      'auth.signin':           'Войти',
+      'auth.signup':           'Создать аккаунт',
+      'auth.no_account':       'Нет аккаунта?',
+      'auth.have_account':     'Уже есть аккаунт?',
+      'auth.title':            'Добро пожаловать в Carvix',
+      'auth.subtitle':         'Управление автопарком и финансами в одной системе',
+      'auth.feat_1':           'Учёт ремонтов и запчастей',
+      'auth.feat_2':           'Финансовый модуль с TCO и бюджетами',
+      'auth.feat_3':           'Гибкая ролевая модель доступа',
+
+      // ---- Sidebar nav ----
+      'nav.dashboard':         'Дашборд',
+      'nav.requests':          'Мои заявки',
+      'nav.dispatch':          'Распределение',
+      'nav.repairs':           'Мои ремонты',
+      'nav.transport':         'Транспорт',
+      'nav.expenses':          'Расходы',
+      'nav.budgets':           'Бюджеты',
+      'nav.tco':               'Парк (TCO)',
+      'nav.receipts':          'Приходы',
+      'nav.audit':             'Журнал',
+
+      // ---- Common (расширение) ----
+      'common.refresh':        'Обновить',
+      'common.details':        'Подробнее',
+      'common.close':          'Закрыть',
+      'common.comment':        'Комментарий',
+      'common.status':         'Статус',
+      'common.saved':          'Сохранено',
+
+      // ---- Заявки ----
+      'requests.title':           'Заявки на ремонт',
+      'requests.subtitle.user':   'Созданные вами заявки и их статусы',
+      'requests.subtitle.mech':   'Заявки, назначенные лично вам',
+      'requests.subtitle.all':    'Полный журнал заявок автопарка',
+      'requests.new_btn':         'Создать заявку',
+      'requests.new_title':       'Новая заявка на ремонт',
+      'requests.detail_title':    'Заявка #{id}',
+      'requests.filter_status':   'Статус',
+      'requests.only_mine':       'Только мои',
+      'requests.empty':           'Нет заявок по фильтру',
+      'requests.priority':        'Приоритет',
+      'requests.unassigned':      'Не назначен механик',
+      'requests.assign':          'Назначить',
+      'requests.auto_assign':     'Автонаводка',
+      'requests.change_status':   'Сменить статус',
+      'requests.new_status':      'Новый статус',
+      'requests.ts':              'Транспортное средство',
+      'requests.tip_remonta':     'Тип ремонта',
+      'requests.description':     'Описание проблемы',
+      'requests.desc_ph':         'Например: скрип в районе передней подвески…',
+      'requests.fill_required':   'Выберите ТС и тип ремонта',
+      'requests.created':         'Заявка создана',
+      'requests.division':        'Подразделение',
+      'requests.creator':         'Создатель',
+      'requests.created':         'Заявка создана',
+      'requests.created_at':      'Создана',
+      'requests.mekhanik':        'Механик',
+      'requests.prio.urgent':     'Авария',
+      'requests.prio.high':       'Срочно',
+      'requests.prio.normal':     'Обычно',
+      'requests.prio.low':        'Низкий',
+      'requests.prio.deferred':   'Отложенно',
+      'requests.auto_done':       'Назначен {fio} (нагрузка {load}, {scope})',
+      'requests.auto_scope.local':  'своё подразделение',
+      'requests.auto_scope.global': 'другое подразделение',
+
+      // ---- Распределение ----
+      'dispatch.title':           'Распределение заявок',
+      'dispatch.subtitle':        'Очередь новых заявок и загрузка механиков',
+      'dispatch.queue':           'Очередь распределения',
+      'dispatch.queue_empty':     'Все заявки распределены',
+      'dispatch.mekhaniki':       'Механики и загрузка',
+      'dispatch.no_mekh':         'Нет доступных механиков',
+      'dispatch.auto_all':        'Автонаводка всех',
+      'dispatch.auto_all_confirm': 'Распределить все новые заявки между свободными механиками?',
+      'dispatch.auto_all_done':   'Распределено: {ok}, ошибок: {fail}',
+      'dispatch.manual_title':    'Назначение механика · заявка #{id}',
+      'dispatch.manual_hint':     'ТС приписано к подразделению: свои механики «{pd}» подсвечены.',
+      'dispatch.local':           'своё',
+      'dispatch.assign_btn':      'Назначить',
+      'dispatch.assigned':        'Механик назначен',
+      'dispatch.choose_mekh':     'Выберите механика',
+      'dispatch.load_active':     'Активных ремонтов',
+      'dispatch.load_30d':        'За 30 дней',
+      'dispatch.active_short':    'в работе',
+      'dispatch.load_30d_short':  '30 д.',
+
+      // ---- Ремонты ----
+      'repairs.title':            'Мои ремонты',
+      'repairs.subtitle':         'Назначенные вам ремонты: старт, фиксация стоимости, закрытие',
+      'repairs.empty':            'Нет назначенных ремонтов',
+      'repairs.open':             'В работе',
+      'repairs.closed':           'Завершённые',
+      'repairs.start_btn':        'Начать ремонт',
+      'repairs.finish_btn':       'Закрыть ремонт',
+      'repairs.finish_title':     'Закрытие ремонта',
+      'repairs.cost_work':        'Стоимость работ',
+      'repairs.cost_parts':       'Стоимость запчастей',
+      'repairs.itog':             'Итог',
+      'repairs.started':          'Начат',
+      'repairs.finished':         'Завершён',
+      'repairs.started_ok':       'Ремонт начат',
+      'repairs.finished_ok':      'Ремонт закрыт',
+
+      // ---- Транспорт ----
+      'transport.title':           'Транспортные средства',
+      'transport.subtitle':        'Парк машин, доступных вам для создания заявок на ремонт',
+      'transport.add':             'Добавить ТС',
+      'transport.add_first':       'Добавить первое ТС',
+      'transport.add_title':       'Новое транспортное средство',
+      'transport.edit_title':      'Редактирование',
+      'transport.empty_title':     'Транспортных средств пока нет',
+      'transport.empty_hint':      'Добавьте первое ТС, чтобы создавать на него заявки на ремонт',
+      'transport.gos_nomer':       'Гос. номер',
+      'transport.invent':          'Инв. номер',
+      'transport.marka':           'Марка',
+      'transport.model':           'Модель',
+      'transport.probeg':          'Пробег',
+      'transport.km':              'км',
+      'transport.year':            'Год выпуска',
+      'transport.year_release':    'Дата выпуска',
+      'transport.division':        'Подразделение',
+      'transport.state':           'Текущее состояние',
+      'transport.state_active':    'В строю',
+      'transport.state_repair':    'На ремонте',
+      'transport.state_out':       'Списан',
+      'transport.zayavok':         'заявок',
+      'transport.new_marka':       'Добавить новую марку…',
+      'transport.new_marka_ph':    'Например: Lada',
+      'transport.new_model':       'Добавить новую модель…',
+      'transport.new_model_ph':    'Например: Vesta',
+      'transport.pick_marka_first': 'сначала выберите марку',
+      'transport.pick_marka':      'Выберите марку',
+      'transport.pick_model':      'Выберите модель',
+      'transport.enter_marka':     'Введите название марки',
+      'transport.enter_model':     'Введите название модели',
+      'transport.fill_required':   'Заполните гос. номер и инв. номер',
+      'transport.created':         'Транспортное средство добавлено',
+      'transport.deleted':         'ТС удалено',
+      'transport.confirm_delete':  'Удалить это ТС?',
+      'transport.your_division_only': 'ТС будет добавлено в ваше подразделение: {pd}',
+      'transport.created_by':      'Добавил',
+      'common.choose':             'выберите',
+      'common.edit':               'Изменить',
+
+      // ---- Dashboard ----
+      'dashboard.title':       'Дашборд',
+      'dashboard.subtitle':    'Финансовый обзор за {year} год',
+      'dashboard.kpi_month':   'Расходы за месяц',
+      'dashboard.kpi_plan':    'План на год',
+      'dashboard.kpi_dev':     'Отклонение от плана',
+      'dashboard.kpi_top':     'Машин в топ-5',
+      'dashboard.fact':        'факт',
+      'dashboard.over':        'перерасход',
+      'dashboard.left':        'остаток',
+      'dashboard.tco_top_hint': 'по стоимости владения',
+      'dashboard.dynamics':    'Динамика расходов помесячно',
+      'dashboard.structure':   'Структура затрат',
+      'dashboard.top5':        'Топ-5 машин по стоимости владения (TCO)',
+      'dashboard.delta_up':    '▲ +{n}% к предыдущему',
+      'dashboard.delta_down':  '▼ {n}% к предыдущему',
+
+      // ---- Expenses ----
+      'expenses.title':        'Расходы',
+      'expenses.subtitle':     'Объединённая лента всех затрат',
+      'expenses.add':          '+ Добавить расход',
+      'expenses.col_date':     'Дата',
+      'expenses.col_cat':      'Категория',
+      'expenses.col_plate':    'Гос. №',
+      'expenses.col_division': 'Подразделение',
+      'expenses.col_desc':     'Описание',
+      'expenses.col_sum':      'Сумма',
+      'expenses.empty':        'Расходы не найдены',
+      'expenses.total':        'Всего записей: {n}',
+      'expenses.sum_total':    'Сумма: {sum}',
+      'expenses.modal_title':  'Добавить расход',
+      'expenses.no_division':  '— не указано —',
+
+      // ---- Budgets ----
+      'budgets.title':         'Бюджеты — план / факт',
+      'budgets.subtitle':      'Сравнение плановых и фактических расходов',
+      'budgets.kpi_plan':      'План',
+      'budgets.kpi_fakt':      'Факт',
+      'budgets.kpi_dev':       'Отклонение',
+      'budgets.kpi_pct':       '% исполнения',
+      'budgets.col_division':  'Подразделение',
+      'budgets.col_period':    'Период',
+      'budgets.col_cat':       'Категория',
+      'budgets.col_plan':      'План',
+      'budgets.col_fakt':      'Факт',
+      'budgets.col_dev':       'Отклонение',
+      'budgets.col_pct':       '% исп.',
+      'budgets.empty':         'Бюджеты не найдены',
+
+      // ---- TCO ----
+      'tco.title':             'Парк — TCO',
+      'tco.subtitle':          'Стоимость владения по каждому транспортному средству',
+      'tco.col_plate':         'Гос. №',
+      'tco.col_model':         'Марка / модель',
+      'tco.col_division':      'Подразделение',
+      'tco.col_repairs':       'Ремонтов',
+      'tco.col_works':         'Работы',
+      'tco.col_parts':         'Запчасти',
+      'tco.col_other':         'Прочее',
+      'tco.col_tco':           'TCO итого',
+      'tco.sort_tco_desc':     'TCO по убыванию',
+      'tco.sort_tco_asc':      'TCO по возрастанию',
+      'tco.sort_repairs':      'Кол-во ремонтов',
+      'tco.sort_plate':        'Гос. номер',
+      'tco.cars_count':        'Машин: {n}',
+      'tco.tco_total':         'Итого TCO: {sum}',
+      'tco.detail_division':   'Подразделение',
+      'tco.detail_orders':     'Заявок / ремонтов',
+      'tco.detail_total':      'TCO итого',
+      'tco.detail_breakdown':  'В т.ч. работы / запчасти / прочее',
+      'tco.history':           'История ремонтов',
+      'tco.history_type':      'Тип',
+      'tco.history_start':     'Начало',
+      'tco.history_end':       'Окончание',
+      'tco.history_mech':      'Механик',
+      'tco.history_total':     'Итого',
+      'tco.history_empty':     'Ремонтов нет',
+
+      // ---- Receipts ----
+      'receipts.title':        'Приходные накладные',
+      'receipts.subtitle':     'Закупки запчастей у поставщиков',
+      'receipts.col_date':     'Дата',
+      'receipts.col_num':      '№ накладной',
+      'receipts.col_supplier': 'Поставщик',
+      'receipts.col_creator':  'Создал',
+      'receipts.col_pos':      'Позиций',
+      'receipts.col_units':    'Единиц',
+      'receipts.col_sum':      'Сумма',
+      'receipts.empty':        'Накладных нет',
+      'receipts.detail_title': 'Накладная № {n}',
+      'receipts.detail_sup':   'Поставщик',
+      'receipts.detail_date':  'Дата',
+      'receipts.detail_creator': 'Создал',
+      'receipts.detail_sum':   'Сумма',
+      'receipts.pos_part':     'Запчасть',
+      'receipts.pos_sku':      'Артикул',
+      'receipts.pos_qty':      'Кол-во',
+      'receipts.pos_price':    'Цена',
+      'receipts.pos_total':    'Итого',
+
+      // ---- Audit ----
+      'audit.title':           'Журнал операций',
+      'audit.subtitle':        'Все финансовые действия пользователей',
+      'audit.col_when':        'Дата / время',
+      'audit.col_user':        'Сотрудник',
+      'audit.col_role':        'Роль',
+      'audit.col_op':          'Операция',
+      'audit.col_obj':         'Объект',
+      'audit.col_sum':         'Сумма',
+      'audit.col_comment':     'Комментарий',
+      'audit.empty':           'Журнал пуст',
+      'audit.records':         'Записей: {n}',
+
+      // ---- Filters ----
+      'filter.from':           'С даты',
+      'filter.to':             'По дату',
+      'filter.category':       'Категория',
+      'filter.source':         'Источник',
+      'filter.year':           'Год',
+      'filter.month':          'Месяц',
+      'filter.sort':           'Сортировка',
+      'filter.src_all':        'Все',
+      'filter.src_misc':       'Прочие',
+      'filter.src_works':      'Работы',
+      'filter.src_repair_parts': 'Запчасти ремонтов',
+
+      // ---- Categories ----
+      'cat.remont':            'Ремонт',
+      'cat.zapchasti':         'Запчасти',
+      'cat.topliv':            'Топливо',
+      'cat.strakhovka':        'Страховка',
+      'cat.nalog':             'Налог',
+      'cat.moyka':             'Мойка',
+      'cat.prochee':           'Прочее',
+
+      // ---- Toasts ----
+      'toast.deleted':         'Удалено',
+      'toast.saved':           'Сохранено',
+      'toast.expense_added':   'Расход добавлен',
+      'toast.fill_required':   'Заполните дату и сумму',
+      'toast.no_rights':       'Недостаточно прав для этого раздела',
+      'toast.auth_error':      'Ошибка авторизации',
+      'toast.imported':        'Импортировано {n} расходов',
+      'toast.import_partial':  'Импортировано {n}, пропущено {skipped}',
+      'toast.budget_saved':    'Бюджет сохранён ({created} создано, {updated} обновлено)',
+      'toast.copied':          'Скопировано {n} записей',
+      'toast.receipt_saved':   'Накладная принята',
+      'toast.expense_updated': 'Расход обновлён',
+
+      // ---- Экспорт ----
+      'export.menu':           'Экспорт',
+      'export.excel':          'Excel',
+      'export.pdf':            'PDF',
+
+      // ---- Бюджеты: редактор ----
+      'budgets.editor':           'Редактор бюджетов',
+      'budgets.editor_intro':     'Установите план на каждый месяц по подразделению и категории. Изменённые ячейки сохранятся одним нажатием.',
+      'budgets.year':             'Год',
+      'budgets.division':         'Подразделение',
+      'budgets.copy_from_prev':   'Скопировать с прошлого года',
+      'budgets.copy_koeff':       'Коэффициент',
+      'budgets.copy_btn':         'Скопировать',
+      'budgets.save_all':         'Сохранить план',
+      'budgets.export_excel':     'Скачать Excel',
+      'budgets.changed':          'Изменено: {n}',
+      'budgets.no_changes':       'Нет изменений',
+
+      // ---- Накладные: создание ----
+      'receipts.add':             '+ Принять накладную',
+      'receipts.modal_title':     'Приходная накладная',
+      'receipts.supplier':        'Поставщик',
+      'receipts.date':            'Дата прихода',
+      'receipts.number':          'Номер накладной',
+      'receipts.comment':         'Комментарий',
+      'receipts.positions':       'Позиции',
+      'receipts.add_position':    '+ Добавить позицию',
+      'receipts.part':            'Запчасть',
+      'receipts.qty':             'Кол-во',
+      'receipts.price':           'Цена',
+      'receipts.subtotal':        'Сумма',
+      'receipts.total':           'Итого',
+      'receipts.empty_pos':       'Добавьте хотя бы одну позицию',
+      'receipts.print_pdf':       'Печать (PDF M-15)',
+
+      // ---- Импорт CSV ----
+      'csv.import':               'Импорт CSV',
+      'csv.title':                'Импорт расходов из CSV',
+      'csv.hint':                 'Колонки: data, kategoriya, summa, gos_nomer (или podrazdelenie), opisanie. Разделитель — запятая или ;.',
+      'csv.choose':               'Выбрать файл',
+      'csv.upload':               'Загрузить',
+      'csv.example':              'Скачать пример',
+
+      // ---- Inline edit ----
+      'common.edit':              'Изменить',
+      'common.confirm':           'Подтвердить',
+
+      // ---- TCO export ----
+      'tco.export_excel':         'Скачать TCO Excel',
+      'tco.writeoff_pdf':         'Акт списания PDF',
+
+      // ---- Дашборд export ----
+      'dashboard.monthly_pdf':    'Отчёт месяца (PDF)',
+
+      // ---- Прогноз ----
+      'forecast.btn':             'Прогноз расходов',
+      'forecast.title':           'Прогноз расходов (Holt-Winters)',
+      'forecast.intro':           'Прогноз построен методом тройного экспоненциального сглаживания на основе исторических расходов за последние 3 года. Серая зона — 95%-й доверительный интервал.',
+      'forecast.category':        'Категория',
+      'forecast.all_categories':  'Все категории',
+      'forecast.horizon':         'Горизонт (мес.)',
+      'forecast.refresh':         'Обновить',
+      'forecast.loading':         'Загрузка…',
+      'forecast.history':         'Факт',
+      'forecast.forecast_label':  'Прогноз',
+      'forecast.upper':           'Верхняя граница CI',
+      'forecast.lower':           'Нижняя граница CI',
+      'forecast.method.hw':       'Holt-Winters (тройное экспоненциальное сглаживание)',
+      'forecast.method.lin':      'Линейная регрессия',
+      'forecast.method.mean':     'Среднее',
+      'forecast.method.empty':    'Нет исторических данных',
+      'forecast.no_history':      'Нет исторических данных за выбранный период. Введите расходы или измените фильтры.',
+      'forecast.sum':             'Прогноз (сумма)',
+      'forecast.delta_yoy':       'YoY (год к году)',
+      'forecast.delta_hint':      'Прогноз vs последние 12 мес.',
+      'forecast.peak':            'Пиковый месяц',
+    },
+
+    en: {
+      // ---- Common ----
+      'common.logout':         'Sign out',
+      'common.add':            'Add',
+      'common.cancel':         'Cancel',
+      'common.save':           'Save',
+      'common.apply':          'Apply',
+      'common.reset':          'Reset',
+      'common.delete':         'Delete',
+      'common.confirm_delete': 'Delete this record?',
+      'common.loading':        'Loading…',
+      'common.no_data':        'No data',
+      'common.all':            'All',
+      'common.theme':          'Theme',
+      'common.language':       'Language',
+
+      // ---- Auth ----
+      'auth.tab_login':        'Sign in',
+      'auth.tab_register':     'Register',
+      'auth.login':            'Username',
+      'auth.password':         'Password',
+      'auth.fio':              'Full name',
+      'auth.signin':           'Sign in',
+      'auth.signup':           'Create account',
+      'auth.no_account':       'No account?',
+      'auth.have_account':     'Have an account?',
+      'auth.title':            'Welcome to Carvix',
+      'auth.subtitle':         'Fleet management and finance in one system',
+      'auth.feat_1':           'Repair & parts tracking',
+      'auth.feat_2':           'Financial module with TCO and budgets',
+      'auth.feat_3':           'Flexible role-based access',
+
+      // ---- Sidebar nav ----
+      'nav.dashboard':         'Dashboard',
+      'nav.requests':          'My requests',
+      'nav.dispatch':          'Dispatch',
+      'nav.repairs':           'My repairs',
+      'nav.transport':         'Vehicles',
+      'nav.expenses':          'Expenses',
+      'nav.budgets':           'Budgets',
+      'nav.tco':               'Fleet (TCO)',
+      'nav.receipts':          'Receipts',
+      'nav.audit':             'Audit log',
+
+      // ---- Common (extra) ----
+      'common.refresh':        'Refresh',
+      'common.details':        'Details',
+      'common.close':          'Close',
+      'common.comment':        'Comment',
+      'common.status':         'Status',
+      'common.saved':          'Saved',
+
+      // ---- Requests ----
+      'requests.title':           'Repair requests',
+      'requests.subtitle.user':   'Requests you created and their statuses',
+      'requests.subtitle.mech':   'Requests assigned personally to you',
+      'requests.subtitle.all':    'Full log of fleet repair requests',
+      'requests.new_btn':         'New request',
+      'requests.new_title':       'New repair request',
+      'requests.detail_title':    'Request #{id}',
+      'requests.filter_status':   'Status',
+      'requests.only_mine':       'Only mine',
+      'requests.empty':           'No requests for the filter',
+      'requests.priority':        'Priority',
+      'requests.unassigned':      'No mechanic assigned',
+      'requests.assign':          'Assign',
+      'requests.auto_assign':     'Auto-assign',
+      'requests.change_status':   'Change status',
+      'requests.new_status':      'New status',
+      'requests.ts':              'Vehicle',
+      'requests.tip_remonta':     'Repair type',
+      'requests.description':     'Problem description',
+      'requests.desc_ph':         'For example: squeak in front suspension area…',
+      'requests.fill_required':   'Pick a vehicle and repair type',
+      'requests.created':         'Request created',
+      'requests.division':        'Division',
+      'requests.creator':         'Creator',
+      'requests.created_at':      'Created',
+      'requests.mekhanik':        'Mechanic',
+      'requests.prio.urgent':     'Emergency',
+      'requests.prio.high':       'Urgent',
+      'requests.prio.normal':     'Normal',
+      'requests.prio.low':        'Low',
+      'requests.prio.deferred':   'Deferred',
+      'requests.auto_done':       'Assigned {fio} (load {load}, {scope})',
+      'requests.auto_scope.local':  'own division',
+      'requests.auto_scope.global': 'other division',
+
+      // ---- Dispatch ----
+      'dispatch.title':           'Request dispatching',
+      'dispatch.subtitle':        'New request queue and mechanic load',
+      'dispatch.queue':           'Dispatch queue',
+      'dispatch.queue_empty':     'All requests are dispatched',
+      'dispatch.mekhaniki':       'Mechanics & workload',
+      'dispatch.no_mekh':         'No available mechanics',
+      'dispatch.auto_all':        'Auto-assign all',
+      'dispatch.auto_all_confirm': 'Distribute all new requests among available mechanics?',
+      'dispatch.auto_all_done':   'Dispatched: {ok}, errors: {fail}',
+      'dispatch.manual_title':    'Assign mechanic · request #{id}',
+      'dispatch.manual_hint':     'Vehicle is registered to division: own «{pd}» mechanics highlighted.',
+      'dispatch.local':           'own',
+      'dispatch.assign_btn':      'Assign',
+      'dispatch.assigned':        'Mechanic assigned',
+      'dispatch.choose_mekh':     'Pick a mechanic',
+      'dispatch.load_active':     'Active repairs',
+      'dispatch.load_30d':        'Last 30 days',
+      'dispatch.active_short':    'in work',
+      'dispatch.load_30d_short':  '30d',
+
+      // ---- Repairs ----
+      'repairs.title':            'My repairs',
+      'repairs.subtitle':         'Repairs assigned to you: start, log costs, close',
+      'repairs.empty':            'No assigned repairs',
+      'repairs.open':             'In progress',
+      'repairs.closed':           'Completed',
+      'repairs.start_btn':        'Start repair',
+      'repairs.finish_btn':       'Close repair',
+      'repairs.finish_title':     'Closing the repair',
+      'repairs.cost_work':        'Labour cost',
+      'repairs.cost_parts':       'Parts cost',
+      'repairs.itog':             'Outcome',
+      'repairs.started':          'Started',
+      'repairs.finished':         'Finished',
+      'repairs.started_ok':       'Repair started',
+      'repairs.finished_ok':      'Repair closed',
+
+      // ---- Vehicles (transport) ----
+      'transport.title':           'Vehicles',
+      'transport.subtitle':        'Fleet of vehicles available for repair requests',
+      'transport.add':             'Add vehicle',
+      'transport.add_first':       'Add first vehicle',
+      'transport.add_title':       'New vehicle',
+      'transport.edit_title':      'Edit',
+      'transport.empty_title':     'No vehicles yet',
+      'transport.empty_hint':      'Add your first vehicle to be able to create repair requests',
+      'transport.gos_nomer':       'License plate',
+      'transport.invent':          'Inventory №',
+      'transport.marka':           'Make',
+      'transport.model':           'Model',
+      'transport.probeg':          'Mileage',
+      'transport.km':              'km',
+      'transport.year':            'Year',
+      'transport.year_release':    'Release date',
+      'transport.division':        'Division',
+      'transport.state':           'Current state',
+      'transport.state_active':    'In service',
+      'transport.state_repair':    'In repair',
+      'transport.state_out':       'Decommissioned',
+      'transport.zayavok':         'requests',
+      'transport.new_marka':       'Add new make…',
+      'transport.new_marka_ph':    'For example: Lada',
+      'transport.new_model':       'Add new model…',
+      'transport.new_model_ph':    'For example: Vesta',
+      'transport.pick_marka_first': 'pick a make first',
+      'transport.pick_marka':      'Pick a make',
+      'transport.pick_model':      'Pick a model',
+      'transport.enter_marka':     'Enter make name',
+      'transport.enter_model':     'Enter model name',
+      'transport.fill_required':   'Fill license plate and inventory №',
+      'transport.created':         'Vehicle added',
+      'transport.deleted':         'Vehicle deleted',
+      'transport.confirm_delete':  'Delete this vehicle?',
+      'transport.your_division_only': 'Vehicle will be added to your division: {pd}',
+      'transport.created_by':      'Added by',
+      'common.choose':             'choose',
+      'common.edit':               'Edit',
+
+      // ---- Dashboard ----
+      'dashboard.title':       'Dashboard',
+      'dashboard.subtitle':    'Financial overview for {year}',
+      'dashboard.kpi_month':   'Monthly expenses',
+      'dashboard.kpi_plan':    'Annual plan',
+      'dashboard.kpi_dev':     'Plan deviation',
+      'dashboard.kpi_top':     'Cars in top-5',
+      'dashboard.fact':        'actual',
+      'dashboard.over':        'overrun',
+      'dashboard.left':        'remaining',
+      'dashboard.tco_top_hint': 'by total cost of ownership',
+      'dashboard.dynamics':    'Monthly expenses dynamics',
+      'dashboard.structure':   'Cost structure',
+      'dashboard.top5':        'Top-5 vehicles by TCO',
+      'dashboard.delta_up':    '▲ +{n}% vs previous',
+      'dashboard.delta_down':  '▼ {n}% vs previous',
+
+      // ---- Expenses ----
+      'expenses.title':        'Expenses',
+      'expenses.subtitle':     'Unified feed of all spendings',
+      'expenses.add':          '+ Add expense',
+      'expenses.col_date':     'Date',
+      'expenses.col_cat':      'Category',
+      'expenses.col_plate':    'Plate №',
+      'expenses.col_division': 'Division',
+      'expenses.col_desc':     'Description',
+      'expenses.col_sum':      'Amount',
+      'expenses.empty':        'No expenses found',
+      'expenses.total':        'Records: {n}',
+      'expenses.sum_total':    'Total: {sum}',
+      'expenses.modal_title':  'Add expense',
+      'expenses.no_division':  '— not set —',
+
+      // ---- Budgets ----
+      'budgets.title':         'Budgets — plan / actual',
+      'budgets.subtitle':      'Plan vs actual comparison',
+      'budgets.kpi_plan':      'Plan',
+      'budgets.kpi_fakt':      'Actual',
+      'budgets.kpi_dev':       'Deviation',
+      'budgets.kpi_pct':       '% of plan',
+      'budgets.col_division':  'Division',
+      'budgets.col_period':    'Period',
+      'budgets.col_cat':       'Category',
+      'budgets.col_plan':      'Plan',
+      'budgets.col_fakt':      'Actual',
+      'budgets.col_dev':       'Deviation',
+      'budgets.col_pct':       '% used',
+      'budgets.empty':         'No budgets found',
+
+      // ---- TCO ----
+      'tco.title':             'Fleet — TCO',
+      'tco.subtitle':          'Total cost of ownership per vehicle',
+      'tco.col_plate':         'Plate №',
+      'tco.col_model':         'Make / model',
+      'tco.col_division':      'Division',
+      'tco.col_repairs':       'Repairs',
+      'tco.col_works':         'Labor',
+      'tco.col_parts':         'Parts',
+      'tco.col_other':         'Other',
+      'tco.col_tco':           'TCO total',
+      'tco.sort_tco_desc':     'TCO descending',
+      'tco.sort_tco_asc':      'TCO ascending',
+      'tco.sort_repairs':      'Repair count',
+      'tco.sort_plate':        'Plate number',
+      'tco.cars_count':        'Cars: {n}',
+      'tco.tco_total':         'Total TCO: {sum}',
+      'tco.detail_division':   'Division',
+      'tco.detail_orders':     'Orders / repairs',
+      'tco.detail_total':      'TCO total',
+      'tco.detail_breakdown':  'Of which labor / parts / other',
+      'tco.history':           'Repair history',
+      'tco.history_type':      'Type',
+      'tco.history_start':     'Start',
+      'tco.history_end':       'End',
+      'tco.history_mech':      'Mechanic',
+      'tco.history_total':     'Total',
+      'tco.history_empty':     'No repairs',
+
+      // ---- Receipts ----
+      'receipts.title':        'Goods receipts',
+      'receipts.subtitle':     'Parts purchases from suppliers',
+      'receipts.col_date':     'Date',
+      'receipts.col_num':      'Receipt №',
+      'receipts.col_supplier': 'Supplier',
+      'receipts.col_creator':  'Created by',
+      'receipts.col_pos':      'Items',
+      'receipts.col_units':    'Units',
+      'receipts.col_sum':      'Total',
+      'receipts.empty':        'No receipts',
+      'receipts.detail_title': 'Receipt № {n}',
+      'receipts.detail_sup':   'Supplier',
+      'receipts.detail_date':  'Date',
+      'receipts.detail_creator': 'Created by',
+      'receipts.detail_sum':   'Total',
+      'receipts.pos_part':     'Part',
+      'receipts.pos_sku':      'SKU',
+      'receipts.pos_qty':      'Qty',
+      'receipts.pos_price':    'Price',
+      'receipts.pos_total':    'Total',
+
+      // ---- Audit ----
+      'audit.title':           'Audit log',
+      'audit.subtitle':        'All financial user actions',
+      'audit.col_when':        'When',
+      'audit.col_user':        'User',
+      'audit.col_role':        'Role',
+      'audit.col_op':          'Operation',
+      'audit.col_obj':         'Object',
+      'audit.col_sum':         'Amount',
+      'audit.col_comment':     'Comment',
+      'audit.empty':           'Log is empty',
+      'audit.records':         'Records: {n}',
+
+      // ---- Filters ----
+      'filter.from':           'From',
+      'filter.to':             'To',
+      'filter.category':       'Category',
+      'filter.source':         'Source',
+      'filter.year':           'Year',
+      'filter.month':          'Month',
+      'filter.sort':           'Sort by',
+      'filter.src_all':        'All',
+      'filter.src_misc':       'Misc',
+      'filter.src_works':      'Labor',
+      'filter.src_repair_parts': 'Repair parts',
+
+      // ---- Categories ----
+      'cat.remont':            'Repair',
+      'cat.zapchasti':         'Parts',
+      'cat.topliv':            'Fuel',
+      'cat.strakhovka':        'Insurance',
+      'cat.nalog':             'Tax',
+      'cat.moyka':             'Wash',
+      'cat.prochee':           'Other',
+
+      // ---- Toasts ----
+      'toast.deleted':         'Deleted',
+      'toast.saved':           'Saved',
+      'toast.expense_added':   'Expense added',
+      'toast.fill_required':   'Fill date and amount',
+      'toast.no_rights':       'You don\'t have access to this section',
+      'toast.auth_error':      'Authorization error',
+      'toast.imported':        'Imported {n} expenses',
+      'toast.import_partial':  'Imported {n}, skipped {skipped}',
+      'toast.budget_saved':    'Budget saved ({created} created, {updated} updated)',
+      'toast.copied':          'Copied {n} records',
+      'toast.receipt_saved':   'Receipt accepted',
+      'toast.expense_updated': 'Expense updated',
+
+      // ---- Export ----
+      'export.menu':           'Export',
+      'export.excel':          'Excel',
+      'export.pdf':            'PDF',
+
+      // ---- Budgets editor ----
+      'budgets.editor':           'Budget editor',
+      'budgets.editor_intro':     'Set the plan for each month by division and category. Edited cells are saved with one click.',
+      'budgets.year':             'Year',
+      'budgets.division':         'Division',
+      'budgets.copy_from_prev':   'Copy from previous year',
+      'budgets.copy_koeff':       'Coefficient',
+      'budgets.copy_btn':         'Copy',
+      'budgets.save_all':         'Save plan',
+      'budgets.export_excel':     'Download Excel',
+      'budgets.changed':          'Changed: {n}',
+      'budgets.no_changes':       'No changes',
+
+      // ---- Receipts: create ----
+      'receipts.add':             '+ Accept receipt',
+      'receipts.modal_title':     'Goods receipt',
+      'receipts.supplier':        'Supplier',
+      'receipts.date':            'Receipt date',
+      'receipts.number':          'Receipt number',
+      'receipts.comment':         'Comment',
+      'receipts.positions':       'Items',
+      'receipts.add_position':    '+ Add item',
+      'receipts.part':            'Part',
+      'receipts.qty':             'Qty',
+      'receipts.price':           'Price',
+      'receipts.subtotal':        'Subtotal',
+      'receipts.total':           'Total',
+      'receipts.empty_pos':       'Add at least one item',
+      'receipts.print_pdf':       'Print (PDF M-15)',
+
+      // ---- CSV import ----
+      'csv.import':               'CSV import',
+      'csv.title':                'Import expenses from CSV',
+      'csv.hint':                 'Columns: data, kategoriya, summa, gos_nomer (or podrazdelenie), opisanie. Delimiter: comma or ;.',
+      'csv.choose':               'Choose file',
+      'csv.upload':               'Upload',
+      'csv.example':              'Download sample',
+
+      // ---- Inline edit ----
+      'common.edit':              'Edit',
+      'common.confirm':           'Confirm',
+
+      // ---- TCO export ----
+      'tco.export_excel':         'Download TCO Excel',
+      'tco.writeoff_pdf':         'Write-off PDF',
+
+      // ---- Dashboard export ----
+      'dashboard.monthly_pdf':    'Monthly report (PDF)',
+
+      // ---- Forecast ----
+      'forecast.btn':             'Expense forecast',
+      'forecast.title':           'Expense Forecast (Holt-Winters)',
+      'forecast.intro':           'Forecast built using triple exponential smoothing on the last 3 years of historical expenses. Grey band is the 95% confidence interval.',
+      'forecast.category':        'Category',
+      'forecast.all_categories':  'All categories',
+      'forecast.horizon':         'Horizon (months)',
+      'forecast.refresh':         'Refresh',
+      'forecast.loading':         'Loading…',
+      'forecast.history':         'Actual',
+      'forecast.forecast_label':  'Forecast',
+      'forecast.upper':           'Upper CI bound',
+      'forecast.lower':           'Lower CI bound',
+      'forecast.method.hw':       'Holt-Winters (triple exponential smoothing)',
+      'forecast.method.lin':      'Linear regression',
+      'forecast.method.mean':     'Mean',
+      'forecast.method.empty':    'No historical data',
+      'forecast.no_history':      'No historical data for the selected period. Enter expenses or change filters.',
+      'forecast.sum':             'Forecast (total)',
+      'forecast.delta_yoy':       'YoY (year over year)',
+      'forecast.delta_hint':      'Forecast vs last 12 months',
+      'forecast.peak':            'Peak month',
+    },
+  };
+
+  /** Текущий язык: localStorage → <html lang> → 'ru'. */
+  function getLang() {
+    return localStorage.getItem('carvix_lang')
+        || document.documentElement.lang
+        || 'ru';
+  }
+
+  /**
+   * Перевести ключ. Поддерживает простую {var} интерполяцию.
+   * Если ключ не найден — возвращает сам ключ (helps debugging).
+   */
+  function t(key, vars) {
+    const lang = getLang();
+    const dict = DICT[lang] || DICT.ru;
+    let raw = dict[key];
+    if (raw == null) {
+      // fallback на русский
+      raw = DICT.ru[key];
+      if (raw == null) return key;
+    }
+    if (vars) {
+      raw = raw.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? `{${k}}`));
+    }
+    return raw;
+  }
+
+  /** Применить переводы ко всем элементам с data-i18n*. */
+  function applyI18n(root = document) {
+    root.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = t(el.dataset.i18n);
+    });
+    root.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      el.placeholder = t(el.dataset.i18nPlaceholder);
+    });
+    root.querySelectorAll('[data-i18n-title]').forEach(el => {
+      el.title = t(el.dataset.i18nTitle);
+    });
+  }
+
+  /** Сменить язык и переаплаить. Триггерит событие 'langchange'. */
+  function setLang(lang) {
+    if (!DICT[lang]) lang = 'ru';
+    localStorage.setItem('carvix_lang', lang);
+    document.documentElement.lang = lang;
+    applyI18n();
+    document.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
+  }
+
+  // Применяем сразу при загрузке HTML.
+  document.documentElement.lang = getLang();
+  document.addEventListener('DOMContentLoaded', () => applyI18n());
+
+  // Экспорт.
+  window.t = t;
+  window.applyI18n = applyI18n;
+  window.setLang = setLang;
+  window.getLang = getLang;
+})();

@@ -1,0 +1,37 @@
+{
+  "name": "carvix-auth",
+  "version": "1.0.0",
+  "description": "Carvix — система управления автопарком (Node.js + Express + PostgreSQL)",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed:demo": "node seed-demo.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest __tests__/unit",
+    "test:integration": "jest __tests__/integration",
+    "test:business": "jest __tests__/business-logic",
+    "test:ci": "jest --coverage --runInBand --ci"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "csv-parse": "^6.2.1",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.1.1",
+    "pdfkit": "^0.18.0",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2"
+  }
+}

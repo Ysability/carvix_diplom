@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# env / секреты
+.env
+.env.local
+
+# OS / редакторы
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Python (артефакты прежней работы)
+.venv/
+__pycache__/
+*.pyc
+
+# логи
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# uploads (если появятся пользовательские файлы)
+uploads/
+
+# Jest / тесты
+coverage/
+*.lcov
+.nyc_output/

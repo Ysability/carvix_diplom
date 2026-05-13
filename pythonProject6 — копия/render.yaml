@@ -1,0 +1,30 @@
+databases:
+  - name: carvix-db
+    plan: free
+    databaseName: carvix
+    user: carvix
+
+services:
+  - type: web
+    name: carvix
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: carvix-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: NODE_ENV
+        value: production
+      # При первом старте если БД пустая — автоматически зальёт seed_data.sql
+      # (12 сотрудников, машины, заявки, бюджеты, отчёты).
+      # При повторных рестартах ничего не делает: проверяет, что sotrudnik пуст.
+      - key: SEED_DEMO
+        value: "true"

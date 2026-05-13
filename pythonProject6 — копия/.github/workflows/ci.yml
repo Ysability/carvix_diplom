@@ -1,0 +1,64 @@
+name: CI — Carvix tests
+
+# Запускается на каждый push в main и каждый pull-request
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }} / unit + integration tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18.x', '20.x']
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run all tests with coverage
+        run: npm run test:ci
+        env:
+          NODE_ENV: test
+          # JWT_SECRET / DB_* подменяются в __tests__/setup-env.js,
+          # сюда их явно дублировать не нужно. Реальная БД не используется
+          # — все запросы к pool заглушены через jest.mock.
+
+      - name: Upload coverage report (HTML)
+        if: matrix.node == '20.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: coverage/lcov-report/
+          retention-days: 14
+
+      - name: Upload coverage to summary
+        if: matrix.node == '20.x'
+        run: |
+          echo "## 📊 Покрытие кода тестами" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f coverage/coverage-summary.json ]; then
+            node -e "
+              const s = require('./coverage/coverage-summary.json').total;
+              console.log('| Метрика | Значение |');
+              console.log('|---|---|');
+              console.log('| Statements | ' + s.statements.pct + '% |');
+              console.log('| Branches | ' + s.branches.pct + '% |');
+              console.log('| Functions | ' + s.functions.pct + '% |');
+              console.log('| Lines | ' + s.lines.pct + '% |');
+            " >> $GITHUB_STEP_SUMMARY || true
+          fi
