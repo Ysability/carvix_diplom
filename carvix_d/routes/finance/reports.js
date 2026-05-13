@@ -247,6 +247,116 @@ router.get('/dashboard', authRequired, requireFinanceRead, async (req, res) => {
 });
 
 /* ----------------------------------------------------------------- */
+/*  GET /reports/analyst-dashboard                                   */
+/*  Расширенная аналитика: загрузка механиков, средний срок ремонта, */
+/*  тренды по подразделениям, статистика по типам ремонта.           */
+/* ----------------------------------------------------------------- */
+router.get('/analyst-dashboard', authRequired, requireFinanceRead, async (req, res) => {
+  try {
+    const god = parseInt(req.query.god, 10) || new Date().getFullYear();
+
+    const queries = await Promise.all([
+      // 1. Загрузка механиков: активные + за 30 дней
+      pool.pool.query(
+        `SELECT s.id, s.fio, pd.nazvanie AS podrazdelenie,
+                CAST(COALESCE(SUM(CASE WHEN r.data_okonchaniya IS NULL THEN 1 ELSE 0 END), 0) AS INT) AS aktivnyh,
+                CAST(COALESCE(SUM(CASE WHEN r.data_okonchaniya >= NOW() - INTERVAL '30 days' THEN 1 ELSE 0 END), 0) AS INT) AS za_30_dney,
+                CAST(COUNT(r.id) AS INT) AS vsego
+           FROM sotrudnik s
+           JOIN rol rl          ON rl.id = s.rol_id
+           JOIN podrazdelenie pd ON pd.id = s.podrazdelenie_id
+           LEFT JOIN remont r   ON r.mekhanik_id = s.id
+          WHERE rl.nazvanie = 'Механик'
+          GROUP BY s.id, s.fio, pd.nazvanie
+          ORDER BY aktivnyh DESC, s.fio`
+      ),
+
+      // 2. Средний срок ремонта (дней) по месяцам за год
+      pool.pool.query(
+        `SELECT EXTRACT(MONTH FROM r.data_okonchaniya)::int AS mesyats,
+                ROUND(AVG(EXTRACT(EPOCH FROM (r.data_okonchaniya - r.data_nachala)) / 86400), 1) AS avg_days,
+                COUNT(*)::int AS kolvo
+           FROM remont r
+          WHERE r.data_okonchaniya IS NOT NULL
+            AND r.data_nachala IS NOT NULL
+            AND EXTRACT(YEAR FROM r.data_okonchaniya) = $1
+          GROUP BY mesyats
+          ORDER BY mesyats`,
+        [god]
+      ),
+
+      // 3. Расходы по подразделениям за год (тренд)
+      pool.pool.query(
+        `SELECT pd.nazvanie AS podrazdelenie,
+                EXTRACT(MONTH FROM pr.data)::int AS mesyats,
+                COALESCE(SUM(pr.summa), 0) AS summa
+           FROM prochiy_raskhod pr
+           JOIN transportnoe_sredstvo ts ON ts.id = pr.ts_id
+           JOIN podrazdelenie pd ON pd.id = ts.podrazdelenie_id
+          WHERE EXTRACT(YEAR FROM pr.data) = $1
+          GROUP BY pd.nazvanie, mesyats
+          ORDER BY pd.nazvanie, mesyats`,
+        [god]
+      ),
+
+      // 4. Статистика по типам ремонта за год
+      pool.pool.query(
+        `SELECT tr.nazvanie AS tip, tr.kategoriya,
+                COUNT(*)::int AS kolvo,
+                COALESCE(SUM(r.stoimost_rabot + r.stoimost_zapchastey), 0) AS summa,
+                ROUND(AVG(CASE WHEN r.data_nachala IS NOT NULL AND r.data_okonchaniya IS NOT NULL
+                  THEN EXTRACT(EPOCH FROM (r.data_okonchaniya - r.data_nachala)) / 86400 END), 1) AS avg_days
+           FROM remont r
+           JOIN zayavka z      ON z.id = r.zayavka_id
+           JOIN tip_remonta tr ON tr.id = z.tip_remonta_id
+          WHERE EXTRACT(YEAR FROM COALESCE(r.data_okonchaniya, r.data_nachala, NOW())) = $1
+          GROUP BY tr.nazvanie, tr.kategoriya
+          ORDER BY summa DESC`,
+        [god]
+      ),
+
+      // 5. Заявки по статусам (общая сводка)
+      pool.pool.query(
+        `SELECT st.nazvanie AS status, COUNT(*)::int AS kolvo
+           FROM zayavka z
+           JOIN status st ON st.id = z.status_id
+          GROUP BY st.nazvanie
+          ORDER BY kolvo DESC`
+      ),
+
+      // 6. Динамика ремонтов: стоимость завершённых по месяцам + количество
+      pool.pool.query(
+        `SELECT EXTRACT(MONTH FROM r.data_okonchaniya)::int AS mesyats,
+                COALESCE(SUM(r.stoimost_rabot), 0) AS rabot,
+                COALESCE(SUM(r.stoimost_zapchastey), 0) AS zapchastey,
+                COUNT(*)::int AS kolvo
+           FROM remont r
+          WHERE r.data_okonchaniya IS NOT NULL
+            AND EXTRACT(YEAR FROM r.data_okonchaniya) = $1
+          GROUP BY mesyats
+          ORDER BY mesyats`,
+        [god]
+      ),
+    ]);
+
+    const [mekh, avgRepair, divTrends, tipStats, statusStats, repairDyn] = queries;
+
+    res.json({
+      god,
+      mekhaniki: mekh.rows,
+      avg_repair_by_month: avgRepair.rows,
+      division_trends: divTrends.rows,
+      tip_stats: tipStats.rows,
+      status_summary: statusStats.rows,
+      repair_dynamics: repairDyn.rows,
+    });
+  } catch (e) {
+    console.error('[reports/analyst-dashboard] error:', e);
+    res.status(500).json({ error: 'Ошибка аналитического дашборда' });
+  }
+});
+
+/* ----------------------------------------------------------------- */
 /*  GET /reports/forecast                                            */
 /*                                                                   */
 /*    Прогноз расходов на N месяцев вперёд по методу Holt-Winters    */

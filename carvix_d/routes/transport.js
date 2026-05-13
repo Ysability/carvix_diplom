@@ -298,6 +298,17 @@ router.patch('/:id', async (req, res) => {
     return res.status(403).json({ error: 'forbidden' });
   }
 
+  // Проверка дубликата гос. номера
+  if (req.body && req.body.gos_nomer) {
+    const [dup] = await pool.execute(
+      'SELECT id FROM transportnoe_sredstvo WHERE gos_nomer = ? AND id != ? LIMIT 1',
+      [req.body.gos_nomer, id]
+    );
+    if (dup.length) {
+      return res.status(409).json({ error: 'ТС с таким гос. номером уже существует' });
+    }
+  }
+
   const sets = [];
   const params = [];
   const allowed = ['gos_nomer', 'invent_nomer', 'model_id', 'probeg', 'tekuschee_sostoyanie', 'data_vypuska', 'podrazdelenie_id'];

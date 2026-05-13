@@ -374,6 +374,10 @@ async function renderDashboard(root) {
   if (role === 'Главный механик') {
     return renderMechanicDashboard(root);
   }
+  // Аналитик видит расширенный аналитический дашборд
+  if (role === 'Аналитик') {
+    return renderAnalystDashboard(root);
+  }
   const year = new Date().getFullYear();
   const data = await api(`/api/finance/reports/dashboard?god=${year}`);
 
@@ -1011,6 +1015,221 @@ async function renderAudit(root) {
 }
 
 /* =========================================================
+   ДАШБОРД АНАЛИТИКА — расширенная аналитика
+   ========================================================= */
+async function renderAnalystDashboard(root) {
+  const year = new Date().getFullYear();
+  const data = await api(`/api/finance/reports/analyst-dashboard?god=${year}`);
+  const monthNames = Array.from({ length: 12 }, (_, i) =>
+    new Date(2000, i, 1).toLocaleDateString(LOC(), { month: 'short' })
+  );
+  const tickColor = getComputedStyle(document.documentElement).getPropertyValue('--c-muted').trim();
+  const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--c-border').trim();
+
+  // KPI cards
+  const totalMekh = data.mekhaniki.length;
+  const busyMekh  = data.mekhaniki.filter(m => m.aktivnyh > 0).length;
+  const totalRepairs = data.repair_dynamics.reduce((s, d) => s + d.kolvo, 0);
+  const avgAll = data.avg_repair_by_month.length
+    ? (data.avg_repair_by_month.reduce((s, d) => s + Number(d.avg_days), 0) / data.avg_repair_by_month.length).toFixed(1)
+    : '—';
+  const totalStatuses = data.status_summary.reduce((s, d) => s + d.kolvo, 0);
+
+  root.innerHTML = `
+    <div class="section__head">
+      <div>
+        <h2 class="section__title">${T('dashboard.title')}</h2>
+        <div class="section__subtitle">${T('dashboard.analyst_subtitle', { year })}</div>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="kpi-card">
+        <div class="kpi-card__label">${T('dashboard.analyst_mekh')}</div>
+        <div class="kpi-card__value">${busyMekh} / ${totalMekh}</div>
+        <div class="kpi-card__hint">занято / всего</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">${T('dashboard.analyst_avg')}</div>
+        <div class="kpi-card__value">${avgAll}</div>
+        <div class="kpi-card__hint">среднее за ${year}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">${T('dashboard.analyst_rdyn')}</div>
+        <div class="kpi-card__value">${totalRepairs}</div>
+        <div class="kpi-card__hint">завершённых за год</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">${T('dashboard.analyst_statuses')}</div>
+        <div class="kpi-card__value">${totalStatuses}</div>
+        <div class="kpi-card__hint">всего заявок</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>${T('dashboard.analyst_mekh')}</h3>
+        <canvas id="aMekhChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>${T('dashboard.analyst_avg')}</h3>
+        <canvas id="aAvgChart"></canvas>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>${T('dashboard.analyst_rdyn')}</h3>
+        <canvas id="aRepDynChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>${T('dashboard.analyst_statuses')}</h3>
+        <canvas id="aStatusChart"></canvas>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <h3>${T('dashboard.analyst_types')}</h3>
+      <table class="tbl">
+        <thead><tr>
+          <th>${T('dashboard.analyst_tip')}</th>
+          <th>${T('dashboard.analyst_tip_cat')}</th>
+          <th class="num">${T('dashboard.analyst_tip_cnt')}</th>
+          <th class="num">${T('dashboard.analyst_tip_sum')}</th>
+          <th class="num">${T('dashboard.analyst_tip_avg')}</th>
+        </tr></thead>
+        <tbody>
+          ${data.tip_stats.map(t => `
+            <tr>
+              <td><strong>${escape(t.tip)}</strong></td>
+              <td><span class="chip">${escape(t.kategoriya || '—')}</span></td>
+              <td class="num">${t.kolvo}</td>
+              <td class="num"><strong>${fmtMoney(t.summa)}</strong></td>
+              <td class="num">${t.avg_days ?? '—'}</td>
+            </tr>
+          `).join('') || `<tr><td colspan="5" class="empty">${T('common.no_data')}</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-card" style="margin-top: 14px">
+      <h3>${T('dashboard.analyst_mekh')}</h3>
+      <table class="tbl">
+        <thead><tr>
+          <th>${T('dashboard.analyst_mekh_fio')}</th>
+          <th>${T('dashboard.analyst_mekh_div')}</th>
+          <th class="num">${T('dashboard.analyst_mekh_act')}</th>
+          <th class="num">${T('dashboard.analyst_mekh_30d')}</th>
+          <th class="num">${T('dashboard.analyst_mekh_tot')}</th>
+        </tr></thead>
+        <tbody>
+          ${data.mekhaniki.map(m => `
+            <tr>
+              <td><strong>${escape(m.fio)}</strong></td>
+              <td>${escape(m.podrazdelenie)}</td>
+              <td class="num"><span class="chip ${m.aktivnyh === 0 ? 'green' : m.aktivnyh > 2 ? 'red' : 'amber'}">${m.aktivnyh}</span></td>
+              <td class="num">${m.za_30_dney}</td>
+              <td class="num">${m.vsego}</td>
+            </tr>
+          `).join('') || `<tr><td colspan="5" class="empty">${T('common.no_data')}</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // Chart 1: Загрузка механиков (bar)
+  const mekhLabels = data.mekhaniki.map(m => m.fio.split(' ').slice(0, 2).join(' '));
+  CURRENT_CHARTS.push(new Chart($('#aMekhChart'), {
+    type: 'bar',
+    data: {
+      labels: mekhLabels,
+      datasets: [
+        { label: T('dashboard.analyst_mekh_act'), data: data.mekhaniki.map(m => m.aktivnyh), backgroundColor: '#b89460' },
+        { label: T('dashboard.analyst_mekh_30d'), data: data.mekhaniki.map(m => m.za_30_dney), backgroundColor: '#2f5a9c' },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: tickColor } } },
+      scales: {
+        x: { ticks: { color: tickColor, maxRotation: 45 }, grid: { color: gridColor } },
+        y: { ticks: { color: tickColor, stepSize: 1 }, grid: { color: gridColor }, beginAtZero: true },
+      },
+    },
+  }));
+
+  // Chart 2: Средний срок ремонта по месяцам (line)
+  const avgByMonth = Array.from({ length: 12 }, (_, i) => {
+    const d = data.avg_repair_by_month.find(r => r.mesyats === i + 1);
+    return d ? Number(d.avg_days) : null;
+  });
+  CURRENT_CHARTS.push(new Chart($('#aAvgChart'), {
+    type: 'line',
+    data: {
+      labels: monthNames,
+      datasets: [{
+        label: T('dashboard.analyst_avg'),
+        data: avgByMonth,
+        borderColor: '#2f8f5e',
+        backgroundColor: 'rgba(47,143,94,.15)',
+        fill: true,
+        tension: .35,
+        spanGaps: true,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: tickColor }, grid: { color: gridColor } },
+        y: { ticks: { color: tickColor }, grid: { color: gridColor }, beginAtZero: true },
+      },
+    },
+  }));
+
+  // Chart 3: Динамика ремонтов по месяцам (stacked bar)
+  const repDyn = Array.from({ length: 12 }, (_, i) => {
+    const d = data.repair_dynamics.find(r => r.mesyats === i + 1);
+    return d || { rabot: 0, zapchastey: 0, kolvo: 0 };
+  });
+  CURRENT_CHARTS.push(new Chart($('#aRepDynChart'), {
+    type: 'bar',
+    data: {
+      labels: monthNames,
+      datasets: [
+        { label: T('cat.remont'), data: repDyn.map(d => +d.rabot), backgroundColor: '#b89460' },
+        { label: T('cat.zapchasti'), data: repDyn.map(d => +d.zapchastey), backgroundColor: '#2f5a9c' },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: tickColor } } },
+      scales: {
+        x: { stacked: true, ticks: { color: tickColor }, grid: { color: gridColor } },
+        y: { stacked: true, ticks: { color: tickColor, callback: v => Intl.NumberFormat(LOC(), { notation: 'compact' }).format(v) }, grid: { color: gridColor } },
+      },
+    },
+  }));
+
+  // Chart 4: Заявки по статусам (doughnut)
+  const statusColors = ['#b89460', '#2f5a9c', '#2f8f5e', '#b94a48', '#c69317', '#776e63'];
+  CURRENT_CHARTS.push(new Chart($('#aStatusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: data.status_summary.map(s => s.status),
+      datasets: [{
+        data: data.status_summary.map(s => s.kolvo),
+        backgroundColor: statusColors.slice(0, data.status_summary.length),
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: tickColor } } },
+    },
+  }));
+}
+
+/* =========================================================
    ДАШБОРД ГЛАВНОГО МЕХАНИКА (заявки + ремонты)
    ========================================================= */
 async function renderMechanicDashboard(root) {
@@ -1023,9 +1242,9 @@ async function renderMechanicDashboard(root) {
   const allZ = zData.items || [];
   const allR = rData.items || [];
 
-  const zNew     = allZ.filter(z => z.status === 'новая').length;
-  const zInWork  = allZ.filter(z => z.status === 'в работе').length;
-  const zDone    = allZ.filter(z => z.status === 'завершена').length;
+  const zNew     = allZ.filter(z => z.status === 'Новая').length;
+  const zInWork  = allZ.filter(z => z.status === 'В работе').length;
+  const zDone    = allZ.filter(z => z.status === 'Выполнена').length;
   const rOpen    = allR.filter(r => !r.data_okonchaniya).length;
   const rClosed  = allR.filter(r => r.data_okonchaniya).length;
 
@@ -1069,7 +1288,7 @@ async function renderMechanicDashboard(root) {
               <td><strong>${z.id}</strong></td>
               <td>${escape(z.gos_nomer || '—')}</td>
               <td>${escape(z.tip_remonta || '—')}</td>
-              <td><span class="chip ${z.status === 'новая' ? 'gold' : z.status === 'в работе' ? 'blue' : 'green'}">${escape(z.status)}</span></td>
+              <td><span class="chip ${z.status === 'Новая' ? 'gold' : z.status === 'В работе' ? 'blue' : 'green'}">${escape(z.status)}</span></td>
               <td>${fmtDate(z.data_sozdaniya)}</td>
             </tr>
           `).join('') || `<tr><td colspan="5" class="empty">${T('common.no_data')}</td></tr>`}

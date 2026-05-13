@@ -88,6 +88,25 @@
       'dashboard.mech_closed':      'завершён',
       'dashboard.mech_inprogress':  'в работе',
 
+      // ---- Dashboard: Аналитик ----
+      'dashboard.analyst_subtitle':   'Расширенная аналитика за {year} год',
+      'dashboard.analyst_mekh':       'Загрузка механиков',
+      'dashboard.analyst_avg':        'Средний срок ремонта (дней)',
+      'dashboard.analyst_div':        'Расходы по подразделениям',
+      'dashboard.analyst_types':      'Типы ремонта',
+      'dashboard.analyst_statuses':   'Заявки по статусам',
+      'dashboard.analyst_rdyn':       'Динамика ремонтов',
+      'dashboard.analyst_mekh_fio':   'Механик',
+      'dashboard.analyst_mekh_div':   'Подразделение',
+      'dashboard.analyst_mekh_act':   'Активных',
+      'dashboard.analyst_mekh_30d':   'За 30 дн.',
+      'dashboard.analyst_mekh_tot':   'Всего',
+      'dashboard.analyst_tip':        'Тип',
+      'dashboard.analyst_tip_cat':    'Категория',
+      'dashboard.analyst_tip_cnt':    'Кол-во',
+      'dashboard.analyst_tip_sum':    'Сумма',
+      'dashboard.analyst_tip_avg':    'Ср. дней',
+
       // ---- Common (расширение) ----
       'common.refresh':        'Обновить',
       'common.details':        'Подробнее',
@@ -516,6 +535,25 @@
       'dashboard.mech_col_date':    'Date',
       'dashboard.mech_closed':      'closed',
       'dashboard.mech_inprogress':  'in progress',
+
+      // ---- Dashboard: Analyst ----
+      'dashboard.analyst_subtitle':   'Extended analytics for {year}',
+      'dashboard.analyst_mekh':       'Mechanic workload',
+      'dashboard.analyst_avg':        'Avg repair time (days)',
+      'dashboard.analyst_div':        'Expenses by division',
+      'dashboard.analyst_types':      'Repair types',
+      'dashboard.analyst_statuses':   'Requests by status',
+      'dashboard.analyst_rdyn':       'Repair dynamics',
+      'dashboard.analyst_mekh_fio':   'Mechanic',
+      'dashboard.analyst_mekh_div':   'Division',
+      'dashboard.analyst_mekh_act':   'Active',
+      'dashboard.analyst_mekh_30d':   '30 days',
+      'dashboard.analyst_mekh_tot':   'Total',
+      'dashboard.analyst_tip':        'Type',
+      'dashboard.analyst_tip_cat':    'Category',
+      'dashboard.analyst_tip_cnt':    'Count',
+      'dashboard.analyst_tip_sum':    'Amount',
+      'dashboard.analyst_tip_avg':    'Avg days',
 
       // ---- Common (extra) ----
       'common.refresh':        'Refresh',

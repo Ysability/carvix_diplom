@@ -756,6 +756,74 @@ async function genPdfWriteoff({ remontId }) {
 }
 
 /* =========================================================
+   EXCEL — Журнал аудита
+   ========================================================= */
+async function genExcelAudit() {
+  const { rows } = await pool.pool.query(
+    `SELECT l.id, l.data_operatsii, l.tip_operatsii,
+            l.obyekt_tablitsa, l.obyekt_id,
+            l.summa, l.kommentariy,
+            s.fio AS sotrudnik_fio,
+            r.nazvanie AS sotrudnik_rol
+       FROM finansoviy_log l
+       LEFT JOIN sotrudnik s ON s.id = l.sotrudnik_id
+       LEFT JOIN rol r       ON r.id = s.rol_id
+      ORDER BY l.data_operatsii DESC, l.id DESC
+      LIMIT 1000`
+  );
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'Carvix';
+  const ws = wb.addWorksheet('Аудит', { views: [{ state: 'frozen', ySplit: 4 }] });
+
+  ws.mergeCells('A1:H1');
+  ws.getCell('A1').value = 'Carvix — Журнал аудита';
+  ws.getCell('A1').font = { bold: true, size: 16, color: { argb: 'FF1C1B17' } };
+  ws.getCell('A1').alignment = { horizontal: 'center' };
+  ws.getRow(1).height = 26;
+
+  ws.mergeCells('A2:H2');
+  ws.getCell('A2').value = `Сформировано: ${new Date().toLocaleString('ru-RU')}`;
+  ws.getCell('A2').font = { italic: true, size: 10, color: { argb: 'FF888888' } };
+  ws.getCell('A2').alignment = { horizontal: 'center' };
+
+  ws.addRow([]);
+
+  const headerRow = ws.addRow([
+    'Дата/время', 'Сотрудник', 'Роль', 'Операция',
+    'Таблица', 'ID объекта', 'Сумма, ₽', 'Комментарий',
+  ]);
+  styleHeaderRow(headerRow);
+
+  rows.forEach(r => {
+    const row = ws.addRow([
+      r.data_operatsii ? new Date(r.data_operatsii).toLocaleString('ru-RU') : '',
+      r.sotrudnik_fio || '—',
+      r.sotrudnik_rol || '—',
+      r.tip_operatsii || '',
+      r.obyekt_tablitsa || '',
+      r.obyekt_id || '',
+      r.summa != null ? Number(r.summa) : '',
+      r.kommentariy || '',
+    ]);
+    if (r.summa != null) applyMoneyFormat(row.getCell(7));
+    applyBorders(row);
+  });
+
+  [20, 22, 16, 16, 16, 10, 16, 30].forEach((w, i) => {
+    ws.getColumn(i + 1).width = w;
+  });
+  ws.autoFilter = { from: { row: 4, column: 1 }, to: { row: 4, column: 8 } };
+
+  const buffer = await wb.xlsx.writeBuffer();
+  return {
+    buffer,
+    filename: `carvix-audit-${new Date().toISOString().slice(0, 10)}.xlsx`,
+    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  };
+}
+
+/* =========================================================
    Хелпер: отдать буфер как файл
    ========================================================= */
 function sendBuffer(res, { buffer, filename, contentType }, disposition = 'inline') {
@@ -783,6 +851,12 @@ router.get('/excel/expenses', authForExport, requireFinanceRead, async (req, res
 router.get('/excel/budgets', authForExport, requireFinanceRead, async (req, res) => {
   try { sendBuffer(res, await genExcelBudgets(req.query), 'attachment'); }
   catch (e) { console.error('[exports/excel/budgets]', e);
+    res.status(e.status || 500).json({ error: e.message }); }
+});
+
+router.get('/excel/audit', authForExport, requireFinanceRead, async (req, res) => {
+  try { sendBuffer(res, await genExcelAudit(), 'attachment'); }
+  catch (e) { console.error('[exports/excel/audit]', e);
     res.status(e.status || 500).json({ error: e.message }); }
 });
 

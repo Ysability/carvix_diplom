@@ -21,6 +21,7 @@
       case 'excel/tco':      path = '/api/finance/exports/excel/tco'; break;
       case 'excel/expenses': path = '/api/finance/exports/excel/expenses'; break;
       case 'excel/budgets':  path = '/api/finance/exports/excel/budgets'; break;
+      case 'excel/audit':    path = '/api/finance/exports/excel/audit'; break;
       case 'pdf/receipt':    path = `/api/finance/exports/pdf/receipt/${params.id}`; break;
       case 'pdf/monthly':    path = `/api/finance/exports/pdf/monthly/${params.pdId}/${params.god}/${params.m}`; break;
       case 'pdf/writeoff':   path = `/api/finance/exports/pdf/writeoff/${params.remontId}`; break;
@@ -82,6 +83,7 @@
       case 'budgets':    decorateBudgets(head, content); break;
       case 'tco':        decorateTco(head, content); break;
       case 'receipts':   decorateReceipts(head, content); break;
+      case 'audit':      decorateAudit(head); break;
     }
   }
 
@@ -837,6 +839,20 @@
       head.appendChild(actions);
     }
     const exp = buildExportButton('excel/tco', {}, `📊 ${T('tco.export_excel')}`, 'Carvix — TCO');
+    actions.appendChild(exp);
+  }
+
+  /* =========================================================
+     9b. АУДИТ — кнопка экспорта Excel
+     ========================================================= */
+  function decorateAudit(head) {
+    let actions = head.querySelector('.section__actions');
+    if (!actions) {
+      actions = document.createElement('div');
+      actions.className = 'section__actions';
+      head.appendChild(actions);
+    }
+    const exp = buildExportButton('excel/audit', {}, `📊 ${T('export.excel')}`);
     actions.appendChild(exp);
   }
 
