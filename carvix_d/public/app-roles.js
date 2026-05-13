@@ -70,8 +70,9 @@
           <select id="fStatus"><option value="">${T('common.all')}</option></select>
         </label>
         ${role === 'Пользователь' || role === 'Механик' ? '' : `
-          <label><input type="checkbox" id="fMine" /> ${T('requests.only_mine')}</label>
+          <label class="filter-check"><input type="checkbox" id="fMine" /> ${T('requests.only_mine')}</label>
         `}
+        <span class="spacer"></span>
         <button class="btn" id="btnReload">↻ ${T('common.refresh')}</button>
       </div>
 

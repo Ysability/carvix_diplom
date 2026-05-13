@@ -494,35 +494,49 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
 
 /* -------- Filters bar -------- */
 .filters {
-  display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
-  margin-bottom: 16px;
+  display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+  margin-bottom: 18px;
   background: var(--c-card);
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 16px 20px;
 }
 .filters label {
-  display: flex; flex-direction: column; gap: 4px;
-  font-size: 11px; color: var(--c-muted); text-transform: uppercase; letter-spacing: .04em;
+  display: flex; flex-direction: column; gap: 5px;
+  font-size: 11px; color: var(--c-muted); text-transform: uppercase;
+  letter-spacing: .05em; font-weight: 600;
 }
-.filters label:has(input[type="checkbox"]) {
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 0;
-  cursor: pointer;
-  white-space: nowrap;
+.filters label.filter-check {
+  flex-direction: row; align-items: center; gap: 8px;
+  font-size: 13px; text-transform: none; letter-spacing: normal;
+  font-weight: 500; cursor: pointer; user-select: none;
+  padding: 8px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  background: var(--c-input-bg);
+  transition: border-color .15s, background .15s;
 }
-.filters label:has(input[type="checkbox"]) input { width: 16px; height: 16px; margin: 0; }
+.filters label.filter-check:hover { border-color: var(--c-accent-2); }
+.filters label.filter-check input[type="checkbox"] {
+  width: 18px; height: 18px; accent-color: var(--c-accent-2);
+  cursor: pointer; min-width: auto;
+}
 .filters input,
 .filters select {
   font: inherit;
-  padding: 8px 10px;
+  padding: 9px 14px;
   border: 1px solid var(--c-border);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--c-input-bg);
   color: var(--c-text);
-  min-width: 140px;
+  min-width: 160px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.filters input:focus,
+.filters select:focus {
+  outline: none;
+  border-color: var(--c-accent-2);
+  box-shadow: 0 0 0 3px rgba(184,148,96,.12);
 }
 .filters .spacer { flex: 1; }
 
@@ -562,14 +576,15 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
   width: min(540px, 92vw);
   box-shadow: var(--shadow-md);
   max-height: 90vh; overflow-y: auto;
+  min-height: 320px;
 }
-.modal h3 { margin: 0 0 18px; font-size: 18px; }
+.modal h3 { margin: 0 0 20px; font-size: 19px; }
 .modal .form-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
 }
 .modal label {
-  display: flex; flex-direction: column; gap: 4px;
-  font-size: 12px; color: var(--c-muted);
+  display: flex; flex-direction: column; gap: 5px;
+  font-size: 12px; color: var(--c-muted); font-weight: 600;
 }
 .modal label.full { grid-column: 1 / -1; }
 .modal input, .modal select, .modal textarea {
@@ -577,19 +592,20 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
   color: var(--c-text);
   padding: 10px 12px;
   border: 1px solid var(--c-border);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--c-input-bg);
-  min-height: 42px;
+  transition: border-color .15s, box-shadow .15s;
 }
-.modal textarea { min-height: 72px; }
-.modal .modal-actions,
-.modal .modal__actions {
-  display: flex; justify-content: flex-end; gap: 8px;
-  margin-top: 20px;
+.modal input:focus, .modal select:focus, .modal textarea:focus {
+  outline: none;
+  border-color: var(--c-accent-2);
+  box-shadow: 0 0 0 3px rgba(184,148,96,.12);
 }
-.modal__actions {
-  display: flex; justify-content: flex-end; gap: 8px;
-  margin-top: 20px;
+.modal .modal-actions, .modal .modal__actions {
+  display: flex; justify-content: flex-end; gap: 10px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--c-border);
 }
 
 /* -------- Loading / Empty -------- */

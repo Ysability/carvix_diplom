@@ -26,31 +26,6 @@
     return new Intl.NumberFormat('ru-RU').format(n) + ' км';
   }
 
-  // Маска Гос номер: А123АА77 / А123АА777 (буквы допустимые на номерах РФ + цифры)
-  const GOS_LETTERS = 'АВЕКМНОРСТУХABEKMHOPCTYX';
-  function applyGosMask(input) {
-    input.addEventListener('input', () => {
-      let v = input.value.toUpperCase();
-      // Замена латинских аналогов на кириллицу
-      const lat2cyr = { A:'А', B:'В', E:'Е', K:'К', M:'М', H:'Н', O:'О', P:'Р', C:'С', T:'Т', Y:'У', X:'Х' };
-      v = v.replace(/[ABEKMHOPCTYX]/g, ch => lat2cyr[ch] || ch);
-      // Оставляем только допустимые символы
-      v = v.replace(/[^АВЕКМНОРСТУХ0-9]/g, '');
-      if (v.length > 9) v = v.slice(0, 9);
-      input.value = v;
-    });
-  }
-
-  // Маска Инв номер: INV-XXXX (буквы + цифры + дефис)
-  function applyInvMask(input) {
-    input.addEventListener('input', () => {
-      let v = input.value.toUpperCase();
-      v = v.replace(/[^A-ZА-Я0-9\-]/g, '');
-      if (v.length > 20) v = v.slice(0, 20);
-      input.value = v;
-    });
-  }
-
   /* ──────────────────────────────────────────────────────────
      RENDER — список ТС
      ────────────────────────────────────────────────────────── */
@@ -237,6 +212,11 @@
       </div>
     `;
     document.body.appendChild(bg);
+
+    // Маски ввода
+    maskGosNomer(bg.querySelector('#tGos'));
+    maskInvNomer(bg.querySelector('#tInv'));
+
     bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
     bg.querySelector('#tCancel').onclick = () => bg.remove();
 
@@ -244,10 +224,6 @@
     const elMarkaNew = bg.querySelector('#tMarkaNew');
     const elModel    = bg.querySelector('#tModel');
     const elModelNew = bg.querySelector('#tModelNew');
-
-    // Маски ввода для Гос номер и Инв номер
-    applyGosMask(bg.querySelector('#tGos'));
-    applyInvMask(bg.querySelector('#tInv'));
 
     // ---- Каскад марка → модели ----
     elMarka.addEventListener('change', async () => {
@@ -345,14 +321,34 @@
   }
 
   /* ──────────────────────────────────────────────────────────
-     ДИАЛОГ РЕДАКТИРОВАНИЯ (все поля)
+     МАСКИ ВВОДА
+     ────────────────────────────────────────────────────────── */
+  function maskGosNomer(input) {
+    input.addEventListener('input', () => {
+      let v = input.value.toUpperCase().replace(/[^A-ZА-Я0-9]/g, '');
+      if (v.length > 9) v = v.slice(0, 9);
+      input.value = v;
+    });
+    input.placeholder = 'А123АА777';
+  }
+  function maskInvNomer(input) {
+    input.addEventListener('input', () => {
+      let v = input.value.toUpperCase().replace(/[^A-ZА-Я0-9\-]/g, '');
+      if (v.length > 20) v = v.slice(0, 20);
+      input.value = v;
+    });
+    input.placeholder = 'INV-001';
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     ДИАЛОГ РЕДАКТИРОВАНИЯ — все поля
      ────────────────────────────────────────────────────────── */
   async function openEditDialog(id, onSaved) {
+    const ts = await window.api(`/api/transport/${id}`);
     const role = window.CURRENT_USER?.rol_nazvanie || '';
     const isAdmin = ['Директор','Главный механик','Диспетчер','Аналитик'].includes(role);
 
-    const [ts, marki, podrazdeleniya] = await Promise.all([
-      window.api(`/api/transport/${id}`),
+    const [marki, podrazdeleniya] = await Promise.all([
       window.api('/api/transport/dict/marki'),
       isAdmin ? window.api('/api/transport/dict/podrazdeleniya') : Promise.resolve([]),
     ]);
@@ -360,14 +356,14 @@
     const bg = document.createElement('div');
     bg.className = 'modal-bg';
     bg.innerHTML = `
-      <div class="modal" style="width: 560px">
+      <div class="modal" style="width: 580px">
         <h3>${T('transport.edit_title')}: ${escape(ts.gos_nomer)}</h3>
         <div class="form-grid">
           <label>${T('transport.gos_nomer')} *
-            <input id="eGos" type="text" value="${escape(ts.gos_nomer)}" maxlength="10" placeholder="А123АА77" />
+            <input id="eGos" type="text" value="${escape(ts.gos_nomer)}" maxlength="9" />
           </label>
           <label>${T('transport.invent')} *
-            <input id="eInv" type="text" value="${escape(ts.invent_nomer)}" maxlength="20" placeholder="INV-001" />
+            <input id="eInv" type="text" value="${escape(ts.invent_nomer)}" maxlength="20" />
           </label>
 
           <label>${T('transport.marka')} *
@@ -383,8 +379,8 @@
 
           <label>${T('transport.model')} *
             <div class="combo">
-              <select id="eModel">
-                <option value="">— ${T('common.choose')} —</option>
+              <select id="eModel" disabled>
+                <option value="">...</option>
               </select>
               <input id="eModelNew" type="text" placeholder="${T('transport.new_model_ph')}" style="display:none" />
             </div>
@@ -420,6 +416,11 @@
       </div>
     `;
     document.body.appendChild(bg);
+
+    // Маски
+    maskGosNomer(bg.querySelector('#eGos'));
+    maskInvNomer(bg.querySelector('#eInv'));
+
     bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
     bg.querySelector('#eCancel').onclick = () => bg.remove();
 
@@ -428,24 +429,19 @@
     const elModel    = bg.querySelector('#eModel');
     const elModelNew = bg.querySelector('#eModelNew');
 
-    // Маски ввода: Гос номер (русские буквы + цифры) и Инв номер
-    applyGosMask(bg.querySelector('#eGos'));
-    applyInvMask(bg.querySelector('#eInv'));
-
-    // Загрузить модели для текущей марки
+    // Загрузить модели для выбранной марки
     async function loadModels(markaId, selectedModelId) {
       if (!markaId || markaId === '__new__') return;
       const modeli = await window.api(`/api/transport/dict/modeli?marka_id=${markaId}`);
+      elModel.disabled = false;
       elModel.innerHTML = `
         <option value="">— ${T('common.choose')} —</option>
         ${modeli.map(m => `<option value="${m.id}" ${m.id === selectedModelId ? 'selected' : ''}>${escape(m.nazvanie)}</option>`).join('')}
         <option value="__new__">+ ${T('transport.new_model')}</option>
       `;
-      elModel.disabled = false;
     }
-    // Загрузить модели для текущей марки ТС
-    await loadModels(ts.marka_id, ts.model_id);
 
+    // Каскад марка → модели
     elMarka.addEventListener('change', async () => {
       const v = elMarka.value;
       elModelNew.style.display = 'none';
@@ -466,7 +462,7 @@
         elModel.innerHTML = `<option value="">— ${T('transport.pick_marka_first')} —</option>`;
         return;
       }
-      await loadModels(+v, null);
+      await loadModels(v, null);
     });
 
     elModel.addEventListener('change', () => {
@@ -478,6 +474,11 @@
         elModelNew.value = '';
       }
     });
+
+    // Инициализировать модели текущей марки
+    if (elMarka.value && elMarka.value !== '__new__') {
+      await loadModels(elMarka.value, ts.model_id);
+    }
 
     // Сохранение
     bg.querySelector('#eSave').onclick = async () => {
@@ -491,7 +492,8 @@
         const name = elMarkaNew.value.trim();
         if (!name) return window.toast(T('transport.enter_marka'), 'error');
         const created = await window.api('/api/transport/dict/marki', {
-          method: 'POST', body: JSON.stringify({ nazvanie: name }),
+          method: 'POST',
+          body: JSON.stringify({ nazvanie: name }),
         });
         markaId = created.id;
       }
@@ -503,7 +505,8 @@
         const name = elModelNew.value.trim();
         if (!name) return window.toast(T('transport.enter_model'), 'error');
         const created = await window.api('/api/transport/dict/modeli', {
-          method: 'POST', body: JSON.stringify({ marka_id: +markaId, nazvanie: name }),
+          method: 'POST',
+          body: JSON.stringify({ marka_id: +markaId, nazvanie: name }),
         });
         modelId = created.id;
       }

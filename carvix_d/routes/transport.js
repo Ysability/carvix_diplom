@@ -300,7 +300,7 @@ router.patch('/:id', async (req, res) => {
 
   const sets = [];
   const params = [];
-  const allowed = ['gos_nomer', 'invent_nomer', 'model_id', 'podrazdelenie_id', 'probeg', 'tekuschee_sostoyanie', 'data_vypuska'];
+  const allowed = ['gos_nomer', 'invent_nomer', 'model_id', 'probeg', 'tekuschee_sostoyanie', 'data_vypuska', 'podrazdelenie_id'];
   for (const f of allowed) {
     if (req.body && Object.prototype.hasOwnProperty.call(req.body, f)) {
       sets.push(`${f} = ?`);
