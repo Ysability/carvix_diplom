@@ -63,9 +63,12 @@ function confirmDialog(text, { title, icon = '⚠️', danger = true } = {}) {
         </div>
       </div>`;
     document.body.appendChild(bg);
+    bg.querySelector('.confirm-dialog').setAttribute('role', 'alertdialog');
+    bg.querySelector('.confirm-dialog').setAttribute('aria-modal', 'true');
     bg.querySelector('#cdCancel').onclick = () => { bg.remove(); resolve(false); };
     bg.querySelector('#cdOk').onclick    = () => { bg.remove(); resolve(true); };
     bg.addEventListener('click', e => { if (e.target === bg) { bg.remove(); resolve(false); } });
+    trapFocus(bg.querySelector('.confirm-dialog'));
   });
 }
 window.confirmDialog = confirmDialog;
@@ -138,6 +141,29 @@ function renderPager(container, { total, limit, offset, onChange }) {
   });
 }
 window.renderPager = renderPager;
+
+/* ----------------- Accessibility: Escape & focus-trap ----------------- */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const modal = document.querySelector('.modal-bg');
+    if (modal) { modal.remove(); e.preventDefault(); }
+  }
+});
+function trapFocus(container) {
+  const focusable = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  container.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    if (e.shiftKey) {
+      if (document.activeElement === first) { last.focus(); e.preventDefault(); }
+    } else {
+      if (document.activeElement === last) { first.focus(); e.preventDefault(); }
+    }
+  });
+  first.focus();
+}
+window.trapFocus = trapFocus;
 
 /* ----------------- API ----------------- */
 async function api(path, options = {}) {
@@ -670,7 +696,7 @@ async function renderExpenses(root) {
               <td class="num"><strong>${fmtMoney(it.summa)}</strong></td>
               <td>
                 ${it.source === 'prochiy'
-                   ? `<button class="btn danger" data-del="${it.source_id}">×</button>`
+                   ? `<button class="btn danger" data-del="${it.source_id}" aria-label="${T('common.delete')}">×</button>`
                    : ''}
               </td>
             </tr>
@@ -776,7 +802,10 @@ async function openExpenseModal(onSaved) {
     </div>
   `;
   document.body.appendChild(bg);
+  bg.querySelector('.modal').setAttribute('role', 'dialog');
+  bg.querySelector('.modal').setAttribute('aria-modal', 'true');
   bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
+  trapFocus(bg.querySelector('.modal'));
   $('#mCancel', bg).onclick = () => bg.remove();
   $('#mSave', bg).onclick = async () => {
     const tsVal = $('#mTs', bg).value;
@@ -834,10 +863,16 @@ async function renderBudgets(root) {
 
     <div class="cards-grid" id="bTotals"></div>
 
+    <div class="charts-row">
+      <div class="chart-card"><canvas id="bChartPF"></canvas></div>
+    </div>
+
     <div class="table-card">
       <div id="bTbl"></div>
     </div>
   `;
+
+  let chartInstance = null;
 
   async function load() {
     const params = new URLSearchParams();
@@ -888,6 +923,42 @@ async function renderBudgets(root) {
         </tbody>
       </table>
     `;
+
+    // --- Bar chart: план vs факт по месяцам ---
+    const monthLabels = [...Array(12)].map((_, i) =>
+      new Date(2000, i, 1).toLocaleDateString(LOC(), { month: 'short' })
+    );
+    const planByMonth = Array(12).fill(0);
+    const faktByMonth = Array(12).fill(0);
+    data.items.forEach(it => {
+      const mi = (it.mesyats || 1) - 1;
+      planByMonth[mi] += Number(it.plan_summa) || 0;
+      faktByMonth[mi] += Number(it.fakt_summa) || 0;
+    });
+    if (chartInstance) chartInstance.destroy();
+    const ctx = document.getElementById('bChartPF');
+    if (ctx) {
+      const tickColor = getComputedStyle(document.documentElement).getPropertyValue('--c-muted').trim() || '#888';
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: monthLabels,
+          datasets: [
+            { label: T('budgets.kpi_plan'), data: planByMonth, backgroundColor: 'rgba(56,142,60,.55)', borderRadius: 4 },
+            { label: T('budgets.kpi_fakt'), data: faktByMonth, backgroundColor: 'rgba(239,83,80,.55)', borderRadius: 4 },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { boxWidth: 12, color: tickColor } } },
+          scales: {
+            x: { ticks: { color: tickColor } },
+            y: { ticks: { color: tickColor, callback: v => fmtMoney(v) }, beginAtZero: true },
+          },
+        },
+      });
+      CURRENT_CHARTS.push(chartInstance);
+    }
   }
 
   $('#bApply').onclick = load;
@@ -965,6 +1036,11 @@ async function renderTco(root) {
     const d = await api('/api/finance/reports/tco/' + tsId);
     $('#tDetail').innerHTML = `
       <div class="table-card" style="margin-bottom: 14px;">
+        <nav class="breadcrumbs" aria-label="Навигация">
+          <a href="#tco" class="breadcrumbs__link">${T('tco.title')}</a>
+          <span class="breadcrumbs__sep">›</span>
+          <span class="breadcrumbs__current">${escape(d.summary.gos_nomer)}</span>
+        </nav>
         <h3>${escape(d.summary.gos_nomer)} — ${escape(d.summary.marka_nazvanie)} ${escape(d.summary.model_nazvanie)}</h3>
         <div class="dtl-grid">
           <div>
@@ -1056,6 +1132,11 @@ async function renderReceipts(root) {
       const d = await api('/api/finance/parts/receipts/' + tr.dataset.id);
       $('#rDetail').innerHTML = `
         <div class="table-card" style="margin-top: 14px;">
+          <nav class="breadcrumbs" aria-label="Навигация">
+            <a href="#receipts" class="breadcrumbs__link">${T('receipts.title')}</a>
+            <span class="breadcrumbs__sep">›</span>
+            <span class="breadcrumbs__current">${T('receipts.detail_title', { n: escape(d.nomer_nakl || d.id) })}</span>
+          </nav>
           <h3>${T('receipts.detail_title', { n: escape(d.nomer_nakl || d.id) })}</h3>
           <div class="dtl-grid">
             <div><div class="kpi-card__label">${T('receipts.detail_sup')}</div><div>${escape(d.postavshik_nazvanie)}</div></div>

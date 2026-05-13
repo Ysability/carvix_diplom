@@ -109,8 +109,8 @@
           <div class="ts-card__foot">
             <span class="ts-card__chip">📋 ${t.kolichestvo_zayavok || 0} ${T('transport.zayavok')}</span>
             <div class="ts-card__actions">
-              <button class="btn btn--ghost btn--sm" data-act="edit" data-id="${t.id}" title="${T('common.edit') || 'Изменить'}">✎</button>
-              ${(isAdmin || t.sozdatel_id === myId) ? `<button class="btn btn--ghost btn--sm btn--danger" data-act="del" data-id="${t.id}" title="${T('common.delete')}">🗑</button>` : ''}
+              <button class="btn btn--ghost btn--sm" data-act="edit" data-id="${t.id}" title="${T('common.edit') || 'Изменить'}" aria-label="${T('common.edit') || 'Изменить'}">✎</button>
+              ${(isAdmin || t.sozdatel_id === myId) ? `<button class="btn btn--ghost btn--sm btn--danger" data-act="del" data-id="${t.id}" title="${T('common.delete')}" aria-label="${T('common.delete')}">🗑</button>` : ''}
             </div>
           </div>
         </div>

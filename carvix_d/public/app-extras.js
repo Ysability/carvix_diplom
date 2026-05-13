@@ -161,6 +161,7 @@
         </div>
       </div>`;
     document.body.appendChild(bg);
+    window.trapFocus(bg.querySelector('.modal'));
     bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
     bg.querySelector('#mCanc').onclick = () => bg.remove();
     const collect = () => ({
@@ -279,6 +280,7 @@
         </div>
       </div>`;
     document.body.appendChild(bg);
+    window.trapFocus(bg.querySelector('.modal'));
     bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
     bg.querySelector('#eCanc').onclick = () => bg.remove();
 
@@ -439,7 +441,7 @@
       <div class="modal modal--wide forecast-modal">
         <div class="be-head">
           <h3>📈 ${T('forecast.title') || 'Прогноз расходов (Holt-Winters)'}</h3>
-          <button class="btn-close" id="fcClose">×</button>
+          <button class="btn-close" id="fcClose" aria-label="Закрыть">×</button>
         </div>
         <p class="be-intro">${T('forecast.intro') || 'Прогноз построен методом тройного экспоненциального сглаживания на основе исторических расходов за последние 3 года. Серая зона — 95% доверительный интервал.'}</p>
 
@@ -464,6 +466,7 @@
         <div class="forecast-summary" id="fcSummary"></div>
       </div>`;
     document.body.appendChild(bg);
+    window.trapFocus(bg.querySelector('.modal'));
     bg.addEventListener('click', e => { if (e.target === bg) close(); });
     bg.querySelector('#fcClose').onclick = close;
 
@@ -680,7 +683,7 @@
       <div class="modal modal--wide">
         <div class="be-head">
           <h3>${T('budgets.editor')}</h3>
-          <button class="btn-close" id="beClose">×</button>
+          <button class="btn-close" id="beClose" aria-label="Закрыть">×</button>
         </div>
         <p class="be-intro">${T('budgets.editor_intro')}</p>
 
@@ -918,7 +921,7 @@
       <div class="modal modal--wide">
         <div class="be-head">
           <h3>${T('receipts.modal_title')}</h3>
-          <button class="btn-close" id="rcClose">×</button>
+          <button class="btn-close" id="rcClose" aria-label="Закрыть">×</button>
         </div>
 
         <div class="form-grid">
@@ -960,6 +963,7 @@
         </div>
       </div>`;
     document.body.appendChild(bg);
+    window.trapFocus(bg.querySelector('.modal'));
     bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
     bg.querySelector('#rcClose').onclick = () => bg.remove();
     bg.querySelector('#rcCanc').onclick = () => bg.remove();
