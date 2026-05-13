@@ -204,6 +204,45 @@ body.app-body {
 .user__logout svg { width: 16px; height: 16px; }
 .user__logout:hover { background: var(--c-hover); color: var(--c-bad); }
 
+/* -------- Role badge -------- */
+.role-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+.role-badge--director  { background: rgba(184,148,96,.18); color: #b89460; }
+.role-badge--analyst   { background: rgba(47,90,156,.14);  color: #2f5a9c; }
+.role-badge--chief     { background: rgba(47,143,94,.14);  color: #2f8f5e; }
+.role-badge--mechanic  { background: rgba(185,74,72,.12);  color: #b94a48; }
+.role-badge--dispatch  { background: rgba(198,147,23,.14); color: #c69317; }
+.role-badge--user      { background: var(--c-hover);       color: var(--c-muted); }
+
+.user__avatar {
+  text-decoration: none;
+}
+
+/* -------- Profile page -------- */
+.profile-info {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+}
+.profile-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--c-accent-2);
+  color: #fff; font-size: 24px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+@media (max-width: 640px) {
+  .profile-info { grid-template-columns: auto 1fr; }
+}
+
 /* -------- Content -------- */
 .content { padding: 28px 36px; min-width: 0; }
 .content > section { animation: fadeIn .3s ease; }

@@ -65,6 +65,19 @@ $$('.field__toggle').forEach((btn) => {
   });
 });
 
+/* ---------- Caps Lock detection ---------- */
+$$('input[type="password"]').forEach((input) => {
+  const hint = input.closest('.field')?.querySelector('.field__capslock');
+  if (!hint) return;
+  input.addEventListener('keydown', (e) => {
+    hint.hidden = !e.getModifierState('CapsLock');
+  });
+  input.addEventListener('keyup', (e) => {
+    hint.hidden = !e.getModifierState('CapsLock');
+  });
+  input.addEventListener('blur', () => { hint.hidden = true; });
+});
+
 /* ---------- Toast ---------- */
 const toastEl = $('#toast');
 let toastTimer = null;
@@ -170,6 +183,11 @@ forms.register.addEventListener('submit', async (e) => {
   if (body.password.length < 6) {
     shake(forms.register);
     return toast('Пароль должен быть не менее 6 символов', 'error');
+  }
+  const confirm = fd.get('password_confirm')?.toString();
+  if (body.password !== confirm) {
+    shake(forms.register);
+    return toast('Пароли не совпадают', 'error');
   }
 
   setLoading(forms.register, true);

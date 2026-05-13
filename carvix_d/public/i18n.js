@@ -32,6 +32,7 @@
       'auth.login':            'Логин',
       'auth.password':         'Пароль',
       'auth.fio':              'ФИО',
+      'auth.password_confirm': 'Подтвердите пароль',
       'auth.signin':           'Войти',
       'auth.signup':           'Создать аккаунт',
       'auth.no_account':       'Нет аккаунта?',
@@ -39,7 +40,7 @@
       'auth.title':            'Добро пожаловать в Carvix',
       'auth.subtitle':         'Управление автопарком и финансами в одной системе',
       'auth.feat_1':           'Учёт ремонтов и запчастей',
-      'auth.feat_2':           'Финансовый модуль с TCO и бюджетами',
+      'auth.feat_2':           'Заявки, ремонты и аналитика',
       'auth.feat_3':           'Гибкая ролевая модель доступа',
 
       // ---- Sidebar nav ----
@@ -53,6 +54,33 @@
       'nav.tco':               'Парк (TCO)',
       'nav.receipts':          'Приходы',
       'nav.audit':             'Журнал',
+
+      // ---- Профиль ----
+      'profile.title':         'Профиль',
+      'profile.subtitle':      'Ваши данные и настройки аккаунта',
+      'profile.login':         'Логин',
+      'profile.role':          'Роль',
+      'profile.division':      'Подразделение',
+      'profile.edit':          'Редактирование',
+      'profile.old_pass':      'Текущий пароль',
+      'profile.new_pass':      'Новый пароль',
+      'profile.pwd_mismatch':  'Пароли не совпадают',
+      'profile.saved':         'Профиль обновлён',
+
+      // ---- Dashboard: Главный механик ----
+      'dashboard.mech_subtitle':    'Обзор заявок и ремонтов',
+      'dashboard.mech_new':         'Новые заявки',
+      'dashboard.mech_inwork':      'В работе',
+      'dashboard.mech_done':        'Завершённые',
+      'dashboard.mech_repairs_open':'Открытые ремонты',
+      'dashboard.mech_recent':      'Последние заявки',
+      'dashboard.mech_repairs':     'Текущие ремонты',
+      'dashboard.mech_col_plate':   'Гос. номер',
+      'dashboard.mech_col_type':    'Тип',
+      'dashboard.mech_col_status':  'Статус',
+      'dashboard.mech_col_date':    'Дата',
+      'dashboard.mech_closed':      'завершён',
+      'dashboard.mech_inprogress':  'в работе',
 
       // ---- Common (расширение) ----
       'common.refresh':        'Обновить',
@@ -427,6 +455,7 @@
       'auth.login':            'Username',
       'auth.password':         'Password',
       'auth.fio':              'Full name',
+      'auth.password_confirm': 'Confirm password',
       'auth.signin':           'Sign in',
       'auth.signup':           'Create account',
       'auth.no_account':       'No account?',
@@ -434,7 +463,7 @@
       'auth.title':            'Welcome to Carvix',
       'auth.subtitle':         'Fleet management and finance in one system',
       'auth.feat_1':           'Repair & parts tracking',
-      'auth.feat_2':           'Financial module with TCO and budgets',
+      'auth.feat_2':           'Requests, repairs and analytics',
       'auth.feat_3':           'Flexible role-based access',
 
       // ---- Sidebar nav ----
@@ -448,6 +477,33 @@
       'nav.tco':               'Fleet (TCO)',
       'nav.receipts':          'Receipts',
       'nav.audit':             'Audit log',
+
+      // ---- Profile ----
+      'profile.title':         'Profile',
+      'profile.subtitle':      'Your account details and settings',
+      'profile.login':         'Username',
+      'profile.role':          'Role',
+      'profile.division':      'Division',
+      'profile.edit':          'Edit',
+      'profile.old_pass':      'Current password',
+      'profile.new_pass':      'New password',
+      'profile.pwd_mismatch':  'Passwords do not match',
+      'profile.saved':         'Profile updated',
+
+      // ---- Dashboard: Chief mechanic ----
+      'dashboard.mech_subtitle':    'Requests & repairs overview',
+      'dashboard.mech_new':         'New requests',
+      'dashboard.mech_inwork':      'In progress',
+      'dashboard.mech_done':        'Completed',
+      'dashboard.mech_repairs_open':'Open repairs',
+      'dashboard.mech_recent':      'Recent requests',
+      'dashboard.mech_repairs':     'Current repairs',
+      'dashboard.mech_col_plate':   'Plate',
+      'dashboard.mech_col_type':    'Type',
+      'dashboard.mech_col_status':  'Status',
+      'dashboard.mech_col_date':    'Date',
+      'dashboard.mech_closed':      'closed',
+      'dashboard.mech_inprogress':  'in progress',
 
       // ---- Common (extra) ----
       'common.refresh':        'Refresh',

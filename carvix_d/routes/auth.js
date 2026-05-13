@@ -178,4 +178,56 @@ router.get('/me', authRequired, async (req, res) => {
   }
 });
 
+// PUT /api/auth/profile — обновление ФИО и/или пароля
+router.put('/profile', authRequired, async (req, res) => {
+  try {
+    const { fio, old_password, new_password } = req.body || {};
+    const userId = req.user.id;
+
+    // Если меняют пароль — проверяем старый
+    if (new_password) {
+      if (!old_password) {
+        return res.status(400).json({ error: 'Введите текущий пароль' });
+      }
+      if (String(new_password).length < 6) {
+        return res.status(400).json({ error: 'Новый пароль должен быть не менее 6 символов' });
+      }
+
+      const [userRows] = await pool.execute(
+        'SELECT parol_hash FROM sotrudnik WHERE id = ?',
+        [userId]
+      );
+      if (!userRows.length) return res.status(404).json({ error: 'Пользователь не найден' });
+
+      const ok = await bcrypt.compare(old_password, userRows[0].parol_hash);
+      if (!ok) {
+        return res.status(403).json({ error: 'Неверный текущий пароль' });
+      }
+
+      const hash = await bcrypt.hash(new_password, 10);
+      await pool.execute('UPDATE sotrudnik SET parol_hash = ? WHERE id = ?', [hash, userId]);
+    }
+
+    // Если меняют ФИО
+    if (fio && String(fio).trim()) {
+      await pool.execute('UPDATE sotrudnik SET fio = ? WHERE id = ?', [String(fio).trim(), userId]);
+    }
+
+    // Возвращаем обновлённые данные
+    const [rows] = await pool.execute(
+      `SELECT s.id, s.fio, s.login, s.rol_id, r.nazvanie AS rol_nazvanie,
+              s.podrazdelenie_id, p.nazvanie AS podrazdelenie_nazvanie
+         FROM sotrudnik s
+         JOIN rol r ON r.id = s.rol_id
+         JOIN podrazdelenie p ON p.id = s.podrazdelenie_id
+        WHERE s.id = ?`,
+      [userId]
+    );
+    res.json(rows[0]);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Ошибка обновления профиля' });
+  }
+});
+
 module.exports = router;

@@ -77,7 +77,16 @@ async function loadUser() {
   CURRENT_USER = await api('/api/auth/me');
   window.CURRENT_USER = CURRENT_USER;       // доступно из app-roles.js
   $('#userName').textContent = CURRENT_USER.fio;
-  $('#userRole').textContent = CURRENT_USER.rol_nazvanie;
+  const roleEl = $('#userRole');
+  roleEl.textContent = CURRENT_USER.rol_nazvanie;
+  roleEl.className = 'user__role role-badge role-badge--' + {
+    'Директор': 'director',
+    'Аналитик': 'analyst',
+    'Главный механик': 'chief',
+    'Механик': 'mechanic',
+    'Диспетчер': 'dispatch',
+    'Пользователь': 'user',
+  }[CURRENT_USER.rol_nazvanie] || 'user';
   $('#userAvatar').textContent = CURRENT_USER.fio[0] || '?';
 
   // ---- Видимость пунктов меню по ролям ----------------------
@@ -93,6 +102,7 @@ async function loadUser() {
     'Пользователь':     ['requests','transport'],
   };
   const allowed = SECTIONS_BY_ROLE[role] || ['requests'];
+  allowed.push('profile'); // профиль доступен всем
 
   document.querySelectorAll('.nav__item').forEach(link => {
     const sec = link.dataset.section;
@@ -138,6 +148,7 @@ const ROUTES = {
   tco:       renderTco,
   receipts:  renderReceipts,
   audit:     renderAudit,
+  profile:   renderProfile,
 };
 
 // Открываем ROUTES наружу — внешние модули (app-roles.js) могут расширять
@@ -172,9 +183,97 @@ function navigate() {
 window.addEventListener('hashchange', navigate);
 
 /* =========================================================
+   0. ПРОФИЛЬ
+   ========================================================= */
+async function renderProfile(root) {
+  const u = CURRENT_USER;
+  root.innerHTML = `
+    <div class="section__head">
+      <div>
+        <h2 class="section__title">${T('profile.title')}</h2>
+        <div class="section__subtitle">${T('profile.subtitle')}</div>
+      </div>
+    </div>
+    <div class="table-card" style="max-width:560px">
+      <div class="profile-info">
+        <div class="profile-avatar">${escape(u.fio[0] || '?')}</div>
+        <div>
+          <div style="font-size:13px;color:var(--c-muted)">${T('profile.login')}</div>
+          <div style="font-weight:600">${escape(u.login)}</div>
+        </div>
+        <div>
+          <div style="font-size:13px;color:var(--c-muted)">${T('profile.role')}</div>
+          <div style="font-weight:600">${escape(u.rol_nazvanie)}</div>
+        </div>
+        <div>
+          <div style="font-size:13px;color:var(--c-muted)">${T('profile.division')}</div>
+          <div style="font-weight:600">${escape(u.podrazdelenie_nazvanie)}</div>
+        </div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--c-border);margin:20px 0">
+      <h3 style="margin-bottom:14px">${T('profile.edit')}</h3>
+      <div class="form-grid">
+        <label class="full">${T('auth.fio')}
+          <input type="text" id="pfFio" value="${escape(u.fio)}" />
+        </label>
+        <label class="full">${T('profile.old_pass')}
+          <input type="password" id="pfOldPwd" autocomplete="current-password" />
+        </label>
+        <label class="full">${T('profile.new_pass')}
+          <input type="password" id="pfNewPwd" autocomplete="new-password" />
+        </label>
+        <label class="full">${T('auth.password_confirm')}
+          <input type="password" id="pfNewPwd2" autocomplete="new-password" />
+        </label>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button class="btn dark" id="pfSave">${T('common.save')}</button>
+      </div>
+    </div>
+  `;
+
+  $('#pfSave').onclick = async () => {
+    const fio = $('#pfFio').value.trim();
+    const old_password = $('#pfOldPwd').value;
+    const new_password = $('#pfNewPwd').value;
+    const new_password2 = $('#pfNewPwd2').value;
+
+    if (new_password && new_password !== new_password2) {
+      return toast(T('profile.pwd_mismatch'), 'error');
+    }
+
+    try {
+      const body = { fio };
+      if (new_password) {
+        body.old_password = old_password;
+        body.new_password = new_password;
+      }
+      const updated = await api('/api/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      });
+      Object.assign(CURRENT_USER, updated);
+      $('#userName').textContent = updated.fio;
+      $('#userAvatar').textContent = updated.fio[0] || '?';
+      toast(T('profile.saved'), 'success');
+      $('#pfOldPwd').value = '';
+      $('#pfNewPwd').value = '';
+      $('#pfNewPwd2').value = '';
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  };
+}
+
+/* =========================================================
    1. ДАШБОРД
    ========================================================= */
 async function renderDashboard(root) {
+  const role = CURRENT_USER?.rol_nazvanie;
+  // Главный механик видит свой дашборд с заявками/ремонтами
+  if (role === 'Главный механик') {
+    return renderMechanicDashboard(root);
+  }
   const year = new Date().getFullYear();
   const data = await api(`/api/finance/reports/dashboard?god=${year}`);
 
@@ -808,6 +907,98 @@ async function renderAudit(root) {
     <div class="tbl-foot">
       <span>${T('audit.records', { n: data.total })}</span>
     </div>
+  `;
+}
+
+/* =========================================================
+   ДАШБОРД ГЛАВНОГО МЕХАНИКА (заявки + ремонты)
+   ========================================================= */
+async function renderMechanicDashboard(root) {
+  // Загружаем данные о заявках и ремонтах параллельно
+  const [zData, rData] = await Promise.all([
+    api('/api/zayavki?limit=200').catch(() => ({ items: [], total: 0 })),
+    api('/api/remonty/my').catch(() => ({ items: [] })),
+  ]);
+
+  const allZ = zData.items || [];
+  const allR = rData.items || [];
+
+  const zNew     = allZ.filter(z => z.status === 'новая').length;
+  const zInWork  = allZ.filter(z => z.status === 'в работе').length;
+  const zDone    = allZ.filter(z => z.status === 'завершена').length;
+  const rOpen    = allR.filter(r => !r.data_okonchaniya).length;
+  const rClosed  = allR.filter(r => r.data_okonchaniya).length;
+
+  root.innerHTML = `
+    <div class="section__head">
+      <div>
+        <h2 class="section__title">${T('dashboard.title')}</h2>
+        <div class="section__subtitle">${T('dashboard.mech_subtitle')}</div>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="kpi-card">
+        <div class="kpi-card__label">${T('dashboard.mech_new')}</div>
+        <div class="kpi-card__value" style="color:var(--warning,#e5a00d)">${zNew}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">${T('dashboard.mech_inwork')}</div>
+        <div class="kpi-card__value" style="color:var(--accent)">${zInWork}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">${T('dashboard.mech_done')}</div>
+        <div class="kpi-card__value" style="color:var(--c-good,#2f8f5e)">${zDone}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">${T('dashboard.mech_repairs_open')}</div>
+        <div class="kpi-card__value">${rOpen}</div>
+      </div>
+    </div>
+
+    <div class="table-card" style="margin-top:18px">
+      <h3 style="margin-bottom:10px">${T('dashboard.mech_recent')}</h3>
+      <table class="tbl">
+        <thead><tr>
+          <th>#</th><th>${T('dashboard.mech_col_plate')}</th><th>${T('dashboard.mech_col_type')}</th>
+          <th>${T('dashboard.mech_col_status')}</th><th>${T('dashboard.mech_col_date')}</th>
+        </tr></thead>
+        <tbody>
+          ${allZ.slice(0, 15).map(z => `
+            <tr>
+              <td><strong>${z.id}</strong></td>
+              <td>${escape(z.gos_nomer || '—')}</td>
+              <td>${escape(z.tip_remonta || '—')}</td>
+              <td><span class="chip ${z.status === 'новая' ? 'gold' : z.status === 'в работе' ? 'blue' : 'green'}">${escape(z.status)}</span></td>
+              <td>${fmtDate(z.data_sozdaniya)}</td>
+            </tr>
+          `).join('') || `<tr><td colspan="5" class="empty">${T('common.no_data')}</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+
+    ${allR.length ? `
+    <div class="table-card" style="margin-top:18px">
+      <h3 style="margin-bottom:10px">${T('dashboard.mech_repairs')}</h3>
+      <table class="tbl">
+        <thead><tr>
+          <th>#</th><th>${T('dashboard.mech_col_plate')}</th><th>${T('dashboard.mech_col_type')}</th>
+          <th>${T('dashboard.mech_col_status')}</th><th>${T('dashboard.mech_col_date')}</th>
+        </tr></thead>
+        <tbody>
+          ${allR.slice(0, 10).map(r => `
+            <tr>
+              <td><strong>${r.zayavka_id}</strong></td>
+              <td>${escape(r.gos_nomer || '—')}</td>
+              <td>${escape(r.tip_remonta || '—')}</td>
+              <td><span class="chip ${r.data_okonchaniya ? 'green' : 'blue'}">${r.data_okonchaniya ? T('dashboard.mech_closed') : T('dashboard.mech_inprogress')}</span></td>
+              <td>${fmtDate(r.data_nachala)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    ` : ''}
   `;
 }
 
