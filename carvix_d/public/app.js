@@ -863,9 +863,7 @@ async function renderBudgets(root) {
 
     <div class="cards-grid" id="bTotals"></div>
 
-    <div class="charts-row">
-      <div class="chart-card"><canvas id="bChartPF"></canvas></div>
-    </div>
+    <div class="chart-card" style="margin-bottom:18px"><canvas id="bChartPF"></canvas></div>
 
     <div class="table-card">
       <div id="bTbl"></div>
@@ -990,7 +988,6 @@ async function renderTco(root) {
       <button class="btn" id="tApply">${T('common.apply')}</button>
     </div>
 
-    <div id="tDetail"></div>
     <div class="table-card">
       <div id="tList"><div class="loading-screen"><div class="spinner"></div></div></div>
     </div>
@@ -1034,13 +1031,18 @@ async function renderTco(root) {
 
   async function loadTcoDetail(tsId) {
     const d = await api('/api/finance/reports/tco/' + tsId);
-    $('#tDetail').innerHTML = `
-      <div class="table-card" style="margin-bottom: 14px;">
-        <nav class="breadcrumbs" aria-label="Навигация">
-          <a href="#tco" class="breadcrumbs__link">${T('tco.title')}</a>
-          <span class="breadcrumbs__sep">›</span>
-          <span class="breadcrumbs__current">${escape(d.summary.gos_nomer)}</span>
-        </nav>
+    const bg = document.createElement('div');
+    bg.className = 'modal-bg';
+    bg.innerHTML = `
+      <div class="modal modal--wide" role="dialog" aria-modal="true">
+        <div class="be-head">
+          <nav class="breadcrumbs" aria-label="Навигация">
+            <span class="breadcrumbs__link">${T('tco.title')}</span>
+            <span class="breadcrumbs__sep">›</span>
+            <span class="breadcrumbs__current">${escape(d.summary.gos_nomer)}</span>
+          </nav>
+          <button class="btn-close" id="tcoClose" aria-label="Закрыть">×</button>
+        </div>
         <h3>${escape(d.summary.gos_nomer)} — ${escape(d.summary.marka_nazvanie)} ${escape(d.summary.model_nazvanie)}</h3>
         <div class="dtl-grid">
           <div>
@@ -1061,6 +1063,7 @@ async function renderTco(root) {
           </div>
         </div>
         <h3 style="margin-top:16px">${T('tco.history')}</h3>
+        <div style="max-height:50vh;overflow:auto">
         <table class="tbl">
           <thead><tr><th>${T('tco.history_type')}</th><th>${T('tco.history_start')}</th><th>${T('tco.history_end')}</th><th>${T('tco.history_mech')}</th><th class="num">${T('tco.history_total')}</th></tr></thead>
           <tbody>
@@ -1075,9 +1078,13 @@ async function renderTco(root) {
             `).join('') || `<tr><td colspan="5" class="empty">${T('tco.history_empty')}</td></tr>`}
           </tbody>
         </table>
+        </div>
       </div>
     `;
-    $('#tDetail').scrollIntoView({ behavior: 'smooth' });
+    document.body.appendChild(bg);
+    bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
+    bg.querySelector('#tcoClose').onclick = () => bg.remove();
+    trapFocus(bg.querySelector('.modal'));
   }
 
   $('#tApply').onclick = load;
@@ -1099,7 +1106,6 @@ async function renderReceipts(root) {
     <div class="table-card">
       <div id="rList"><div class="loading-screen"><div class="spinner"></div></div></div>
     </div>
-    <div id="rDetail"></div>
   `;
 
   const data = await api('/api/finance/parts/receipts');
@@ -1130,13 +1136,18 @@ async function renderReceipts(root) {
   $$('tr[data-id]').forEach(tr => {
     tr.onclick = async () => {
       const d = await api('/api/finance/parts/receipts/' + tr.dataset.id);
-      $('#rDetail').innerHTML = `
-        <div class="table-card" style="margin-top: 14px;">
-          <nav class="breadcrumbs" aria-label="Навигация">
-            <a href="#receipts" class="breadcrumbs__link">${T('receipts.title')}</a>
-            <span class="breadcrumbs__sep">›</span>
-            <span class="breadcrumbs__current">${T('receipts.detail_title', { n: escape(d.nomer_nakl || d.id) })}</span>
-          </nav>
+      const bg = document.createElement('div');
+      bg.className = 'modal-bg';
+      bg.innerHTML = `
+        <div class="modal modal--wide" role="dialog" aria-modal="true">
+          <div class="be-head">
+            <nav class="breadcrumbs" aria-label="Навигация">
+              <span class="breadcrumbs__link">${T('receipts.title')}</span>
+              <span class="breadcrumbs__sep">›</span>
+              <span class="breadcrumbs__current">${T('receipts.detail_title', { n: escape(d.nomer_nakl || d.id) })}</span>
+            </nav>
+            <button class="btn-close" id="rcDetailClose" aria-label="Закрыть">×</button>
+          </div>
           <h3>${T('receipts.detail_title', { n: escape(d.nomer_nakl || d.id) })}</h3>
           <div class="dtl-grid">
             <div><div class="kpi-card__label">${T('receipts.detail_sup')}</div><div>${escape(d.postavshik_nazvanie)}</div></div>
@@ -1145,6 +1156,7 @@ async function renderReceipts(root) {
             <div><div class="kpi-card__label">${T('receipts.detail_sum')}</div><div><strong>${fmtMoney(d.summa_obshaya)}</strong></div></div>
           </div>
           ${d.kommentariy ? `<div style="color:var(--c-muted);font-style:italic;margin-bottom:10px">${escape(d.kommentariy)}</div>` : ''}
+          <div style="max-height:50vh;overflow:auto">
           <table class="tbl">
             <thead><tr>
               <th>${T('receipts.pos_part')}</th><th>${T('receipts.pos_sku')}</th>
@@ -1162,9 +1174,13 @@ async function renderReceipts(root) {
               `).join('')}
             </tbody>
           </table>
+          </div>
         </div>
       `;
-      $('#rDetail').scrollIntoView({ behavior: 'smooth' });
+      document.body.appendChild(bg);
+      bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
+      bg.querySelector('#rcDetailClose').onclick = () => bg.remove();
+      trapFocus(bg.querySelector('.modal'));
     };
   });
 }
