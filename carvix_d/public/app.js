@@ -187,47 +187,86 @@ window.addEventListener('hashchange', navigate);
    ========================================================= */
 async function renderProfile(root) {
   const u = CURRENT_USER;
+  const roleCls = {
+    'Директор': 'director', 'Аналитик': 'analyst', 'Главный механик': 'chief',
+    'Механик': 'mechanic', 'Диспетчер': 'dispatch', 'Пользователь': 'user',
+  }[u.rol_nazvanie] || 'user';
+
   root.innerHTML = `
-    <div class="section__head">
-      <div>
-        <h2 class="section__title">${T('profile.title')}</h2>
-        <div class="section__subtitle">${T('profile.subtitle')}</div>
-      </div>
-    </div>
-    <div class="table-card" style="max-width:560px">
-      <div class="profile-info">
-        <div class="profile-avatar">${escape(u.fio[0] || '?')}</div>
-        <div>
-          <div style="font-size:13px;color:var(--c-muted)">${T('profile.login')}</div>
-          <div style="font-weight:600">${escape(u.login)}</div>
+    <div class="pf">
+      <!-- Hero card -->
+      <div class="pf-hero">
+        <div class="pf-hero__bg"></div>
+        <div class="pf-hero__body">
+          <div class="pf-avatar pf-avatar--${roleCls}">
+            <span>${escape(u.fio[0] || '?')}</span>
+          </div>
+          <h2 class="pf-hero__name">${escape(u.fio)}</h2>
+          <span class="role-badge role-badge--${roleCls}" style="font-size:11px;padding:3px 12px">${escape(u.rol_nazvanie)}</span>
+          <div class="pf-meta">
+            <div class="pf-meta__item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <div>
+                <div class="pf-meta__label">${T('profile.login')}</div>
+                <div class="pf-meta__value">${escape(u.login)}</div>
+              </div>
+            </div>
+            <div class="pf-meta__item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 3h18v4H3zM3 11h18v4H3zM3 19h18v2H3z"/></svg>
+              <div>
+                <div class="pf-meta__label">${T('profile.division')}</div>
+                <div class="pf-meta__value">${escape(u.podrazdelenie_nazvanie)}</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <div style="font-size:13px;color:var(--c-muted)">${T('profile.role')}</div>
-          <div style="font-weight:600">${escape(u.rol_nazvanie)}</div>
-        </div>
-        <div>
-          <div style="font-size:13px;color:var(--c-muted)">${T('profile.division')}</div>
-          <div style="font-weight:600">${escape(u.podrazdelenie_nazvanie)}</div>
-        </div>
       </div>
-      <hr style="border:none;border-top:1px solid var(--c-border);margin:20px 0">
-      <h3 style="margin-bottom:14px">${T('profile.edit')}</h3>
-      <div class="form-grid">
-        <label class="full">${T('auth.fio')}
-          <input type="text" id="pfFio" value="${escape(u.fio)}" />
-        </label>
-        <label class="full">${T('profile.old_pass')}
-          <input type="password" id="pfOldPwd" autocomplete="current-password" />
-        </label>
-        <label class="full">${T('profile.new_pass')}
-          <input type="password" id="pfNewPwd" autocomplete="new-password" />
-        </label>
-        <label class="full">${T('auth.password_confirm')}
-          <input type="password" id="pfNewPwd2" autocomplete="new-password" />
-        </label>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:10px">
-        <button class="btn dark" id="pfSave">${T('common.save')}</button>
+
+      <!-- Settings card -->
+      <div class="pf-card">
+        <div class="pf-card__header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="22" height="22"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.68 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.85.997 1.51 1.08H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <h3>${T('profile.edit')}</h3>
+        </div>
+        <div class="pf-form">
+          <label class="pf-field">
+            <span class="pf-field__label">${T('auth.fio')}</span>
+            <div class="pf-field__wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="pfFio" value="${escape(u.fio)}" />
+            </div>
+          </label>
+          <div class="pf-divider"><span>${T('profile.change_pass')}</span></div>
+          <label class="pf-field">
+            <span class="pf-field__label">${T('profile.old_pass')}</span>
+            <div class="pf-field__wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="pfOldPwd" autocomplete="current-password" placeholder="••••••" />
+            </div>
+          </label>
+          <div class="pf-row">
+            <label class="pf-field">
+              <span class="pf-field__label">${T('profile.new_pass')}</span>
+              <div class="pf-field__wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="password" id="pfNewPwd" autocomplete="new-password" placeholder="••••••" />
+              </div>
+            </label>
+            <label class="pf-field">
+              <span class="pf-field__label">${T('auth.password_confirm')}</span>
+              <div class="pf-field__wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <input type="password" id="pfNewPwd2" autocomplete="new-password" placeholder="••••••" />
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="pf-card__footer">
+          <button class="btn dark pf-save" id="pfSave">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            ${T('common.save')}
+          </button>
+        </div>
       </div>
     </div>
   `;

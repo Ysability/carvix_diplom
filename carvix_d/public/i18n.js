@@ -64,6 +64,7 @@
       'profile.edit':          'Редактирование',
       'profile.old_pass':      'Текущий пароль',
       'profile.new_pass':      'Новый пароль',
+      'profile.change_pass':  'Смена пароля',
       'profile.pwd_mismatch':  'Пароли не совпадают',
       'profile.saved':         'Профиль обновлён',
 
@@ -487,6 +488,7 @@
       'profile.edit':          'Edit',
       'profile.old_pass':      'Current password',
       'profile.new_pass':      'New password',
+      'profile.change_pass':  'Change password',
       'profile.pwd_mismatch':  'Passwords do not match',
       'profile.saved':         'Profile updated',
 
