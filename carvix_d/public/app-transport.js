@@ -323,21 +323,47 @@
   /* ──────────────────────────────────────────────────────────
      МАСКИ ВВОДА
      ────────────────────────────────────────────────────────── */
-  function maskGosNomer(input) {
-    input.addEventListener('input', () => {
-      let v = input.value.toUpperCase().replace(/[^A-ZА-Я0-9]/g, '');
-      if (v.length > 9) v = v.slice(0, 9);
-      input.value = v;
-    });
-    input.placeholder = 'А123АА777';
+  // Российский гос. номер: буква + 3 цифры + 2 буквы + 2-3 цифры (регион)
+  // Допустимые буквы: А В Е К М Н О Р С Т У Х (совпадают с латиницей)
+  const GOS_LETTERS = 'АВЕКМНОРСТУХ';
+  const GOS_LATIN   = 'ABEKMHOPCTYX'; // латинские дубликаты
+  function latinToRus(ch) {
+    const idx = GOS_LATIN.indexOf(ch);
+    return idx >= 0 ? GOS_LETTERS[idx] : ch;
   }
-  function maskInvNomer(input) {
+  function maskGosNomer(input) {
+    input.placeholder = 'А123АА77';
+    input.maxLength = 9;
     input.addEventListener('input', () => {
-      let v = input.value.toUpperCase().replace(/[^A-ZА-Я0-9\-]/g, '');
+      let raw = input.value.toUpperCase();
+      let result = '';
+      for (let i = 0; i < raw.length && result.length < 9; i++) {
+        let ch = latinToRus(raw[i]);
+        const pos = result.length;
+        if (pos === 0 || pos === 4 || pos === 5) {
+          // буква
+          if (GOS_LETTERS.includes(ch)) result += ch;
+        } else if (pos >= 1 && pos <= 3) {
+          // цифры (номер)
+          if (/\d/.test(ch)) result += ch;
+        } else if (pos >= 6) {
+          // цифры (регион)
+          if (/\d/.test(ch)) result += ch;
+        }
+      }
+      input.value = result;
+    });
+  }
+
+  // Инвентарный номер: только заглавные буквы (лат), цифры и дефис
+  function maskInvNomer(input) {
+    input.placeholder = 'INV-001';
+    input.maxLength = 20;
+    input.addEventListener('input', () => {
+      let v = input.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '');
       if (v.length > 20) v = v.slice(0, 20);
       input.value = v;
     });
-    input.placeholder = 'INV-001';
   }
 
   /* ──────────────────────────────────────────────────────────

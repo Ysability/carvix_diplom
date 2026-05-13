@@ -233,7 +233,9 @@
      ────────────────────────────────────────────────────────── */
   async function autoAssign(id, onDone) {
     try {
+      console.log('[autoAssign] start, zayavka', id);
       const r = await window.api(`/api/zayavki/${id}/auto-assign`, { method: 'POST' });
+      console.log('[autoAssign] ok:', r);
       const scopeLbl = r.scope === 'local'
         ? T('requests.auto_scope.local')
         : T('requests.auto_scope.global');
@@ -246,7 +248,10 @@
         'success'
       );
       onDone?.();
-    } catch (e) { window.toast(e.message, 'error'); }
+    } catch (e) {
+      console.error('[autoAssign] error:', e);
+      window.toast(e.message, 'error');
+    }
   }
 
   async function openManualAssign(id, onDone) {

@@ -127,8 +127,8 @@ router.get(
       const [rows] = await pool.execute(
         `SELECT s.id, s.fio, s.podrazdelenie_id,
                 pd.nazvanie AS podrazdelenie,
-                COALESCE(load.aktivnyh, 0)::INT AS aktivnyh_remontov,
-                COALESCE(load.za_30_dney, 0)::INT AS remontov_za_30_dney
+                CAST(COALESCE(load.aktivnyh, 0) AS INT) AS aktivnyh_remontov,
+                CAST(COALESCE(load.za_30_dney, 0) AS INT) AS remontov_za_30_dney
            FROM sotrudnik s
            JOIN rol r           ON r.id  = s.rol_id
            JOIN podrazdelenie pd ON pd.id = s.podrazdelenie_id
@@ -502,83 +502,80 @@ router.post(
   authRequired,
   requireDispetcher,
   async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) {
+      return res.status(400).json({ error: 'Некорректный id заявки' });
+    }
+
     try {
-      const id = Number(req.params.id);
-      if (!Number.isFinite(id)) {
-        return res.status(400).json({ error: 'Некорректный id заявки' });
+      // 1. Заявка + подразделение ТС (вне транзакции — read-only)
+      const [zRows] = await pool.execute(
+        `SELECT z.id, z.status_id, st.nazvanie AS status,
+                ts.podrazdelenie_id, pd.nazvanie AS podrazdelenie
+           FROM zayavka z
+           JOIN status              st ON st.id = z.status_id
+           JOIN transportnoe_sredstvo ts ON ts.id = z.ts_id
+           JOIN podrazdelenie       pd ON pd.id = ts.podrazdelenie_id
+          WHERE z.id = ?`,
+        [id]
+      );
+      const z = zRows[0];
+      if (!z) return res.status(404).json({ error: 'Заявка не найдена' });
+      if (z.status === 'Выполнена' || z.status === 'Отклонена') {
+        return res.status(400).json({ error: 'Заявка завершена — автонаводка невозможна' });
       }
 
+      // 2. Кандидаты: сперва — механики из того же подразделения
+      async function fetchCandidates(podrFilter, params) {
+        const [rows] = await pool.execute(
+          `SELECT s.id, s.fio, s.podrazdelenie_id,
+                  pd.nazvanie AS podrazdelenie,
+                  CAST(COALESCE(load.aktivnyh, 0) AS INT) AS aktivnyh_remontov,
+                  CAST(COALESCE(load.za_30_dney, 0) AS INT) AS remontov_za_30_dney
+             FROM sotrudnik s
+             JOIN rol r            ON r.id  = s.rol_id
+             JOIN podrazdelenie pd ON pd.id = s.podrazdelenie_id
+             LEFT JOIN (
+               SELECT mekhanik_id,
+                      SUM(CASE WHEN data_okonchaniya IS NULL THEN 1 ELSE 0 END) AS aktivnyh,
+                      SUM(CASE WHEN data_okonchaniya >= NOW() - INTERVAL '30 days'
+                               THEN 1 ELSE 0 END) AS za_30_dney
+                 FROM remont
+                GROUP BY mekhanik_id
+             ) load ON load.mekhanik_id = s.id
+            WHERE r.nazvanie = 'Механик' ${podrFilter}
+            ORDER BY aktivnyh_remontov ASC,
+                     remontov_za_30_dney ASC,
+                     s.fio ASC
+            LIMIT 1`,
+          params
+        );
+        return rows[0] || null;
+      }
+
+      let kandidat = await fetchCandidates(
+        'AND s.podrazdelenie_id = ?',
+        [z.podrazdelenie_id]
+      );
+      let scope = 'local';
+      if (!kandidat) {
+        kandidat = await fetchCandidates('', []);
+        scope = 'global';
+      }
+      if (!kandidat) {
+        return res.status(409).json({ error: 'Нет ни одного механика в системе' });
+      }
+
+      // 3. Назначаем (транзакция — только для write-операций)
       const result = await pool.transaction(async (tx) => {
-        // 1. Заявка + подразделение ТС
-        const [[z]] = await tx.execute(
-          `SELECT z.id, z.status_id, st.nazvanie AS status,
-                  ts.podrazdelenie_id, pd.nazvanie AS podrazdelenie
-             FROM zayavka z
-             JOIN status              st ON st.id = z.status_id
-             JOIN transportnoe_sredstvo ts ON ts.id = z.ts_id
-             JOIN podrazdelenie       pd ON pd.id = ts.podrazdelenie_id
-            WHERE z.id = ?`,
-          [id]
-        );
-        if (!z) return { code: 404, body: { error: 'Заявка не найдена' } };
-        if (z.status === 'Выполнена' || z.status === 'Отклонена') {
-          return {
-            code: 400,
-            body: { error: 'Заявка завершена — автонаводка невозможна' },
-          };
-        }
-
-        // 2. Кандидаты: сперва — механики из того же подразделения
-        async function fetchCandidates(podrFilter, params) {
-          const [rows] = await tx.execute(
-            `SELECT s.id, s.fio, s.podrazdelenie_id,
-                    pd.nazvanie AS podrazdelenie,
-                    COALESCE(load.aktivnyh, 0)::INT      AS aktivnyh_remontov,
-                    COALESCE(load.za_30_dney, 0)::INT    AS remontov_za_30_dney
-               FROM sotrudnik s
-               JOIN rol r            ON r.id  = s.rol_id
-               JOIN podrazdelenie pd ON pd.id = s.podrazdelenie_id
-               LEFT JOIN (
-                 SELECT mekhanik_id,
-                        SUM(CASE WHEN data_okonchaniya IS NULL THEN 1 ELSE 0 END) AS aktivnyh,
-                        SUM(CASE WHEN data_okonchaniya >= NOW() - INTERVAL '30 days'
-                                 THEN 1 ELSE 0 END) AS za_30_dney
-                   FROM remont
-                  GROUP BY mekhanik_id
-               ) load ON load.mekhanik_id = s.id
-              WHERE r.nazvanie = 'Механик' ${podrFilter}
-              ORDER BY aktivnyh_remontov ASC,
-                       remontov_za_30_dney ASC,
-                       s.fio ASC
-              LIMIT 1`,
-            params
-          );
-          return rows[0] || null;
-        }
-
-        let kandidat = await fetchCandidates(
-          'AND s.podrazdelenie_id = ?',
-          [z.podrazdelenie_id]
-        );
-        let scope = 'local';
-        if (!kandidat) {
-          kandidat = await fetchCandidates('', []);
-          scope = 'global';
-        }
-        if (!kandidat) {
-          return {
-            code: 409,
-            body: { error: 'Нет ни одного механика в системе' },
-          };
-        }
-
-        // 3. Назначаем
-        const [[gm]] = await tx.execute(
-          `SELECT id FROM sotrudnik s
+        const [gmRows] = await tx.execute(
+          `SELECT s.id FROM sotrudnik s
              JOIN rol r ON r.id = s.rol_id
             WHERE r.nazvanie = 'Главный механик'
             LIMIT 1`
         );
+        const gmId = gmRows[0]?.id || null;
+
         const [existing] = await tx.execute(
           'SELECT id FROM remont WHERE zayavka_id = ? LIMIT 1',
           [id]
@@ -591,17 +588,21 @@ router.post(
             [kandidat.id, remontId]
           );
         } else {
-          const [r] = await tx.execute(
+          const [ins] = await tx.execute(
             `INSERT INTO remont (zayavka_id, mekhanik_id, glavniy_mekhanik_id,
                                  stoimost_rabot, stoimost_zapchastey)
              VALUES (?, ?, ?, 0, 0)
              RETURNING id`,
-            [id, kandidat.id, gm?.id || null]
+            [id, kandidat.id, gmId]
           );
-          remontId = r[0].id;
+          remontId = ins[0].id;
         }
 
-        const vRabote = await findStatusId('В работе');
+        // Статус → "В работе"
+        const [stRows] = await tx.execute(
+          `SELECT id FROM status WHERE nazvanie = 'В работе' LIMIT 1`
+        );
+        const vRabote = stRows[0]?.id || null;
         if (vRabote) {
           await tx.execute(
             'UPDATE zayavka SET status_id = ? WHERE id = ?',
@@ -618,28 +619,25 @@ router.post(
           `Авто: ${kandidat.fio} (нагрузка ${kandidat.aktivnyh_remontov}, ${scope})`
         );
 
-        return {
-          code: 200,
-          body: {
-            id,
-            remont_id: remontId,
-            mekhanik: {
-              id: kandidat.id,
-              fio: kandidat.fio,
-              podrazdelenie: kandidat.podrazdelenie,
-              aktivnyh_remontov: kandidat.aktivnyh_remontov,
-              remontov_za_30_dney: kandidat.remontov_za_30_dney,
-            },
-            scope, // 'local' | 'global'
-            status: 'В работе',
-          },
-        };
+        return remontId;
       });
 
-      return res.status(result.code).json(result.body);
+      return res.json({
+        id,
+        remont_id: result,
+        mekhanik: {
+          id: kandidat.id,
+          fio: kandidat.fio,
+          podrazdelenie: kandidat.podrazdelenie,
+          aktivnyh_remontov: kandidat.aktivnyh_remontov,
+          remontov_za_30_dney: kandidat.remontov_za_30_dney,
+        },
+        scope,
+        status: 'В работе',
+      });
     } catch (e) {
-      console.error(e);
-      res.status(500).json({ error: 'Ошибка автонаводки' });
+      console.error('[auto-assign] Error for zayavka', id, ':', e.message, e.stack);
+      res.status(500).json({ error: `Ошибка автонаводки: ${e.message}` });
     }
   }
 );
