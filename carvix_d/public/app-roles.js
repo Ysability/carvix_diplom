@@ -48,10 +48,10 @@
     if (!dataRezhima) return '';
     const now = new Date();
     const deadline = new Date(dataRezhima);
-    if (deadline < now) return `<span class="urgency urgency--overdue">Просрочена</span>`;
+    if (deadline < now) return `<span class="urgency urgency--overdue">${T('requests.urgency_overdue')}</span>`;
     const hoursLeft = (deadline - now) / 36e5;
-    if (hoursLeft <= 24) return `<span class="urgency urgency--urgent">Срочно</span>`;
-    if (hoursLeft <= 72) return `<span class="urgency urgency--soon">До ${deadline.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit' })}</span>`;
+    if (hoursLeft <= 24) return `<span class="urgency urgency--urgent">${T('requests.urgency_urgent')}</span>`;
+    if (hoursLeft <= 72) return `<span class="urgency urgency--soon">${T('requests.urgency_soon', { date: deadline.toLocaleDateString(LOC(), { day:'2-digit', month:'2-digit' }) })}</span>`;
     return '';
   }
 
@@ -78,7 +78,7 @@
       </div>
 
       <div class="filters">
-        <input type="text" class="search-input" id="fReqSearch" placeholder="${window.t('common.search') || 'Поиск…'}" />
+        <input type="text" class="search-input" id="fReqSearch" placeholder="${window.t('common.search') || 'Search…'}" />
         <label>${T('requests.filter_status')}
           <select id="fStatus"><option value="">${T('common.all')}</option></select>
         </label>
@@ -241,8 +241,8 @@
     bg.querySelector('#cCancel').onclick = () => bg.remove();
     bg.querySelector('#cSave').onclick = async () => {
       const rules = [
-        { selector: '#cTs', message: T('validate.ts') || 'Выберите ТС' },
-        { selector: '#cTip', message: T('validate.type') || 'Выберите тип ремонта' },
+        { selector: '#cTs', message: T('validate.ts') || 'Select vehicle' },
+        { selector: '#cTip', message: T('validate.type') || 'Select repair type' },
       ];
       if (!window.validateForm(bg, rules)) return;
       const body = {
@@ -418,7 +418,7 @@
         ${z.itog ? `<div class="req-card__desc" style="margin-top: 8px"><strong>${T('repairs.itog')}:</strong> ${escape(z.itog)}</div>` : ''}
 
         <div style="margin-top: 20px">
-          <h4 style="margin-bottom: 10px; font-size: 14px; color: var(--c-muted)">История статусов</h4>
+          <h4 style="margin-bottom: 10px; font-size: 14px; color: var(--c-muted)">${T('requests.timeline_title')}</h4>
           <div id="reqTimeline" class="timeline">${renderTimeline(timeline)}</div>
         </div>
 
@@ -431,7 +431,7 @@
   }
 
   function renderTimeline(items) {
-    if (!items || !items.length) return '<div class="empty" style="padding: 12px 0">Нет записей</div>';
+    if (!items || !items.length) return `<div class="empty" style="padding: 12px 0">${T('requests.timeline_empty')}</div>`;
     return `
       <div class="timeline__list">
         ${items.map((it, i) => `
@@ -678,9 +678,9 @@
           </label>
           <label class="full">${T('repairs.itog')}
             <select id="fI">
-              <option>Проблема устранена</option>
-              <option>Требуется повторное обслуживание</option>
-              <option>Не подлежит ремонту</option>
+              <option>${T('repairs.outcome_fixed')}</option>
+              <option>${T('repairs.outcome_repeat')}</option>
+              <option>${T('repairs.outcome_unrepairable')}</option>
             </select>
           </label>
           <label class="full">${T('common.comment')}

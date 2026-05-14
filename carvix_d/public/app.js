@@ -157,7 +157,7 @@ function validateForm(container, rules) {
       label.classList.add('field-error');
       const msg = document.createElement('span');
       msg.className = 'field-error-msg';
-      msg.textContent = message || T('validate.required') || 'Обязательное поле';
+      msg.textContent = message || T('validate.required') || 'Required field';
       label.appendChild(msg);
       el.addEventListener('input', () => {
         label.classList.remove('field-error');
@@ -216,8 +216,8 @@ async function api(path, options = {}) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     let msg = data.error || `HTTP ${res.status}`;
-    if (res.status === 400) msg = `Ошибка валидации: ${msg}`;
-    if (res.status === 429) msg = `Лимит запросов: ${msg}`;
+    if (res.status === 400) msg = `${T('api.error_validation')}: ${msg}`;
+    if (res.status === 429) msg = `${T('api.error_rate_limit')}: ${msg}`;
     const err = new Error(msg);
     err.status = res.status;
     throw err;
@@ -446,7 +446,7 @@ async function renderProfile(root) {
       <div class="pf-card" style="grid-column: 1 / -1">
         <div class="pf-card__header">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="22" height="22"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>
-          <h3>${T('profile.activity') || 'Последние действия'}</h3>
+          <h3>${T('profile.activity') || 'Recent activity'}</h3>
         </div>
         <div id="pfActivity"><div class="loading-screen"><div class="spinner"></div></div></div>
       </div>
@@ -463,11 +463,11 @@ async function renderProfile(root) {
     el.innerHTML = `
       <table class="tbl" style="font-size:13px">
         <thead><tr>
-          <th>${T('audit.col_when') || 'Когда'}</th>
-          <th>${T('audit.col_op') || 'Операция'}</th>
-          <th>${T('audit.col_obj') || 'Объект'}</th>
-          <th class="num">${T('audit.col_sum') || 'Сумма'}</th>
-          <th>${T('audit.col_comment') || 'Комментарий'}</th>
+          <th>${T('audit.col_when') || 'When'}</th>
+          <th>${T('audit.col_op') || 'Operation'}</th>
+          <th>${T('audit.col_obj') || 'Object'}</th>
+          <th class="num">${T('audit.col_sum') || 'Amount'}</th>
+          <th>${T('audit.col_comment') || 'Comment'}</th>
         </tr></thead>
         <tbody>
           ${items.map(it => `
@@ -588,14 +588,14 @@ async function renderDashboard(root) {
       </div>
       ${isDirector ? `
       <div class="dash-mode-tabs" style="display:flex;gap:4px;background:var(--c-surface);padding:4px;border-radius:12px;border:1px solid var(--c-border)">
-        <button class="btn btn--sm ${savedMode === 'finance' ? 'dark' : ''}" id="dModeFinance">${T('dashboard.mode_finance') || 'Финансовый'}</button>
-        <button class="btn btn--sm ${savedMode === 'analyst' ? 'dark' : ''}" id="dModeAnalyst">${T('dashboard.mode_analyst') || 'Аналитический'}</button>
+        <button class="btn btn--sm ${savedMode === 'finance' ? 'dark' : ''}" id="dModeFinance">${T('dashboard.mode_finance') || 'Financial'}</button>
+        <button class="btn btn--sm ${savedMode === 'analyst' ? 'dark' : ''}" id="dModeAnalyst">${T('dashboard.mode_analyst') || 'Analytical'}</button>
       </div>` : ''}
     </div>
     <div class="filters" style="margin-bottom:14px">
-      <label>${T('filter.division') || 'Подразделение'}
+      <label>${T('filter.division') || 'Division'}
         <select id="dPd">
-          <option value="">${T('common.all') || 'Все'}</option>
+          <option value="">${T('common.all') || 'All'}</option>
           ${pds.map(p => `<option value="${p.id}">${p.nazvanie}</option>`).join('')}
         </select>
       </label>
@@ -746,22 +746,22 @@ async function renderDashboard(root) {
       <div class="kpi-card">
         <div class="kpi-card__label">${T('dashboard.analyst_mekh')}</div>
         <div class="kpi-card__value">${busyMekh} / ${totalMekh}</div>
-        <div class="kpi-card__hint">занято / всего</div>
+        <div class="kpi-card__hint">${T('dashboard.analyst_mekh_hint')}</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card__label">${T('dashboard.analyst_avg')}</div>
         <div class="kpi-card__value">${avgAll}</div>
-        <div class="kpi-card__hint">среднее за ${year}</div>
+        <div class="kpi-card__hint">${T('dashboard.analyst_avg_hint', { year })}</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card__label">${T('dashboard.analyst_rdyn')}</div>
         <div class="kpi-card__value">${totalRepairs}</div>
-        <div class="kpi-card__hint">завершённых за год</div>
+        <div class="kpi-card__hint">${T('dashboard.analyst_rdyn_hint')}</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card__label">${T('dashboard.analyst_statuses')}</div>
         <div class="kpi-card__value">${totalStatuses}</div>
-        <div class="kpi-card__hint">всего заявок</div>
+        <div class="kpi-card__hint">${T('dashboard.analyst_statuses_hint')}</div>
       </div>
     </div>
 
@@ -974,7 +974,7 @@ async function renderExpenses(root) {
     </div>
 
     <div class="filters">
-      <input type="text" class="search-input" id="fSearch" placeholder="${T('common.search') || 'Поиск…'}" />
+      <input type="text" class="search-input" id="fSearch" placeholder="${T('common.search') || 'Search…'}" />
       <label>${T('filter.from')} <input type="date" id="fFrom" /></label>
       <label>${T('filter.to')}   <input type="date" id="fTo" /></label>
       <label>${T('filter.category')}
@@ -1121,7 +1121,7 @@ async function openExpenseModal(onSaved) {
         </label>
         <label class="full">${T('expenses.col_plate')}
           <select id="mTs">
-            <option value="">${T('expenses.no_ts') || '— без ТС —'}</option>
+            <option value="">${T('expenses.no_ts') || '— no vehicle —'}</option>
             ${tsList.map(t => `<option value="${t.id}" data-pd="${t.podrazdelenie}">${escape(t.gos_nomer)} — ${escape(t.marka)} ${escape(t.model)}</option>`).join('')}
           </select>
         </label>
@@ -1149,13 +1149,13 @@ async function openExpenseModal(onSaved) {
   $('#mCancel', bg).onclick = () => bg.remove();
   $('#mSave', bg).onclick = async () => {
     const rules = [
-      { selector: '#mData', message: T('validate.date') || 'Укажите дату' },
-      { selector: '#mSum', message: T('validate.sum') || 'Укажите сумму' },
+      { selector: '#mData', message: T('validate.date') || 'Enter date' },
+      { selector: '#mSum', message: T('validate.sum') || 'Enter amount' },
     ];
     if (!validateForm(bg, rules)) return;
     const tsVal = $('#mTs', bg).value;
     if (!tsVal && !$('#mPd', bg).value) {
-      return toast(T('expenses.need_ts_or_pd') || 'Укажите ТС или подразделение', 'error');
+      return toast(T('expenses.need_ts_or_pd') || 'Select vehicle or division', 'error');
     }
     const body = {
       kategoriya:       $('#mKat', bg).value,
@@ -1382,12 +1382,12 @@ async function renderTco(root) {
     bg.innerHTML = `
       <div class="modal modal--wide" role="dialog" aria-modal="true">
         <div class="be-head">
-          <nav class="breadcrumbs" aria-label="Навигация">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
             <span class="breadcrumbs__link">${T('tco.title')}</span>
             <span class="breadcrumbs__sep">›</span>
             <span class="breadcrumbs__current">${escape(d.summary.gos_nomer)}</span>
           </nav>
-          <button class="btn-close" id="tcoClose" aria-label="Закрыть">×</button>
+          <button class="btn-close" id="tcoClose" aria-label="Close">×</button>
         </div>
         <h3>${escape(d.summary.gos_nomer)} — ${escape(d.summary.marka_nazvanie)} ${escape(d.summary.model_nazvanie)}</h3>
         <div class="dtl-grid">
@@ -1487,12 +1487,12 @@ async function renderReceipts(root) {
       bg.innerHTML = `
         <div class="modal modal--wide" role="dialog" aria-modal="true">
           <div class="be-head">
-            <nav class="breadcrumbs" aria-label="Навигация">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
               <span class="breadcrumbs__link">${T('receipts.title')}</span>
               <span class="breadcrumbs__sep">›</span>
               <span class="breadcrumbs__current">${T('receipts.detail_title', { n: escape(d.nomer_nakl || d.id) })}</span>
             </nav>
-            <button class="btn-close" id="rcDetailClose" aria-label="Закрыть">×</button>
+            <button class="btn-close" id="rcDetailClose" aria-label="Close">×</button>
           </div>
           <h3>${T('receipts.detail_title', { n: escape(d.nomer_nakl || d.id) })}</h3>
           <div class="dtl-grid">
@@ -1546,7 +1546,7 @@ async function renderAudit(root) {
       </div>
     </div>
     <div class="filters">
-      <input type="text" class="search-input" id="aSearch" placeholder="${T('common.search') || 'Поиск…'}" />
+      <input type="text" class="search-input" id="aSearch" placeholder="${T('common.search') || 'Search…'}" />
     </div>
     <div class="table-card">
       <div id="aTbl"><div class="loading-screen"><div class="spinner"></div></div></div>
@@ -1634,22 +1634,22 @@ async function renderAnalystDashboard(root) {
       <div class="kpi-card">
         <div class="kpi-card__label">${T('dashboard.analyst_mekh')}</div>
         <div class="kpi-card__value">${busyMekh} / ${totalMekh}</div>
-        <div class="kpi-card__hint">занято / всего</div>
+        <div class="kpi-card__hint">${T('dashboard.analyst_mekh_hint')}</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card__label">${T('dashboard.analyst_avg')}</div>
         <div class="kpi-card__value">${avgAll}</div>
-        <div class="kpi-card__hint">среднее за ${year}</div>
+        <div class="kpi-card__hint">${T('dashboard.analyst_avg_hint', { year })}</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card__label">${T('dashboard.analyst_rdyn')}</div>
         <div class="kpi-card__value">${totalRepairs}</div>
-        <div class="kpi-card__hint">завершённых за год</div>
+        <div class="kpi-card__hint">${T('dashboard.analyst_rdyn_hint')}</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card__label">${T('dashboard.analyst_statuses')}</div>
         <div class="kpi-card__value">${totalStatuses}</div>
-        <div class="kpi-card__hint">всего заявок</div>
+        <div class="kpi-card__hint">${T('dashboard.analyst_statuses_hint')}</div>
       </div>
     </div>
 

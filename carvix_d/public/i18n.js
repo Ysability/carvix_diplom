@@ -118,6 +118,10 @@
       'dashboard.analyst_tip_cnt':    'Кол-во',
       'dashboard.analyst_tip_sum':    'Сумма',
       'dashboard.analyst_tip_avg':    'Ср. дней',
+      'dashboard.analyst_mekh_hint':  'занято / всего',
+      'dashboard.analyst_avg_hint':   'среднее за {year}',
+      'dashboard.analyst_rdyn_hint':  'завершённых за год',
+      'dashboard.analyst_statuses_hint': 'всего заявок',
 
       // ---- Common (расширение) ----
       'common.refresh':        'Обновить',
@@ -126,6 +130,8 @@
       'common.comment':        'Комментарий',
       'common.status':         'Статус',
       'common.saved':          'Сохранено',
+      'api.error_validation':  'Ошибка валидации',
+      'api.error_rate_limit':  'Лимит запросов',
 
       // ---- Заявки ----
       'requests.title':           'Заявки на ремонт',
@@ -163,6 +169,11 @@
       'requests.auto_done':       'Назначен {fio} (нагрузка {load}, {scope})',
       'requests.auto_scope.local':  'своё подразделение',
       'requests.auto_scope.global': 'другое подразделение',
+      'requests.timeline_title':    'История статусов',
+      'requests.timeline_empty':    'Нет записей',
+      'requests.urgency_overdue':   'Просрочена',
+      'requests.urgency_urgent':    'Срочно',
+      'requests.urgency_soon':      'До {date}',
 
       // ---- Распределение ----
       'dispatch.title':           'Распределение заявок',
@@ -197,6 +208,9 @@
       'repairs.cost_work':        'Стоимость работ',
       'repairs.cost_parts':       'Стоимость запчастей',
       'repairs.itog':             'Итог',
+      'repairs.outcome_fixed':    'Проблема устранена',
+      'repairs.outcome_repeat':   'Требуется повторное обслуживание',
+      'repairs.outcome_unrepairable': 'Не подлежит ремонту',
       'repairs.started':          'Начат',
       'repairs.finished':         'Завершён',
       'repairs.started_ok':       'Ремонт начат',
@@ -259,6 +273,8 @@
       'dashboard.top5':        'Топ-5 машин по стоимости владения (TCO)',
       'dashboard.delta_up':    '▲ +{n}% к предыдущему',
       'dashboard.delta_down':  '▼ {n}% к предыдущему',
+      'dashboard.mode_finance':  'Финансовый',
+      'dashboard.mode_analyst':  'Аналитический',
 
       // ---- Expenses ----
       'expenses.title':        'Расходы',
@@ -580,6 +596,10 @@
       'dashboard.analyst_tip_cnt':    'Count',
       'dashboard.analyst_tip_sum':    'Amount',
       'dashboard.analyst_tip_avg':    'Avg days',
+      'dashboard.analyst_mekh_hint':  'busy / total',
+      'dashboard.analyst_avg_hint':   'avg for {year}',
+      'dashboard.analyst_rdyn_hint':  'completed this year',
+      'dashboard.analyst_statuses_hint': 'total requests',
 
       // ---- Common (extra) ----
       'common.refresh':        'Refresh',
@@ -588,6 +608,8 @@
       'common.comment':        'Comment',
       'common.status':         'Status',
       'common.saved':          'Saved',
+      'api.error_validation':  'Validation error',
+      'api.error_rate_limit':  'Rate limit',
 
       // ---- Requests ----
       'requests.title':           'Repair requests',
@@ -624,6 +646,11 @@
       'requests.auto_done':       'Assigned {fio} (load {load}, {scope})',
       'requests.auto_scope.local':  'own division',
       'requests.auto_scope.global': 'other division',
+      'requests.timeline_title':    'Status history',
+      'requests.timeline_empty':    'No records',
+      'requests.urgency_overdue':   'Overdue',
+      'requests.urgency_urgent':    'Urgent',
+      'requests.urgency_soon':      'Due {date}',
 
       // ---- Dispatch ----
       'dispatch.title':           'Request dispatching',
@@ -658,6 +685,9 @@
       'repairs.cost_work':        'Labour cost',
       'repairs.cost_parts':       'Parts cost',
       'repairs.itog':             'Outcome',
+      'repairs.outcome_fixed':    'Problem resolved',
+      'repairs.outcome_repeat':   'Repeat service required',
+      'repairs.outcome_unrepairable': 'Beyond repair',
       'repairs.started':          'Started',
       'repairs.finished':         'Finished',
       'repairs.started_ok':       'Repair started',
@@ -720,6 +750,8 @@
       'dashboard.top5':        'Top-5 vehicles by TCO',
       'dashboard.delta_up':    '▲ +{n}% vs previous',
       'dashboard.delta_down':  '▼ {n}% vs previous',
+      'dashboard.mode_finance':  'Financial',
+      'dashboard.mode_analyst':  'Analytical',
 
       // ---- Expenses ----
       'expenses.title':        'Expenses',

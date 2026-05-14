@@ -131,7 +131,7 @@
       if (role === 'Аналитик') {
         const exportBtn = document.createElement('button');
         exportBtn.className = 'btn';
-        exportBtn.innerHTML = `📊 ${T('export.analyst') || 'Скачать Excel-отчёт'}`;
+        exportBtn.innerHTML = `📊 ${T('export.analyst') || 'Download Excel report'}`;
         exportBtn.onclick = () => openExportInNewTab('excel/analyst', { god: new Date().getFullYear() });
         actions.appendChild(exportBtn);
         return;
@@ -163,7 +163,7 @@
           <label>${T('budgets.year')}
             <input type="number" id="mYear" value="${now.getFullYear()}" />
           </label>
-          <label>${T('filter.month') || 'Месяц'}
+          <label>${T('filter.month') || 'Month'}
             <select id="mMonth">
               ${[...Array(12).keys()].map(i => `<option value="${i+1}" ${i+1 === now.getMonth()+1 ? 'selected':''}>${i+1}</option>`).join('')}
             </select>
@@ -442,11 +442,11 @@
      ========================================================= */
   async function openForecastDialog() {
     const KATS = [
-      { id: '',          label: T('forecast.all_categories') || 'Все категории' },
-      { id: 'topliv',    label: T('cat.topliv')    || 'Топливо' },
-      { id: 'remont',    label: T('cat.remont')    || 'Ремонт' },
-      { id: 'zapchasti', label: T('cat.zapchasti') || 'Запчасти' },
-      { id: 'prochee',   label: T('cat.prochee')   || 'Прочее' },
+      { id: '',          label: T('forecast.all_categories') || 'All categories' },
+      { id: 'topliv',    label: T('cat.topliv')    || 'Fuel' },
+      { id: 'remont',    label: T('cat.remont')    || 'Repair' },
+      { id: 'zapchasti', label: T('cat.zapchasti') || 'Parts' },
+      { id: 'prochee',   label: T('cat.prochee')   || 'Other' },
     ];
 
     const bg = document.createElement('div');
@@ -454,23 +454,23 @@
     bg.innerHTML = `
       <div class="modal modal--wide forecast-modal">
         <div class="be-head">
-          <h3>📈 ${T('forecast.title') || 'Прогноз расходов (Holt-Winters)'}</h3>
-          <button class="btn-close" id="fcClose" aria-label="Закрыть">×</button>
+          <h3>📈 ${T('forecast.title') || 'Expense forecast (Holt-Winters)'}</h3>
+          <button class="btn-close" id="fcClose" aria-label="Close">×</button>
         </div>
-        <p class="be-intro">${T('forecast.intro') || 'Прогноз построен методом тройного экспоненциального сглаживания на основе исторических расходов за последние 3 года. Серая зона — 95% доверительный интервал.'}</p>
+        <p class="be-intro">${T('forecast.intro') || 'Forecast built using triple exponential smoothing based on historical expenses for the last 3 years. Gray zone — 95% confidence interval.'}</p>
 
         <div class="be-toolbar">
-          <label>${T('forecast.category') || 'Категория'}
+          <label>${T('forecast.category') || 'Category'}
             <select id="fcKat">
               ${KATS.map(k => `<option value="${k.id}">${k.label}</option>`).join('')}
             </select>
           </label>
-          <label>${T('forecast.horizon') || 'Горизонт (мес.)'}
+          <label>${T('forecast.horizon') || 'Horizon (months)'}
             <input type="number" id="fcHorizon" value="12" min="1" max="24" style="width:90px" />
           </label>
           <span class="spacer"></span>
           <span id="fcMethodBadge" class="be-status"></span>
-          <button class="btn dark" id="fcRefresh">🔄 ${T('forecast.refresh') || 'Обновить'}</button>
+          <button class="btn dark" id="fcRefresh">🔄 ${T('forecast.refresh') || 'Refresh'}</button>
         </div>
 
         <div class="forecast-chart-wrap">
@@ -495,7 +495,7 @@
       const horizon = +bg.querySelector('#fcHorizon').value || 12;
       const badge = bg.querySelector('#fcMethodBadge');
       const summary = bg.querySelector('#fcSummary');
-      badge.textContent = T('forecast.loading') || 'Загрузка…';
+      badge.textContent = T('forecast.loading') || 'Loading…';
       summary.innerHTML = '';
 
       try {
@@ -505,15 +505,15 @@
         const data = await window.api(`/api/finance/reports/forecast?${qs}`);
 
         const methodLabels = {
-          'holt-winters': T('forecast.method.hw')    || 'Holt-Winters (тройное экспоненциальное сглаживание)',
-          'linear-trend': T('forecast.method.lin')   || 'Линейная регрессия',
-          'mean':         T('forecast.method.mean')  || 'Среднее',
-          'no-data':      T('forecast.method.empty') || 'Нет исторических данных',
+          'holt-winters': T('forecast.method.hw')    || 'Holt-Winters (triple exponential smoothing)',
+          'linear-trend': T('forecast.method.lin')   || 'Linear regression',
+          'mean':         T('forecast.method.mean')  || 'Average',
+          'no-data':      T('forecast.method.empty') || 'No historical data',
         };
         badge.textContent = methodLabels[data.method] || data.method;
 
         if (!data.history.length) {
-          summary.innerHTML = `<div class="forecast-empty">${T('forecast.no_history') || 'Нет исторических данных за выбранный период. Введите расходы или измените фильтры.'}</div>`;
+          summary.innerHTML = `<div class="forecast-empty">${T('forecast.no_history') || 'No historical data for the selected period. Enter expenses or change filters.'}</div>`;
           if (chart) { chart.destroy(); chart = null; }
           return;
         }
@@ -572,7 +572,7 @@
           labels,
           datasets: [
             {
-              label: T('forecast.history') || 'Факт',
+              label: T('forecast.history') || 'Actual',
               data: histData,
               borderColor: accent,
               backgroundColor: 'transparent',
@@ -582,7 +582,7 @@
               pointHoverRadius: 5,
             },
             {
-              label: T('forecast.forecast_label') || 'Прогноз',
+              label: T('forecast.forecast_label') || 'Forecast',
               data: fcData,
               borderColor: fcColor,
               borderDash: [6, 4],
@@ -593,7 +593,7 @@
               pointHoverRadius: 5,
             },
             {
-              label: T('forecast.upper') || 'Верхняя граница CI',
+              label: T('forecast.upper') || 'Upper bound CI',
               data: upperBand,
               borderColor: 'transparent',
               backgroundColor: bandColor,
@@ -602,7 +602,7 @@
               pointRadius: 0,
             },
             {
-              label: T('forecast.lower') || 'Нижняя граница CI',
+              label: T('forecast.lower') || 'Lower bound CI',
               data: lowerBand,
               borderColor: 'transparent',
               backgroundColor: bandColor,
@@ -658,13 +658,13 @@
           hint: data.method === 'holt-winters' ? `RMSE ≈ ${fmtMoney(data.rmse)}` : '',
         },
         {
-          label: T('forecast.delta_yoy') || 'YoY (год к году)',
+          label: T('forecast.delta_yoy') || 'YoY (year over year)',
           value: deltaPct == null ? '—' : (deltaPct > 0 ? `+${deltaPct}%` : `${deltaPct}%`),
-          hint: T('forecast.delta_hint') || 'Прогноз vs последние 12 мес.',
+          hint: T('forecast.delta_hint') || 'Forecast vs last 12 months',
           color: deltaPct == null ? '' : (deltaPct > 5 ? 'bad' : (deltaPct < -5 ? 'good' : '')),
         },
         {
-          label: T('forecast.peak') || 'Пиковый месяц',
+          label: T('forecast.peak') || 'Peak month',
           value: peak ? fmtMonth(peak.god, peak.mesyats) : '—',
           hint: peak ? fmtMoney(peak.point) : '',
         },
@@ -697,7 +697,7 @@
       <div class="modal modal--wide">
         <div class="be-head">
           <h3>${T('budgets.editor')}</h3>
-          <button class="btn-close" id="beClose" aria-label="Закрыть">×</button>
+          <button class="btn-close" id="beClose" aria-label="Close">×</button>
         </div>
         <p class="be-intro">${T('budgets.editor_intro')}</p>
 
@@ -935,7 +935,7 @@
       <div class="modal modal--wide">
         <div class="be-head">
           <h3>${T('receipts.modal_title')}</h3>
-          <button class="btn-close" id="rcClose" aria-label="Закрыть">×</button>
+          <button class="btn-close" id="rcClose" aria-label="Close">×</button>
         </div>
 
         <div class="form-grid">
