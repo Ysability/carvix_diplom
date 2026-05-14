@@ -10,6 +10,8 @@ const zayavkiRoutes = require('./routes/zayavki');
 const remontyRoutes = require('./routes/remonty');
 const transportRoutes = require('./routes/transport');
 const { loginLimiter, apiLimiter } = require('./middleware/rate-limit');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,6 +35,11 @@ app.use('/api/finance', financeRoutes);
 app.use('/api/zayavki', zayavkiRoutes);
 app.use('/api/remonty', remontyRoutes);
 app.use('/api/transport', transportRoutes);
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Carvix API Docs',
+}));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
