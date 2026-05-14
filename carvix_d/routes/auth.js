@@ -6,6 +6,8 @@ const fs = require('fs');
 const multer = require('multer');
 const pool = require('../db');
 const { authRequired } = require('../middleware/auth');
+const { handleResult } = require('../middleware/validate');
+const { body } = require('express-validator');
 
 const router = express.Router();
 
@@ -201,7 +203,17 @@ router.get('/me', authRequired, async (req, res) => {
 });
 
 // PUT /api/auth/profile — обновление ФИО и/или пароля
-router.put('/profile', authRequired, async (req, res) => {
+router.put('/profile', authRequired, [
+  body('fio').optional().trim().notEmpty().withMessage('ФИО не может быть пустым').isLength({ max: 255 }),
+  body('new_password').optional().isLength({ min: 6 }).withMessage('Новый пароль минимум 6 символов'),
+  body('old_password').custom((value, { req }) => {
+    if (req.body.new_password && !value) {
+      throw new Error('Введите текущий пароль');
+    }
+    return true;
+  }),
+  handleResult,
+], async (req, res) => {
   try {
     const { fio, old_password, new_password } = req.body || {};
     const userId = req.user.id;

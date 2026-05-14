@@ -215,7 +215,10 @@ async function api(path, options = {}) {
   }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const err = new Error(data.error || `HTTP ${res.status}`);
+    let msg = data.error || `HTTP ${res.status}`;
+    if (res.status === 400) msg = `Ошибка валидации: ${msg}`;
+    if (res.status === 429) msg = `Лимит запросов: ${msg}`;
+    const err = new Error(msg);
     err.status = res.status;
     throw err;
   }

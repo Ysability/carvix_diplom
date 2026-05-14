@@ -9,6 +9,7 @@ const financeRoutes = require('./routes/finance');
 const zayavkiRoutes = require('./routes/zayavki');
 const remontyRoutes = require('./routes/remonty');
 const transportRoutes = require('./routes/transport');
+const { loginLimiter, apiLimiter } = require('./middleware/rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,8 @@ const fs = require('fs');
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+app.use('/api/auth/login', loginLimiter);
+app.use('/api', apiLimiter);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 

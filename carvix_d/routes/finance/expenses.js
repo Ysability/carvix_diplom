@@ -17,6 +17,8 @@ const { parse } = require('csv-parse/sync');
 const pool = require('../../db');
 const { authRequired } = require('../../middleware/auth');
 const { requireFinanceRead, requireFinanceWrite } = require('../../middleware/rbac');
+const { handleResult, v } = require('../../middleware/validate');
+const { body } = require('express-validator');
 
 const router = express.Router();
 
@@ -153,7 +155,15 @@ router.get('/', authRequired, requireFinanceRead, async (req, res) => {
 /*  POST /api/finance/expenses                                       */
 /*    создаёт запись в prochiy_raskhod                               */
 /* ----------------------------------------------------------------- */
-router.post('/', authRequired, requireFinanceWrite, async (req, res) => {
+router.post('/', authRequired, requireFinanceWrite, [
+  body('data').notEmpty().withMessage('Укажите дату').isISO8601().withMessage('Некорректная дата'),
+  body('kategoriya').trim().notEmpty().withMessage('Укажите категорию').isIn(ALLOWED_KATEGORIY).withMessage('Недопустимая категория'),
+  body('summa').isFloat({ min: 0 }).withMessage('Сумма должна быть числом ≥ 0'),
+  body('ts_id').optional({ checkFalsy: true }).isInt({ min: 1 }).withMessage('Некорректный id ТС'),
+  body('podrazdelenie_id').optional({ checkFalsy: true }).isInt({ min: 1 }).withMessage('Некорректный id подразделения'),
+  body('opisanie').optional().trim().isLength({ max: 2000 }).withMessage('Описание слишком длинное'),
+  handleResult,
+], async (req, res) => {
   try {
     const { ts_id, podrazdelenie_id, data, kategoriya, summa, opisanie } = req.body;
 
@@ -191,7 +201,16 @@ router.post('/', authRequired, requireFinanceWrite, async (req, res) => {
 /*  PUT /api/finance/expenses/:id                                    */
 /*    редактирует запись prochiy_raskhod (только этот источник)      */
 /* ----------------------------------------------------------------- */
-router.put('/:id', authRequired, requireFinanceWrite, async (req, res) => {
+router.put('/:id', authRequired, requireFinanceWrite, [
+  v.id,
+  body('data').optional().isISO8601().withMessage('Некорректная дата'),
+  body('kategoriya').optional().trim().isIn(ALLOWED_KATEGORIY).withMessage('Недопустимая категория'),
+  body('summa').optional().isFloat({ min: 0 }).withMessage('Сумма должна быть числом ≥ 0'),
+  body('ts_id').optional({ checkFalsy: true }).isInt({ min: 1 }).withMessage('Некорректный id ТС'),
+  body('podrazdelenie_id').optional({ checkFalsy: true }).isInt({ min: 1 }).withMessage('Некорректный id подразделения'),
+  body('opisanie').optional().trim().isLength({ max: 2000 }).withMessage('Описание слишком длинное'),
+  handleResult,
+], async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!id) return res.status(400).json({ error: 'Неверный id' });

@@ -12,6 +12,8 @@ const express = require('express');
 const pool = require('../../db');
 const { authRequired } = require('../../middleware/auth');
 const { requireRole, requireFinanceRead } = require('../../middleware/rbac');
+const { handleResult } = require('../../middleware/validate');
+const { body } = require('express-validator');
 
 const router = express.Router();
 
@@ -96,7 +98,10 @@ router.get('/plan-fakt', authRequired, requireFinanceRead, async (req, res) => {
  * Существующие комбинации (podrazdelenie_id, god, mesyats, kategoriya) обновляются,
  * новые — вставляются. Возвращает { created, updated }.
  */
-router.post('/bulk', authRequired, onlyDirektor, async (req, res) => {
+router.post('/bulk', authRequired, onlyDirektor, [
+  body('items').isArray({ min: 1 }).withMessage('items должен быть непустым массивом'),
+  handleResult,
+], async (req, res) => {
   try {
     const { items } = req.body;
     if (!Array.isArray(items) || !items.length)
@@ -139,7 +144,11 @@ router.post('/bulk', authRequired, onlyDirektor, async (req, res) => {
  * Копирует все бюджеты из (god - 1) в god, домножая plan_summa на коэффициент.
  * body: { god, koeff = 1.1 }
  */
-router.post('/copy-from-prev-year', authRequired, onlyDirektor, async (req, res) => {
+router.post('/copy-from-prev-year', authRequired, onlyDirektor, [
+  body('god').isInt({ min: 2020, max: 2100 }).withMessage('Укажите корректный год'),
+  body('koeff').optional().isFloat({ min: 0.01 }).withMessage('koeff должен быть числом > 0'),
+  handleResult,
+], async (req, res) => {
   try {
     const { god, koeff = 1.1 } = req.body;
     if (!god) return res.status(400).json({ error: 'Укажите god' });
@@ -187,7 +196,14 @@ router.post('/copy-from-prev-year', authRequired, onlyDirektor, async (req, res)
 });
 
 /* ----------- POST /budgets ----------- */
-router.post('/', authRequired, onlyDirektor, async (req, res) => {
+router.post('/', authRequired, onlyDirektor, [
+  body('podrazdelenie_id').isInt({ min: 1 }).withMessage('Некорректный id подразделения'),
+  body('god').isInt({ min: 2020, max: 2100 }).withMessage('Год должен быть между 2020 и 2100'),
+  body('mesyats').isInt({ min: 1, max: 12 }).withMessage('Месяц должен быть от 1 до 12'),
+  body('kategoriya').trim().notEmpty().withMessage('Укажите категорию').isIn(ALLOWED_KATEGORIY).withMessage('Недопустимая категория'),
+  body('plan_summa').isFloat({ min: 0 }).withMessage('Плановая сумма должна быть ≥ 0'),
+  handleResult,
+], async (req, res) => {
   try {
     const { podrazdelenie_id, god, mesyats, kategoriya, plan_summa } = req.body;
 
@@ -231,7 +247,12 @@ router.post('/', authRequired, onlyDirektor, async (req, res) => {
 });
 
 /* ----------- PUT /budgets/:id ----------- */
-router.put('/:id', authRequired, onlyDirektor, async (req, res) => {
+const { param } = require('express-validator');
+router.put('/:id', authRequired, onlyDirektor, [
+  param('id').isInt({ min: 1 }).withMessage('Некорректный id'),
+  body('plan_summa').isFloat({ min: 0 }).withMessage('Плановая сумма должна быть ≥ 0'),
+  handleResult,
+], async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const { plan_summa } = req.body;

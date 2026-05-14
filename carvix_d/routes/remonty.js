@@ -13,6 +13,8 @@ const express = require('express');
 const pool = require('../db');
 const { authRequired } = require('../middleware/auth');
 const { requireMekhanik } = require('../middleware/rbac');
+const { handleResult } = require('../middleware/validate');
+const { param, body } = require('express-validator');
 
 const router = express.Router();
 
@@ -153,7 +155,14 @@ router.patch('/:id/start', authRequired, requireMekhanik, async (req, res) => {
  *     itog:                string?       ('Проблема устранена' и т.п.)
  *   }
  */
-router.patch('/:id/finish', authRequired, requireMekhanik, async (req, res) => {
+router.patch('/:id/finish', authRequired, requireMekhanik, [
+  param('id').isInt({ min: 1 }).withMessage('Некорректный id'),
+  body('stoimost_rabot').isFloat({ min: 0 }).withMessage('Стоимость работ должна быть числом ≥ 0'),
+  body('stoimost_zapchastey').isFloat({ min: 0 }).withMessage('Стоимость запчастей должна быть числом ≥ 0'),
+  body('kommentariy').optional().trim().isLength({ max: 2000 }).withMessage('Комментарий — макс. 2000 символов'),
+  body('itog').optional().trim().isLength({ max: 255 }).withMessage('Итог — макс. 255 символов'),
+  handleResult,
+], async (req, res) => {
   try {
     const id = Number(req.params.id);
     const stoimost_rabot = Number(req.body?.stoimost_rabot);

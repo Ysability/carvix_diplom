@@ -19,6 +19,8 @@ const {
   requireZayavkaCreate,
   requireDispetcher,
 } = require('../middleware/rbac');
+const { handleResult } = require('../middleware/validate');
+const { body } = require('express-validator');
 
 const router = express.Router();
 
@@ -330,7 +332,13 @@ router.get('/:id', authRequired, async (req, res) => {
 // Создание заявки (Пользователь / Диспетчер / Гл.мех / Директор)
 // ──────────────────────────────────────────────────────────────────
 
-router.post('/', authRequired, requireZayavkaCreate, async (req, res) => {
+router.post('/', authRequired, requireZayavkaCreate, [
+  body('ts_id').isInt({ min: 1 }).withMessage('Некорректный id ТС'),
+  body('tip_remonta_id').isInt({ min: 1 }).withMessage('Некорректный id типа ремонта'),
+  body('prioritet').optional({ checkFalsy: true }).isInt({ min: 1, max: 5 }).withMessage('Приоритет от 1 до 5'),
+  body('opisanie').optional().trim().isLength({ max: 2000 }).withMessage('Описание — макс. 2000 символов'),
+  handleResult,
+], async (req, res) => {
   try {
     const { ts_id, tip_remonta_id, opisanie, prioritet } = req.body || {};
     if (!ts_id || !tip_remonta_id) {

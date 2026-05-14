@@ -29,6 +29,8 @@
 const express = require('express');
 const pool = require('../db');
 const { authRequired } = require('../middleware/auth');
+const { handleResult } = require('../middleware/validate');
+const { body } = require('express-validator');
 
 const router = express.Router();
 router.use(authRequired);
@@ -219,7 +221,16 @@ router.get('/:id', async (req, res) => {
 /* ---------------------------------------------------------------
    POST /api/transport — создать ТС
    --------------------------------------------------------------- */
-router.post('/', async (req, res) => {
+router.post('/', [
+  body('gos_nomer').trim().notEmpty().withMessage('Укажите гос. номер').isLength({ max: 50 }),
+  body('invent_nomer').trim().notEmpty().withMessage('Укажите инвентарный номер').isLength({ max: 50 }),
+  body('model_id').isInt({ min: 1 }).withMessage('Некорректный id модели'),
+  body('podrazdelenie_id').optional({ checkFalsy: true }).isInt({ min: 1 }).withMessage('Некорректный id подразделения'),
+  body('probeg').optional({ checkFalsy: true }).isInt({ min: 0 }).withMessage('Пробег должен быть ≥ 0'),
+  body('data_vypuska').optional().isISO8601().withMessage('Некорректная дата выпуска'),
+  body('tekuschee_sostoyanie').optional().trim().isLength({ max: 100 }).withMessage('Состояние — макс. 100 символов'),
+  handleResult,
+], async (req, res) => {
   const gos_nomer    = strOrNull(req.body?.gos_nomer, 50);
   const invent_nomer = strOrNull(req.body?.invent_nomer, 50);
   const model_id     = intOrNull(req.body?.model_id);
