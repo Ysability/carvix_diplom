@@ -44,6 +44,16 @@
     const map = { 1: '🔥 1', 2: '⚠ 2', 3: '3', 4: '4', 5: '5' };
     return map[p] || '—';
   }
+  function urgencyBadge(dataRezhima) {
+    if (!dataRezhima) return '';
+    const now = new Date();
+    const deadline = new Date(dataRezhima);
+    if (deadline < now) return `<span class="urgency urgency--overdue">Просрочена</span>`;
+    const hoursLeft = (deadline - now) / 36e5;
+    if (hoursLeft <= 24) return `<span class="urgency urgency--urgent">Срочно</span>`;
+    if (hoursLeft <= 72) return `<span class="urgency urgency--soon">До ${deadline.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit' })}</span>`;
+    return '';
+  }
 
   /* ──────────────────────────────────────────────────────────
      1. ЗАЯВКИ — раздел для всех ролей (содержание зависит от роли)
@@ -118,6 +128,7 @@
             <div class="req-card__title">
               <strong>#${z.id}</strong> · ${escape(z.tip_remonta)}
               <span class="req-card__plate">${escape(z.gos_nomer)}</span>
+              ${urgencyBadge(z.data_rezhima)}
             </div>
             ${statusBadge(z.status)}
           </div>
@@ -380,11 +391,14 @@
   }
 
   async function openRequestDetails(id) {
-    const z = await window.api(`/api/zayavki/${id}`);
+    const [z, timeline] = await Promise.all([
+      window.api(`/api/zayavki/${id}`),
+      window.api(`/api/zayavki/${id}/timeline`).catch(() => []),
+    ]);
     const bg = document.createElement('div');
     bg.className = 'modal-bg';
     bg.innerHTML = `
-      <div class="modal" style="width: 600px">
+      <div class="modal" style="width: 640px; max-height: 90vh; overflow-y: auto">
         <h3>${T('requests.detail_title', { id: z.id })}</h3>
         <div class="kv">
           <div class="kv__row"><div>${T('requests.tip_remonta')}</div><div>${escape(z.tip_remonta)}</div></div>
@@ -402,12 +416,41 @@
         </div>
         ${z.opisanie ? `<div class="req-card__desc" style="margin-top: 12px">${escape(z.opisanie)}</div>` : ''}
         ${z.itog ? `<div class="req-card__desc" style="margin-top: 8px"><strong>${T('repairs.itog')}:</strong> ${escape(z.itog)}</div>` : ''}
+
+        <div style="margin-top: 20px">
+          <h4 style="margin-bottom: 10px; font-size: 14px; color: var(--c-muted)">История статусов</h4>
+          <div id="reqTimeline" class="timeline">${renderTimeline(timeline)}</div>
+        </div>
+
         <div class="modal__actions"><button class="btn dark" id="dClose">${T('common.close')}</button></div>
       </div>
     `;
     document.body.appendChild(bg);
     bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
     bg.querySelector('#dClose').onclick = () => bg.remove();
+  }
+
+  function renderTimeline(items) {
+    if (!items || !items.length) return '<div class="empty" style="padding: 12px 0">Нет записей</div>';
+    return `
+      <div class="timeline__list">
+        ${items.map((it, i) => `
+          <div class="timeline__item ${i === items.length - 1 ? 'timeline__item--last' : ''}">
+            <div class="timeline__dot"></div>
+            <div class="timeline__content">
+              <div class="timeline__header">
+                <span class="timeline__status">${escape(it.status_nazvanie)}</span>
+                <span class="timeline__time">${fmtDateTime(it.data_izmeneniya)}</span>
+              </div>
+              <div class="timeline__meta">
+                ${it.sotrudnik_fio ? `<span class="timeline__user">${escape(it.sotrudnik_fio)}</span>` : ''}
+                ${it.kommentariy ? `<span class="timeline__comment">${escape(it.kommentariy)}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
   }
 
   /* ──────────────────────────────────────────────────────────

@@ -99,6 +99,19 @@ CREATE TABLE IF NOT EXISTS zayavka (
   data_rezhima    TIMESTAMP
 );
 
+-- 11.1 История статусов заявки (таймлайн)
+CREATE TABLE IF NOT EXISTS zayavka_status_istoriya (
+  id              SERIAL PRIMARY KEY,
+  zayavka_id      INT NOT NULL REFERENCES zayavka(id) ON DELETE CASCADE,
+  status_id       INT NOT NULL REFERENCES status(id),
+  status_nazvanie VARCHAR(100) NOT NULL,
+  sotrudnik_id    INT REFERENCES sotrudnik(id),
+  sotrudnik_fio   VARCHAR(255),
+  data_izmeneniya TIMESTAMP NOT NULL DEFAULT NOW(),
+  kommentariy     TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_zsi_zayavka ON zayavka_status_istoriya(zayavka_id);
+
 -- 12. Ремонт
 CREATE TABLE IF NOT EXISTS remont (
   id                   SERIAL PRIMARY KEY,

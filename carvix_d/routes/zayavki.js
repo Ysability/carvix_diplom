@@ -36,6 +36,16 @@ async function findStatusId(name) {
   return rows[0]?.id || null;
 }
 
+/* Запись в историю статусов заявки */
+async function logStatus(tx, zayavkaId, statusId, statusNazvanie, sotrudnikId, sotrudnikFio, kommentariy) {
+  await tx.execute(
+    `INSERT INTO zayavka_status_istoriya
+       (zayavka_id, status_id, status_nazvanie, sotrudnik_id, sotrudnik_fio, kommentariy)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [zayavkaId, statusId, statusNazvanie, sotrudnikId, sotrudnikFio || null, kommentariy || null]
+  );
+}
+
 async function logAction(tx, sotrudnikId, tipOp, obyektId, summa, kommentariy) {
   await tx.execute(
     `INSERT INTO finansoviy_log
@@ -390,6 +400,7 @@ router.post('/', authRequired, requireZayavkaCreate, [
       );
       const newId = ins[0].id;
       await logAction(tx, req.user.id, 'create', newId, null, opisanie || null);
+      await logStatus(tx, newId, novayaId, 'Новая', req.user.id, req.user.fio, null);
       return newId;
     });
 
@@ -486,6 +497,7 @@ router.patch(
             'UPDATE zayavka SET status_id = ? WHERE id = ?',
             [vRabote, id]
           );
+          await logStatus(tx, id, vRabote, 'В работе', req.user.id, req.user.fio, `Механик: ${m.fio}`);
         }
 
         await logAction(
@@ -638,6 +650,7 @@ router.post(
             'UPDATE zayavka SET status_id = ? WHERE id = ?',
             [vRabote, id]
           );
+          await logStatus(tx, id, vRabote, 'В работе', req.user.id, req.user.fio, `Авто: ${kandidat.fio}`);
         }
 
         await logAction(
@@ -706,6 +719,7 @@ router.patch(
           'UPDATE zayavka SET status_id = ? WHERE id = ?',
           [status_id, id]
         );
+        await logStatus(tx, id, status_id, st.nazvanie, req.user.id, req.user.fio, kommentariy);
         await logAction(
           tx,
           req.user.id,
@@ -724,5 +738,28 @@ router.patch(
     }
   }
 );
+
+// ──────────────────────────────────────────────────────────────────
+// Таймлайн истории статусов заявки
+// ──────────────────────────────────────────────────────────────────
+router.get('/:id/timeline', authRequired, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) {
+      return res.status(400).json({ error: 'Некорректный id' });
+    }
+    const [rows] = await pool.execute(
+      `SELECT id, status_nazvanie, sotrudnik_fio, data_izmeneniya, kommentariy
+         FROM zayavka_status_istoriya
+        WHERE zayavka_id = ?
+        ORDER BY data_izmeneniya ASC`,
+      [id]
+    );
+    res.json(rows);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Ошибка получения таймлайна' });
+  }
+});
 
 module.exports = router;

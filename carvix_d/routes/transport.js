@@ -50,12 +50,12 @@ function strOrNull(v, max = 255) {
   return s.length === 0 ? null : s.slice(0, max);
 }
 
-async function audit(sotrudnikId, deystviye, obekt, obekt_id, summa = null, opisanie = null) {
+async function audit(sotrudnikId, tipOperatsii, obyektTablitsa, obyekt_id, summa = null, kommentariy = null) {
   try {
     await pool.execute(
-      `INSERT INTO finansoviy_log (sotrudnik_id, deystviye, obekt, obekt_id, summa, opisanie)
+      `INSERT INTO finansoviy_log (sotrudnik_id, tip_operatsii, obyekt_tablitsa, obyekt_id, summa, kommentariy)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [sotrudnikId, deystviye, obekt, obekt_id, summa, opisanie]
+      [sotrudnikId, tipOperatsii, obyektTablitsa, obekt_id, summa, kommentariy]
     );
   } catch (_) { /* аудит не должен ломать основной поток */ }
 }
