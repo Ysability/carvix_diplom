@@ -706,13 +706,15 @@
 
     async function load() {
       $('#rList').innerHTML = `<div class="loading-screen"><div class="spinner"></div></div>`;
-      const { items } = await window.api('/api/remonty/my');
-      if (!items.length) {
-        $('#rList').innerHTML = `<div class="empty">${T('repairs.empty')}</div>`;
-        return;
-      }
-      const open = items.filter(x => !x.data_okonchaniya);
-      const closed = items.filter(x => x.data_okonchaniya);
+      try {
+        const data = await window.api('/api/remonty/my');
+        const items = data?.items || [];
+        if (!items.length) {
+          $('#rList').innerHTML = `<div class="empty">${T('repairs.empty')}</div>`;
+          return;
+        }
+        const open = items.filter(x => !x.data_okonchaniya);
+        const closed = items.filter(x => x.data_okonchaniya);
 
       $('#rList').innerHTML = `
         ${open.length ? `
@@ -733,6 +735,9 @@
           if (btn.dataset.act === 'open') openRequestDetails(items.find(i => i.remont_id === id)?.zayavka_id);
         });
       });
+      } catch (e) {
+        $('#rList').innerHTML = `<div class="empty">${T('common.error')}: ${e.message}</div>`;
+      }
     }
     $('#rReload').addEventListener('click', load);
     load();
