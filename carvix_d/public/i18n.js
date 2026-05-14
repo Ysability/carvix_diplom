@@ -63,7 +63,7 @@
       'nav.transport':         'Транспорт',
       'nav.expenses':          'Расходы',
       'nav.budgets':           'Бюджеты',
-      'nav.tco':               'Парк (TCO)',
+      'nav.tco':               'Парк',
       'nav.receipts':          'Приходы',
       'nav.audit':             'Журнал',
 
@@ -130,6 +130,7 @@
       'common.comment':        'Комментарий',
       'common.status':         'Статус',
       'common.saved':          'Сохранено',
+      'common.send':           'Отправить',
       'api.error_validation':  'Ошибка валидации',
       'api.error_rate_limit':  'Лимит запросов',
 
@@ -140,7 +141,7 @@
       'requests.subtitle.all':    'Полный журнал заявок автопарка',
       'requests.new_btn':         'Создать заявку',
       'requests.new_title':       'Новая заявка на ремонт',
-      'requests.detail_title':    'Заявка #{id}',
+      'requests.detail_title':    'Детали заявки №{id}',
       'requests.filter_status':   'Статус',
       'requests.only_mine':       'Только мои',
       'requests.empty':           'Нет заявок по фильтру',
@@ -158,7 +159,6 @@
       'requests.created':         'Заявка создана',
       'requests.division':        'Подразделение',
       'requests.creator':         'Создатель',
-      'requests.created':         'Заявка создана',
       'requests.created_at':      'Создана',
       'requests.mekhanik':        'Механик',
       'requests.prio.urgent':     'Авария',
@@ -170,10 +170,15 @@
       'requests.auto_scope.local':  'своё подразделение',
       'requests.auto_scope.global': 'другое подразделение',
       'requests.timeline_title':    'История статусов',
+      'requests.edit_title':        'Редактирование заявки',
+      'requests.updated':           'Заявка обновлена',
       'requests.timeline_empty':    'Нет записей',
       'requests.urgency_overdue':   'Просрочена',
       'requests.urgency_urgent':    'Срочно',
       'requests.urgency_soon':      'До {date}',
+      'chat.title':               'Чат',
+      'chat.placeholder':         'Написать сообщение…',
+      'chat.empty':               'Нет сообщений',
 
       // ---- Распределение ----
       'dispatch.title':           'Распределение заявок',
@@ -215,6 +220,7 @@
       'repairs.finished':         'Завершён',
       'repairs.started_ok':       'Ремонт начат',
       'repairs.finished_ok':      'Ремонт закрыт',
+      'repairs.warranty':         'Гарантийный срок',
 
       // ---- Транспорт ----
       'transport.title':           'Транспортные средства',
@@ -223,6 +229,7 @@
       'transport.add_first':       'Добавить первое ТС',
       'transport.add_title':       'Новое транспортное средство',
       'transport.edit_title':      'Редактирование',
+      'transport.empty':         'Нет доступного транспорта',
       'transport.empty_title':     'Транспортных средств пока нет',
       'transport.empty_hint':      'Добавьте первое ТС, чтобы создавать на него заявки на ремонт',
       'transport.gos_nomer':       'Гос. номер',
@@ -270,7 +277,7 @@
       'dashboard.tco_top_hint': 'по стоимости владения',
       'dashboard.dynamics':    'Динамика расходов помесячно',
       'dashboard.structure':   'Структура затрат',
-      'dashboard.top5':        'Топ-5 машин по стоимости владения (TCO)',
+      'dashboard.top5':        'Топ-5 машин по стоимости владения',
       'dashboard.delta_up':    '▲ +{n}% к предыдущему',
       'dashboard.delta_down':  '▼ {n}% к предыдущему',
       'dashboard.mode_finance':  'Финансовый',
@@ -311,7 +318,7 @@
       'budgets.empty':         'Бюджеты не найдены',
 
       // ---- TCO ----
-      'tco.title':             'Парк — TCO',
+      'tco.title':             'Парк',
       'tco.subtitle':          'Стоимость владения по каждому транспортному средству',
       'tco.col_plate':         'Гос. №',
       'tco.col_model':         'Марка / модель',
@@ -320,16 +327,16 @@
       'tco.col_works':         'Работы',
       'tco.col_parts':         'Запчасти',
       'tco.col_other':         'Прочее',
-      'tco.col_tco':           'TCO итого',
-      'tco.sort_tco_desc':     'TCO по убыванию',
-      'tco.sort_tco_asc':      'TCO по возрастанию',
+      'tco.col_tco':           'Итого',
+      'tco.sort_tco_desc':     'По убыванию',
+      'tco.sort_tco_asc':      'По возрастанию',
       'tco.sort_repairs':      'Кол-во ремонтов',
       'tco.sort_plate':        'Гос. номер',
       'tco.cars_count':        'Машин: {n}',
-      'tco.tco_total':         'Итого TCO: {sum}',
+      'tco.tco_total':         'Итого: {sum}',
       'tco.detail_division':   'Подразделение',
       'tco.detail_orders':     'Заявок / ремонтов',
-      'tco.detail_total':      'TCO итого',
+      'tco.detail_total':      'Итого',
       'tco.detail_breakdown':  'В т.ч. работы / запчасти / прочее',
       'tco.history':           'История ремонтов',
       'tco.history_type':      'Тип',
@@ -458,7 +465,7 @@
       'common.confirm':           'Подтвердить',
 
       // ---- TCO export ----
-      'tco.export_excel':         'Скачать TCO Excel',
+      'tco.export_excel':         'Скачать Excel',
       'tco.writeoff_pdf':         'Акт списания PDF',
 
       // ---- Дашборд export ----
@@ -515,6 +522,9 @@
       'profile.activity':      'Recent actions',
       'export.analyst':        'Download Excel report',
       'filter.division':       'Division',
+      'common.send':           'Send',
+      'common.chat':           'Chat',
+      'repairs.warranty':      'Warranty period',
 
       // ---- Auth ----
       'auth.tab_login':        'Sign in',
@@ -541,7 +551,7 @@
       'nav.transport':         'Vehicles',
       'nav.expenses':          'Expenses',
       'nav.budgets':           'Budgets',
-      'nav.tco':               'Fleet (TCO)',
+      'nav.tco':               'Fleet',
       'nav.receipts':          'Receipts',
       'nav.audit':             'Audit log',
 
@@ -608,6 +618,7 @@
       'common.comment':        'Comment',
       'common.status':         'Status',
       'common.saved':          'Saved',
+      'common.send':           'Send',
       'api.error_validation':  'Validation error',
       'api.error_rate_limit':  'Rate limit',
 
@@ -618,7 +629,7 @@
       'requests.subtitle.all':    'Full log of fleet repair requests',
       'requests.new_btn':         'New request',
       'requests.new_title':       'New repair request',
-      'requests.detail_title':    'Request #{id}',
+      'requests.detail_title':    'Request details #{id}',
       'requests.filter_status':   'Status',
       'requests.only_mine':       'Only mine',
       'requests.empty':           'No requests for the filter',
@@ -647,6 +658,8 @@
       'requests.auto_scope.local':  'own division',
       'requests.auto_scope.global': 'other division',
       'requests.timeline_title':    'Status history',
+      'requests.edit_title':        'Edit request',
+      'requests.updated':           'Request updated',
       'requests.timeline_empty':    'No records',
       'requests.urgency_overdue':   'Overdue',
       'requests.urgency_urgent':    'Urgent',
@@ -692,6 +705,7 @@
       'repairs.finished':         'Finished',
       'repairs.started_ok':       'Repair started',
       'repairs.finished_ok':      'Repair closed',
+      'repairs.warranty':         'Warranty period',
 
       // ---- Vehicles (transport) ----
       'transport.title':           'Vehicles',
@@ -700,6 +714,7 @@
       'transport.add_first':       'Add first vehicle',
       'transport.add_title':       'New vehicle',
       'transport.edit_title':      'Edit',
+      'transport.empty':         'No vehicles available',
       'transport.empty_title':     'No vehicles yet',
       'transport.empty_hint':      'Add your first vehicle to be able to create repair requests',
       'transport.gos_nomer':       'License plate',
@@ -747,7 +762,7 @@
       'dashboard.tco_top_hint': 'by total cost of ownership',
       'dashboard.dynamics':    'Monthly expenses dynamics',
       'dashboard.structure':   'Cost structure',
-      'dashboard.top5':        'Top-5 vehicles by TCO',
+      'dashboard.top5':        'Top-5 vehicles by ownership cost',
       'dashboard.delta_up':    '▲ +{n}% vs previous',
       'dashboard.delta_down':  '▼ {n}% vs previous',
       'dashboard.mode_finance':  'Financial',
@@ -788,7 +803,7 @@
       'budgets.empty':         'No budgets found',
 
       // ---- TCO ----
-      'tco.title':             'Fleet — TCO',
+      'tco.title':             'Fleet',
       'tco.subtitle':          'Total cost of ownership per vehicle',
       'tco.col_plate':         'Plate №',
       'tco.col_model':         'Make / model',
@@ -797,16 +812,16 @@
       'tco.col_works':         'Labor',
       'tco.col_parts':         'Parts',
       'tco.col_other':         'Other',
-      'tco.col_tco':           'TCO total',
-      'tco.sort_tco_desc':     'TCO descending',
-      'tco.sort_tco_asc':      'TCO ascending',
+      'tco.col_tco':           'Total',
+      'tco.sort_tco_desc':     'Descending',
+      'tco.sort_tco_asc':      'Ascending',
       'tco.sort_repairs':      'Repair count',
       'tco.sort_plate':        'Plate number',
       'tco.cars_count':        'Cars: {n}',
-      'tco.tco_total':         'Total TCO: {sum}',
+      'tco.tco_total':         'Total: {sum}',
       'tco.detail_division':   'Division',
       'tco.detail_orders':     'Orders / repairs',
-      'tco.detail_total':      'TCO total',
+      'tco.detail_total':      'Total',
       'tco.detail_breakdown':  'Of which labor / parts / other',
       'tco.history':           'Repair history',
       'tco.history_type':      'Type',
@@ -935,7 +950,7 @@
       'common.confirm':           'Confirm',
 
       // ---- TCO export ----
-      'tco.export_excel':         'Download TCO Excel',
+      'tco.export_excel':         'Download Excel',
       'tco.writeoff_pdf':         'Write-off PDF',
 
       // ---- Dashboard export ----
@@ -963,6 +978,125 @@
       'forecast.delta_yoy':       'YoY (year over year)',
       'forecast.delta_hint':      'Forecast vs last 12 months',
       'forecast.peak':            'Peak month',
+    },
+
+    tj: {
+      // ---- Umumiy ----
+      'common.loading':        'Боргирӣ…',
+      'common.error':          'Хато',
+      'common.save':           'Сабт',
+      'common.cancel':         'Бекор',
+      'common.close':          'Пӯшидан',
+      'common.delete':         'Нест кардан',
+      'common.edit':           'Тағйир додан',
+      'common.confirm':        'Тасдиқ',
+      'common.search':         'Ҷустуҷӯ',
+      'common.logout':         'Баромадан',
+      'common.add':            'Илова',
+      'common.theme':          'Мавзӯъ',
+      'common.send':           'Фиристодан',
+
+      // ---- Авторизация ----
+      'auth.login':            'Вуруд',
+      'auth.register':         'Бақайдгирӣ',
+      'auth.fio':              'Номи пурра',
+      'auth.login_field':      'Логин',
+      'auth.password':         'Рамз',
+      'auth.confirm_password': 'Тасдиқи рамз',
+      'auth.forgot':           'Рамзро фаромӯш кардед?',
+      'auth.no_account':       'Ҳисоб надоред?',
+      'auth.have_account':     'Аллакай ҳисоб доред?',
+      'auth.btn_login':        'Дохил шавед',
+      'auth.btn_register':     'Бақайдгирӣ',
+      'auth.welcome':          'Хуш омадед ба Carvix',
+      'auth.subtitle':         'Низоми идоракунии нақлиёт',
+
+      // ---- Меню ----
+      'nav.dashboard':         'Панел',
+      'nav.requests':          'Дархостҳои ман',
+      'nav.dispatch':          'Тақсимот',
+      'nav.repairs':           'Таъмири ман',
+      'nav.transport':         'Нақлиёт',
+      'nav.expenses':          'Харҷҳо',
+      'nav.budgets':           'Буҷетҳо',
+      'nav.tco':               'Парк',
+      'nav.receipts':          'Қабулҳо',
+      'nav.audit':             'Журнал',
+
+      // ---- Заявки ----
+      'requests.title':        'Дархостҳо',
+      'requests.subtitle':     'Ҳамаи дархостҳои таъмирӣ',
+      'requests.add':          '+ Дархости нав',
+      'requests.empty':        'Дархостҳо нестанд',
+      'requests.tip_remonta':  'Навъи таъмир',
+      'requests.ts':           'Нақлиёт',
+      'requests.priority':     'Афзалият',
+      'requests.status':       'Вазъият',
+      'requests.creator':      'Ташкилкунанда',
+      'requests.created':      'Санаи эҷод',
+      'requests.mekhanik':     'Механик',
+      'requests.division':     'Дастгоҳ',
+      'requests.detail_title': 'Дархост №{id}',
+      'requests.edit_title':   'Тағйири дархост',
+      'requests.updated':      'Дархост навсозӣ шуд',
+      'requests.timeline_title': 'Таърихи вазъият',
+      'chat.title':               'Чат',
+      'chat.placeholder':         'Нависитани паём…',
+      'chat.empty':               'Паёмҳо нестанд',
+
+      // ---- Ремонты ----
+      'repairs.title':         'Таъмирҳо',
+      'repairs.subtitle':      'Ҳамаи таъмирҳо',
+      'repairs.empty':         'Таъмирҳо нестанд',
+      'repairs.open':          'Кушода',
+      'repairs.closed':        'Пӯшида',
+      'repairs.start':         'Оғози таъмир',
+      'repairs.finish':        'Пӯшидани таъмир',
+      'repairs.started':       'Оғоз шудааст',
+      'repairs.finished':      'Анҷом ёфтааст',
+      'repairs.cost_work':     'Арзиши кор',
+      'repairs.cost_parts':    'Арзиши қисмҳо',
+      'repairs.itog':          'Натиҷа',
+      'repairs.outcome_fixed':    'Мушкилот бартараф шуд',
+      'repairs.outcome_repeat':   'Нигоҳдории такрорӣ лозим аст',
+      'repairs.outcome_unrepairable': 'Таъмир намешавад',
+      'repairs.started_ok':    'Таъмир оғоз шуд',
+      'repairs.warranty':      'Муддати кафолат',
+
+      // ---- Транспорт ----
+      'transport.title':       'Нақлиёт',
+      'transport.subtitle':    'Рӯйхати ҳамаи воситаҳои нақлиётӣ',
+      'transport.add':         '+ Иловаи нақлиёт',
+      'transport.empty':       'Нақлиёт нест',
+      'transport.plate':       'Рақами давлатӣ',
+      'transport.inv':         'Инв. рақам',
+      'transport.mileage':     'Пробег',
+      'transport.year':        'Соли барориш',
+      'transport.state':       'Вазъият',
+
+      // ---- Профиль ----
+      'profile.title':         'Профил',
+      'profile.subtitle':      'Маълумот ва танзимоти ҳисоби шумо',
+      'profile.login':         'Логин',
+      'profile.role':          'Нақш',
+      'profile.division':      'Дастгоҳ',
+      'profile.edit':          'Тағйир додан',
+
+      // ---- Статусы ----
+      'status.new':            'Нав',
+      'status.assigned':       'Таъин шуд',
+      'status.in_progress':    'Дар кор',
+      'status.done':           'Иҷро шуд',
+      'status.rejected':       'Рад шуд',
+
+      // ---- Приоритеты ----
+      'priority.high':         'Баланд',
+      'priority.medium':       'Миёна',
+      'priority.low':          'Паст',
+
+      // ---- Валидация ----
+      'validation.required':   'Лозим аст',
+      'validation.min_2_words':'Номи пурра (ҳадди аққал 2 калима)',
     },
   };
 

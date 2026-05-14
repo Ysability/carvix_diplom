@@ -93,8 +93,8 @@ router.get('/dict/ts', authRequired, async (req, res) => {
     const params = [];
     let where = '';
     if (role === 'Пользователь') {
-      where = 'WHERE ts.podrazdelenie_id = ?';
-      params.push(req.user.podrazdelenie_id);
+      where = 'WHERE ts.sozdatel_id = ?';
+      params.push(req.user.id);
     }
     const [rows] = await pool.execute(
       `SELECT ts.id, ts.gos_nomer, ts.invent_nomer, ts.tekuschee_sostoyanie,
@@ -298,12 +298,12 @@ router.get('/:id', authRequired, async (req, res) => {
               z.tip_remonta_id, tr.nazvanie AS tip_remonta,
               z.ts_id, ts.gos_nomer, ts.invent_nomer,
               ma.nazvanie AS marka, mo.nazvanie AS model,
-              ts.podrazdelenie_id, pd.nazvanie AS podrazdelenie,
+              ts.podrazdelenie_id, pd.nazvanie AS podrazdelenie, pd.adres,
               z.sozdatel_id, s.fio AS sozdatel_fio,
               r.id AS remont_id,
               r.mekhanik_id, ms.fio AS mekhanik_fio,
               r.data_nachala, r.data_okonchaniya,
-              r.stoimost_rabot, r.stoimost_zapchastey,
+              r.stoimost_rabot, r.stoimost_zapchastey, r.garantiyny_srok,
               r.kommentariy AS remont_kommentariy, r.itog
          FROM zayavka z
          JOIN status              st ON st.id = z.status_id
@@ -738,6 +738,75 @@ router.patch(
     }
   }
 );
+
+// ──────────────────────────────────────────────────────────────────
+// Редактирование заявки (описание, приоритет, тип ремонта, ТС)
+// ──────────────────────────────────────────────────────────────────
+router.patch('/:id', authRequired, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) {
+      return res.status(400).json({ error: 'Некорректный id' });
+    }
+
+    const [[z]] = await pool.execute(
+      `SELECT z.id, z.status_id, st.nazvanie AS status, z.sozdatel_id,
+              z.ts_id, z.tip_remonta_id, z.prioritet, z.opisanie
+         FROM zayavka z
+         JOIN status st ON st.id = z.status_id
+        WHERE z.id = ?`,
+      [id]
+    );
+    if (!z) return res.status(404).json({ error: 'Заявка не найдена' });
+
+    const role = req.user.rol_nazvanie;
+    const canEdit = (
+      z.sozdatel_id === req.user.id ||
+      ['Диспетчер', 'Главный механик', 'Директор', 'Аналитик'].includes(role)
+    );
+    if (!canEdit) {
+      return res.status(403).json({ error: 'Нет прав на редактирование заявки' });
+    }
+
+    const updates = [];
+    const params = [];
+
+    if (req.body.opisanie !== undefined) {
+      updates.push('opisanie = ?');
+      params.push(req.body.opisanie);
+    }
+    if (req.body.prioritet !== undefined) {
+      const allowed = ['Низкий', 'Средний', 'Высокий'];
+      if (!allowed.includes(req.body.prioritet)) {
+        return res.status(400).json({ error: 'Некорректный приоритет' });
+      }
+      updates.push('prioritet = ?');
+      params.push(req.body.prioritet);
+    }
+    if (req.body.tip_remonta_id !== undefined) {
+      updates.push('tip_remonta_id = ?');
+      params.push(Number(req.body.tip_remonta_id));
+    }
+    if (req.body.ts_id !== undefined) {
+      if (z.status !== 'Новая') {
+        return res.status(400).json({ error: 'ТС можно изменить только у новой заявки' });
+      }
+      updates.push('ts_id = ?');
+      params.push(Number(req.body.ts_id));
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'Нет данных для обновления' });
+    }
+
+    params.push(id);
+    await pool.execute(`UPDATE zayavka SET ${updates.join(', ')} WHERE id = ?`, params);
+    res.json({ id, updated: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Ошибка обновления заявки' });
+  }
+});
 
 // ──────────────────────────────────────────────────────────────────
 // Таймлайн истории статусов заявки

@@ -9,6 +9,7 @@ const financeRoutes = require('./routes/finance');
 const zayavkiRoutes = require('./routes/zayavki');
 const remontyRoutes = require('./routes/remonty');
 const transportRoutes = require('./routes/transport');
+const chatRoutes = require('./routes/chat');
 const { loginLimiter, apiLimiter } = require('./middleware/rate-limit');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
@@ -33,6 +34,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/zayavki', zayavkiRoutes);
+app.use('/api/zayavki/:id/chat', chatRoutes);
 app.use('/api/remonty', remontyRoutes);
 app.use('/api/transport', transportRoutes);
 

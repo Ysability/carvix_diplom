@@ -74,6 +74,11 @@ router.post('/register', async (req, res) => {
     if (!fio || !login || !password) {
       return res.status(400).json({ error: 'Заполните все поля' });
     }
+    const fioTrim = String(fio).trim();
+    const fioParts = fioTrim.split(/\s+/).filter(Boolean);
+    if (fioParts.length < 2) {
+      return res.status(400).json({ error: 'Введите полное ФИО (минимум 2 слова)' });
+    }
     if (String(password).length < 6) {
       return res
         .status(400)
@@ -244,6 +249,10 @@ router.put('/profile', authRequired, [
 
     // Если меняют ФИО
     if (fio && String(fio).trim()) {
+      const parts = String(fio).trim().split(/\s+/).filter(Boolean);
+      if (parts.length < 2) {
+        return res.status(400).json({ error: 'Введите полное ФИО (минимум 2 слова)' });
+      }
       await pool.execute('UPDATE sotrudnik SET fio = ? WHERE id = ?', [String(fio).trim(), userId]);
     }
 

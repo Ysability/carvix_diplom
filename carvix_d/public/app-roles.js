@@ -205,12 +205,13 @@
       <div class="modal" style="width: 540px">
         <h3>${T('requests.new_title')}</h3>
         <div class="form-grid">
+          ${ts.length === 0 ? `<div class="info-banner" style="margin-bottom:8px">${T('transport.empty') || 'Нет доступного транспорта'}</div>` : `
           <label class="full">${T('requests.ts')}
             <select id="cTs">
               <option value="">—</option>
               ${ts.map(t => `<option value="${t.id}">${escape(t.gos_nomer)} · ${escape(t.marka)} ${escape(t.model)} · ${escape(t.podrazdelenie)}</option>`).join('')}
             </select>
-          </label>
+          </label>`}
           <label class="full">${T('requests.tip_remonta')}
             <select id="cTip">
               <option value="">—</option>
@@ -241,12 +242,12 @@
     bg.querySelector('#cCancel').onclick = () => bg.remove();
     bg.querySelector('#cSave').onclick = async () => {
       const rules = [
-        { selector: '#cTs', message: T('validate.ts') || 'Select vehicle' },
+        ...(ts.length ? [{ selector: '#cTs', message: T('validate.ts') || 'Select vehicle' }] : []),
         { selector: '#cTip', message: T('validate.type') || 'Select repair type' },
       ];
       if (!window.validateForm(bg, rules)) return;
       const body = {
-        ts_id: +bg.querySelector('#cTs').value,
+        ...(ts.length ? { ts_id: +bg.querySelector('#cTs').value } : {}),
         tip_remonta_id: +bg.querySelector('#cTip').value,
         prioritet: +bg.querySelector('#cPrio').value,
         opisanie: bg.querySelector('#cDesc').value || null,
@@ -254,6 +255,72 @@
       try {
         await window.api('/api/zayavki', { method: 'POST', body: JSON.stringify(body) });
         window.toast(T('requests.created'), 'success');
+        bg.remove();
+        onSaved?.();
+      } catch (e) { window.toast(e.message, 'error'); }
+    };
+  }
+
+  async function openEditRequest(z, onSaved) {
+    const [tipy, ts] = await Promise.all([
+      window.api('/api/zayavki/dict/tipy-remonta'),
+      window.api('/api/zayavki/dict/ts'),
+    ]);
+
+    const bg = document.createElement('div');
+    bg.className = 'modal-bg';
+    bg.innerHTML = `
+      <div class="modal" style="width: 540px">
+        <h3>${T('requests.edit_title') || 'Редактирование заявки'}</h3>
+        <div class="form-grid">
+          ${ts.length === 0 ? `<div class="info-banner" style="margin-bottom:8px">${T('transport.empty') || 'Нет доступного транспорта'}</div>` : `
+          <label class="full">${T('requests.ts')}
+            <select id="eTs" ${z.status !== 'Новая' ? 'disabled' : ''}>
+              <option value="">—</option>
+              ${ts.map(t => `<option value="${t.id}" ${t.id === z.ts_id ? 'selected' : ''}>${escape(t.gos_nomer)} · ${escape(t.marka)} ${escape(t.model)} · ${escape(t.podrazdelenie)}</option>`).join('')}
+            </select>
+          </label>`}
+          <label class="full">${T('requests.tip_remonta')}
+            <select id="eTip">
+              <option value="">—</option>
+              ${tipy.map(t => `<option value="${t.id}" ${t.id === z.tip_remonta_id ? 'selected' : ''}>${escape(t.nazvanie)} (${escape(t.kategoriya || '')})</option>`).join('')}
+            </select>
+          </label>
+          <label>${T('requests.priority')}
+            <select id="ePrio">
+              <option value="Низкий" ${z.prioritet === 'Низкий' ? 'selected' : ''}>${T('priority.low')}</option>
+              <option value="Средний" ${z.prioritet === 'Средний' ? 'selected' : ''}>${T('priority.medium')}</option>
+              <option value="Высокий" ${z.prioritet === 'Высокий' ? 'selected' : ''}>${T('priority.high')}</option>
+            </select>
+          </label>
+          <label class="full">${T('requests.description')}
+            <textarea id="eDesc" rows="3" placeholder="${T('requests.desc_ph') || 'Описание'}">${escape(z.opisanie || '')}</textarea>
+          </label>
+        </div>
+        <div class="modal__actions">
+          <button class="btn" id="eCancel">${T('common.cancel')}</button>
+          <button class="btn dark" id="eSave">${T('common.save')}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(bg);
+    bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
+    bg.querySelector('#eCancel').onclick = () => bg.remove();
+    bg.querySelector('#eSave').onclick = async () => {
+      const rules = [
+        ...(ts.length ? [{ selector: '#eTs', message: T('validate.ts') || 'Select vehicle' }] : []),
+        { selector: '#eTip', message: T('validate.type') || 'Select repair type' },
+      ];
+      if (!window.validateForm(bg, rules)) return;
+      const body = {
+        ...(ts.length && z.status === 'Новая' ? { ts_id: +bg.querySelector('#eTs').value } : {}),
+        tip_remonta_id: +bg.querySelector('#eTip').value,
+        prioritet: bg.querySelector('#ePrio').value,
+        opisanie: bg.querySelector('#eDesc').value || null,
+      };
+      try {
+        await window.api(`/api/zayavki/${z.id}`, { method: 'PATCH', body: JSON.stringify(body) });
+        window.toast(T('requests.updated') || 'Заявка обновлена', 'success');
         bg.remove();
         onSaved?.();
       } catch (e) { window.toast(e.message, 'error'); }
@@ -391,10 +458,16 @@
   }
 
   async function openRequestDetails(id) {
-    const [z, timeline] = await Promise.all([
+    const [z, timeline, messages] = await Promise.all([
       window.api(`/api/zayavki/${id}`),
       window.api(`/api/zayavki/${id}/timeline`).catch(() => []),
+      window.api(`/api/zayavki/${id}/chat`).catch(() => []),
     ]);
+    const canChat = (
+      z.sozdatel_id === CURRENT_USER.id ||
+      z.mekhanik_id === CURRENT_USER.id ||
+      ['Диспетчер','Главный механик','Директор','Аналитик'].includes(CURRENT_USER.rol_nazvanie)
+    );
     const bg = document.createElement('div');
     bg.className = 'modal-bg';
     bg.innerHTML = `
@@ -405,7 +478,7 @@
           <div class="kv__row"><div>${T('common.status')}</div><div>${statusBadge(z.status)}</div></div>
           <div class="kv__row"><div>${T('requests.priority')}</div><div>${prio(z.prioritet)}</div></div>
           <div class="kv__row"><div>${T('requests.ts')}</div><div>${escape(z.gos_nomer)} · ${escape(z.marka)} ${escape(z.model)}</div></div>
-          <div class="kv__row"><div>${T('requests.division')}</div><div>${escape(z.podrazdelenie)}</div></div>
+          <div class="kv__row"><div>${T('requests.division')}</div><div>${escape(z.podrazdelenie)}${z.adres ? ` · ${escape(z.adres)}` : ''}</div></div>
           <div class="kv__row"><div>${T('requests.creator')}</div><div>${escape(z.sozdatel_fio)}</div></div>
           <div class="kv__row"><div>${T('requests.created')}</div><div>${fmtDateTime(z.data_sozdaniya)}</div></div>
           <div class="kv__row"><div>${T('requests.mekhanik')}</div><div>${z.mekhanik_fio ? escape(z.mekhanik_fio) : '—'}</div></div>
@@ -413,6 +486,7 @@
           ${z.data_okonchaniya ? `<div class="kv__row"><div>${T('repairs.finished')}</div><div>${fmtDateTime(z.data_okonchaniya)}</div></div>` : ''}
           ${z.stoimost_rabot != null ? `<div class="kv__row"><div>${T('repairs.cost_work')}</div><div>${fmtMoney(z.stoimost_rabot)}</div></div>` : ''}
           ${z.stoimost_zapchastey != null ? `<div class="kv__row"><div>${T('repairs.cost_parts')}</div><div>${fmtMoney(z.stoimost_zapchastey)}</div></div>` : ''}
+          ${z.garantiyny_srok != null ? `<div class="kv__row"><div>${T('repairs.warranty') || 'Гарантия'}</div><div>${z.garantiyny_srok} дн.</div></div>` : ''}
         </div>
         ${z.opisanie ? `<div class="req-card__desc" style="margin-top: 12px">${escape(z.opisanie)}</div>` : ''}
         ${z.itog ? `<div class="req-card__desc" style="margin-top: 8px"><strong>${T('repairs.itog')}:</strong> ${escape(z.itog)}</div>` : ''}
@@ -422,12 +496,60 @@
           <div id="reqTimeline" class="timeline">${renderTimeline(timeline)}</div>
         </div>
 
-        <div class="modal__actions"><button class="btn dark" id="dClose">${T('common.close')}</button></div>
+        ${canChat ? `
+        <div class="chat-box" style="margin-top: 20px; border-top: 1px solid var(--c-border); padding-top: 12px;">
+          <h4 style="margin-bottom: 10px; font-size: 14px; color: var(--c-muted)">${T('chat.title') || 'Чат'}</h4>
+          <div id="chatMessages" style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+            ${renderChatMessages(messages)}
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="chatInput" class="field" placeholder="${T('chat.placeholder') || 'Написать сообщение…'}" style="flex: 1;" />
+            <button class="btn dark" id="chatSend">${T('common.send') || 'Отправить'}</button>
+          </div>
+        </div>` : ''}
+
+        <div class="modal__actions">
+          <button class="btn" id="dClose">${T('common.close')}</button>
+          ${(z.sozdatel_id === CURRENT_USER.id || ['Диспетчер','Главный механик','Директор','Аналитик'].includes(CURRENT_USER.rol_nazvanie)) ? `<button class="btn dark" id="dEdit">${T('common.edit')}</button>` : ''}
+        </div>
       </div>
     `;
     document.body.appendChild(bg);
     bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
     bg.querySelector('#dClose').onclick = () => bg.remove();
+    const editBtn = bg.querySelector('#dEdit');
+    if (editBtn) editBtn.onclick = () => { bg.remove(); openEditRequest(z, onRefresh); };
+
+    if (canChat) {
+      const chatMessages = bg.querySelector('#chatMessages');
+      const chatInput = bg.querySelector('#chatInput');
+      const chatSend = bg.querySelector('#chatSend');
+      const sendMsg = async () => {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        try {
+          const msg = await window.api(`/api/zayavki/${id}/chat`, {
+            method: 'POST',
+            body: JSON.stringify({ tekst: text }),
+          });
+          chatMessages.innerHTML += renderChatMessages([msg]);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          chatInput.value = '';
+        } catch (e) { window.toast(e.message, 'error'); }
+      };
+      chatSend.onclick = sendMsg;
+      chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
+    }
+  }
+
+  function renderChatMessages(list) {
+    if (!list || !list.length) return `<div style="font-size: 12px; color: var(--c-muted)">${T('chat.empty') || 'Нет сообщений'}</div>`;
+    return list.map(m => `
+      <div style="display: flex; flex-direction: column; gap: 2px; align-self: ${m.avtor_id === CURRENT_USER.id ? 'flex-end' : 'flex-start'}; max-width: 80%;">
+        <div style="font-size: 11px; color: var(--c-muted)">${escape(m.avtor_fio)} · ${fmtDateTime(m.data_sozdaniya)}</div>
+        <div style="padding: 8px 12px; border-radius: 12px; background: ${m.avtor_id === CURRENT_USER.id ? 'var(--c-accent)' : 'var(--c-surface)'}; color: ${m.avtor_id === CURRENT_USER.id ? '#fff' : 'inherit'}; font-size: 13px;">${escape(m.tekst)}</div>
+      </div>
+    `).join('');
   }
 
   function renderTimeline(items) {
@@ -683,6 +805,9 @@
               <option>${T('repairs.outcome_unrepairable')}</option>
             </select>
           </label>
+          <label class="full">${T('repairs.warranty') || 'Гарантийный срок (дней)'}
+            <input type="number" id="fG" min="0" step="1" value="0" />
+          </label>
           <label class="full">${T('common.comment')}
             <textarea id="fC" rows="3"></textarea>
           </label>
@@ -703,6 +828,7 @@
           body: JSON.stringify({
             stoimost_rabot: +bg.querySelector('#fW').value || 0,
             stoimost_zapchastey: +bg.querySelector('#fP').value || 0,
+            garantiyny_srok: +bg.querySelector('#fG').value || 0,
             itog: bg.querySelector('#fI').value,
             kommentariy: bg.querySelector('#fC').value || null,
           }),

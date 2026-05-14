@@ -12,7 +12,6 @@ const loginLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.ip || 'unknown',
   handler: (req, res) => {
     res.status(429).json({
       error: 'Слишком много попыток входа. Попробуйте через 15 минут.',
@@ -25,7 +24,6 @@ const apiLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.ip || 'unknown',
   handler: (req, res) => {
     res.status(429).json({
       error: 'Превышен лимит запросов. Попробуйте через 15 минут.',

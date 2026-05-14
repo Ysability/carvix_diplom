@@ -221,9 +221,25 @@ router.get('/:id', async (req, res) => {
 /* ---------------------------------------------------------------
    POST /api/transport — создать ТС
    --------------------------------------------------------------- */
+const GOS_LETTERS = 'АВЕКМНОРСТУХ';
+const GOS_REGEX = new RegExp(`^[${GOS_LETTERS}\\d]{8,9}$`, 'i');
+const INV_REGEX = /^[A-Z0-9\-]+$/i;
+
 router.post('/', [
-  body('gos_nomer').trim().notEmpty().withMessage('Укажите гос. номер').isLength({ max: 50 }),
-  body('invent_nomer').trim().notEmpty().withMessage('Укажите инвентарный номер').isLength({ max: 50 }),
+  body('gos_nomer').trim().notEmpty().withMessage('Укажите гос. номер').isLength({ max: 50 })
+    .custom(v => {
+      const raw = String(v).toUpperCase().replace(/[ABEKMHOPCTYX]/g, ch => {
+        const idx = 'ABEKMHOPCTYX'.indexOf(ch);
+        return idx >= 0 ? GOS_LETTERS[idx] : ch;
+      });
+      if (!GOS_REGEX.test(raw)) throw new Error('Некорректный формат гос. номера (пример: А123АА77)');
+      return true;
+    }),
+  body('invent_nomer').trim().notEmpty().withMessage('Укажите инвентарный номер').isLength({ max: 50 })
+    .custom(v => {
+      if (!INV_REGEX.test(String(v))) throw new Error('Инв. номер: только латинские буквы, цифры и дефис');
+      return true;
+    }),
   body('model_id').isInt({ min: 1 }).withMessage('Некорректный id модели'),
   body('podrazdelenie_id').optional({ checkFalsy: true }).isInt({ min: 1 }).withMessage('Некорректный id подразделения'),
   body('probeg').optional({ checkFalsy: true }).isInt({ min: 0 }).withMessage('Пробег должен быть ≥ 0'),
@@ -293,7 +309,23 @@ router.post('/', [
 /* ---------------------------------------------------------------
    PATCH /api/transport/:id — обновление полей
    --------------------------------------------------------------- */
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', [
+  body('gos_nomer').optional().trim().isLength({ max: 50 })
+    .custom(v => {
+      const raw = String(v).toUpperCase().replace(/[ABEKMHOPCTYX]/g, ch => {
+        const idx = 'ABEKMHOPCTYX'.indexOf(ch);
+        return idx >= 0 ? GOS_LETTERS[idx] : ch;
+      });
+      if (!GOS_REGEX.test(raw)) throw new Error('Некорректный формат гос. номера (пример: А123АА77)');
+      return true;
+    }),
+  body('invent_nomer').optional().trim().isLength({ max: 50 })
+    .custom(v => {
+      if (!INV_REGEX.test(String(v))) throw new Error('Инв. номер: только латинские буквы, цифры и дефис');
+      return true;
+    }),
+  handleResult,
+], async (req, res) => {
   const id = intOrNull(req.params.id);
   if (!id) return res.status(400).json({ error: 'invalid id' });
 
