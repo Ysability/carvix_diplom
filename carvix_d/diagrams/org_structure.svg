@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="dirGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d5a87;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="chiefGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1565c0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d47a1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dispGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00838f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#006064;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="mechGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6a1b9a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4a148c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="userGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2e7d32;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1b5e20;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="analGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e65100;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bf360c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="deptGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#455a64;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#263238;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="3" dy="6" stdDeviation="4" flood-color="#000" flood-opacity="0.2"/>
+    </filter>
+    <filter id="lightShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+
+    <!-- Connector line style -->
+    <style>
+      .title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 28px; font-weight: 700; fill: #1a237e; text-anchor: middle; }
+      .subtitle { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #546e7a; text-anchor: middle; }
+      .roleTitle { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; font-weight: 600; fill: #ffffff; text-anchor: middle; }
+      .roleDesc { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; fill: #e0e0e0; text-anchor: middle; }
+      .deptTitle { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: 600; fill: #ffffff; text-anchor: middle; }
+      .deptDesc { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #b0bec5; text-anchor: middle; }
+      .line { stroke: #78909c; stroke-width: 2; fill: none; }
+      .arrow { fill: #78909c; }
+      .box { filter: url(#shadow); rx: 12; ry: 12; }
+      .smallBox { filter: url(#lightShadow); rx: 8; ry: 8; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#f5f7fa"/>
+
+  <!-- Decorative background elements -->
+  <circle cx="100" cy="100" r="180" fill="#e3f2fd" opacity="0.4"/>
+  <circle cx="1100" cy="700" r="220" fill="#e8f5e9" opacity="0.4"/>
+  <circle cx="600" cy="750" r="250" fill="#fce4ec" opacity="0.3"/>
+
+  <!-- Title -->
+  <text x="600" y="45" class="title">Организационная структура</text>
+  <text x="600" y="70" class="subtitle">транспортного подразделения предприятия (система Carvix)</text>
+
+  <!-- ==================== LEVEL 1: DIRECTOR ==================== -->
+  <rect x="460" y="100" width="280" height="90" fill="url(#dirGrad)" class="box"/>
+  <text x="600" y="140" class="roleTitle">ДИРЕКТОР ПРЕДПРИЯТИЯ</text>
+  <text x="600" y="160" class="roleDesc">Полный контроль • Аудит • Отчётность</text>
+  <text x="600" y="178" class="roleDesc">Роль: Директор</text>
+
+  <!-- Line down from Director -->
+  <line x1="600" y1="190" x2="600" y2="220" class="line"/>
+
+  <!-- ==================== LEVEL 2: CHIEF MECHANIC + ANALYST ==================== -->
+  <!-- Chief Mechanic -->
+  <rect x="260" y="220" width="280" height="90" fill="url(#chiefGrad)" class="box"/>
+  <text x="400" y="260" class="roleTitle">ГЛАВНЫЙ МЕХАНИК</text>
+  <text x="400" y="280" class="roleDesc">Руководство ремонтным цехом • Бюджеты</text>
+  <text x="400" y="298" class="roleDesc">Роль: Главный механик</text>
+
+  <!-- Analyst -->
+  <rect x="660" y="220" width="280" height="90" fill="url(#analGrad)" class="box"/>
+  <text x="800" y="260" class="roleTitle">АНАЛИТИК</text>
+  <text x="800" y="280" class="roleDesc">Отчёты • TCO • Прогнозирование Holt-Winters</text>
+  <text x="800" y="298" class="roleDesc">Роль: Аналитик (read-only)</text>
+
+  <!-- Horizontal connector -->
+  <line x1="400" y1="220" x2="800" y2="220" class="line"/>
+  <line x1="600" y1="220" x2="600" y2="220" class="line"/>
+
+  <!-- Lines down -->
+  <line x1="400" y1="310" x2="400" y2="340" class="line"/>
+  <line x1="800" y1="310" x2="800" y2="340" class="line"/>
+
+  <!-- ==================== LEVEL 3: DISPATCHER ==================== -->
+  <rect x="260" y="340" width="280" height="90" fill="url(#dispGrad)" class="box"/>
+  <text x="400" y="380" class="roleTitle">ДИСПЕТЧЕРСКАЯ СЛУЖБА</text>
+  <text x="400" y="400" class="roleDesc">Распределение заявок • Автонаводка механиков</text>
+  <text x="400" y="418" class="roleDesc">Роль: Диспетчер</text>
+
+  <!-- ==================== LEVEL 3: DEPARTMENTS (Analyst side) ==================== -->
+  <rect x="660" y="340" width="280" height="90" fill="url(#deptGrad)" class="box"/>
+  <text x="800" y="380" class="deptTitle">ПОДРАЗДЕЛЕНИЯ (АВТОПАРКИ)</text>
+  <text x="800" y="400" class="deptDesc">Главное управление • Автопарк №1 • Автопарк №2</text>
+  <text x="800" y="418" class="deptDesc">Ремонтный цех • Адреса • ТС по подразделениям</text>
+
+  <!-- Line down from Dispatcher -->
+  <line x1="400" y1="430" x2="400" y2="460" class="line"/>
+
+  <!-- ==================== LEVEL 4: MECHANICS ==================== -->
+  <rect x="160" y="460" width="220" height="80" fill="url(#mechGrad)" class="box"/>
+  <text x="270" y="495" class="roleTitle">МЕХАНИКИ</text>
+  <text x="270" y="515" class="roleDesc">Выполнение ремонтов • Старт/финиш</text>
+  <text x="270" y="530" class="roleDesc">Роль: Механик</text>
+
+  <!-- Users/Vehicles -->
+  <rect x="420" y="460" width="220" height="80" fill="url(#userGrad)" class="box"/>
+  <text x="530" y="495" class="roleTitle">ВОДИТЕЛИ / ПОЛЬЗОВАТЕЛИ</text>
+  <text x="530" y="515" class="roleDesc">Создание заявок • Просмотр своих ТС</text>
+  <text x="530" y="530" class="roleDesc">Роль: Пользователь</text>
+
+  <!-- Horizontal connector for Level 4 -->
+  <line x1="270" y1="460" x2="530" y2="460" class="line"/>
+  <line x1="400" y1="460" x2="400" y2="460" class="line"/>
+
+  <!-- ==================== BOTTOM: SYSTEM MODULES ==================== -->
+  <rect x="100" y="600" width="1000" height="160" fill="#ffffff" stroke="#cfd8dc" stroke-width="2" rx="16" filter="url(#shadow)"/>
+  <text x="600" y="630" style="font-family:'Segoe UI',Arial,sans-serif;font-size:16px;font-weight:700;fill:#37474f;text-anchor:middle;">МОДУЛИ СИСТЕМЫ CARVIX</text>
+
+  <!-- Module boxes -->
+  <rect x="130" y="650" width="130" height="80" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+  <text x="195" y="678" style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;fill:#1565c0;text-anchor:middle;">Транспорт</text>
+  <text x="195" y="695" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Учёт ТС</text>
+  <text x="195" y="710" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Марки/Модели</text>
+
+  <rect x="280" y="650" width="130" height="80" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
+  <text x="345" y="678" style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;fill:#2e7d32;text-anchor:middle;">Заявки</text>
+  <text x="345" y="695" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Создание • Редакт.</text>
+  <text x="345" y="710" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Автонаводка</text>
+
+  <rect x="430" y="650" width="130" height="80" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
+  <text x="495" y="678" style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;fill:#e65100;text-anchor:middle;">Ремонты</text>
+  <text x="495" y="695" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Старт/Финиш</text>
+  <text x="495" y="710" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Гарантийный срок</text>
+
+  <rect x="580" y="650" width="130" height="80" fill="#fce4ec" stroke="#c2185b" stroke-width="2" rx="8"/>
+  <text x="645" y="678" style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;fill:#ad1457;text-anchor:middle;">Финансы</text>
+  <text x="645" y="695" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Бюджеты • TCO</text>
+  <text x="645" y="710" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Прогнозирование</text>
+
+  <rect x="730" y="650" width="130" height="80" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
+  <text x="795" y="678" style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;fill:#6a1b9a;text-anchor:middle;">Запчасти</text>
+  <text x="795" y="695" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Склад • Накладные</text>
+  <text x="795" y="710" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Поставщики</text>
+
+  <rect x="880" y="650" width="130" height="80" fill="#e0f2f1" stroke="#00796b" stroke-width="2" rx="8"/>
+  <text x="945" y="678" style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;fill:#00695c;text-anchor:middle;">Аудит / Чат</text>
+  <text x="945" y="695" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Журнал операций</text>
+  <text x="945" y="710" style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;fill:#455a64;text-anchor:middle;">Чат заявок</text>
+
+  <!-- Legend -->
+  <rect x="100" y="560" width="400" height="28" fill="#ffffff" stroke="#cfd8dc" stroke-width="1" rx="6" opacity="0.9"/>
+  <text x="110" y="578" style="font-family:'Segoe UI',Arial,sans-serif;font-size:11px;fill:#546e7a;">
+    <tspan font-weight="600" fill="#1e3a5f">■</tspan> Руководство  
+    <tspan font-weight="600" fill="#1565c0">■</tspan> Управление ремонтами  
+    <tspan font-weight="600" fill="#00838f">■</tspan> Распределение  
+    <tspan font-weight="600" fill="#6a1b9a">■</tspan> Исполнители  
+    <tspan font-weight="600" fill="#2e7d32">■</tspan> Пользователи  
+    <tspan font-weight="600" fill="#e65100">■</tspan> Аналитика
+  </text>
+
+  <!-- Role count badge -->
+  <rect x="900" y="560" width="200" height="28" fill="#ffffff" stroke="#cfd8dc" stroke-width="1" rx="6" opacity="0.9"/>
+  <text x="910" y="578" style="font-family:'Segoe UI',Arial,sans-serif;font-size:11px;fill:#546e7a;">6 ролей • 4 подразделения • 22 таблицы БД</text>
+</svg>
