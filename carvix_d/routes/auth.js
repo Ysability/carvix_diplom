@@ -74,11 +74,6 @@ router.post('/register', async (req, res) => {
     if (!fio || !login || !password) {
       return res.status(400).json({ error: 'Заполните все поля' });
     }
-    const fioTrim = String(fio).trim();
-    const fioParts = fioTrim.split(/\s+/).filter(Boolean);
-    if (fioParts.length < 2) {
-      return res.status(400).json({ error: 'Введите полное ФИО (минимум 2 слова)' });
-    }
     if (String(password).length < 6) {
       return res
         .status(400)
@@ -126,6 +121,7 @@ router.post('/register', async (req, res) => {
     const token = jwt.sign(
       {
         id: user.id,
+        fio: user.fio,
         login: user.login,
         rol_id: user.rol_id,
         rol_nazvanie: user.rol_nazvanie,
@@ -176,6 +172,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(
       {
         id: user.id,
+        fio: user.fio,
         login: user.login,
         rol_id: user.rol_id,
         rol_nazvanie: user.rol_nazvanie,
@@ -249,10 +246,6 @@ router.put('/profile', authRequired, [
 
     // Если меняют ФИО
     if (fio && String(fio).trim()) {
-      const parts = String(fio).trim().split(/\s+/).filter(Boolean);
-      if (parts.length < 2) {
-        return res.status(400).json({ error: 'Введите полное ФИО (минимум 2 слова)' });
-      }
       await pool.execute('UPDATE sotrudnik SET fio = ? WHERE id = ?', [String(fio).trim(), userId]);
     }
 

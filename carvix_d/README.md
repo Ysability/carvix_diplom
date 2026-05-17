@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="images/logo.png" alt="Carvix" width="240" />
+  <img src="images/logo.png" alt="Carvix" width="200" />
   <h1>Carvix</h1>
-  <p><b>Веб-система управления автопарком, ТО и ремонтами.</b></p>
+  <p><b>Автоматизированная система управления автопарком, ТО и ремонтами</b></p>
   <p>
     <img alt="Node" src="https://img.shields.io/badge/Node.js-18%2B-43853D?logo=node.js&logoColor=white" />
     <img alt="Express" src="https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white" />
@@ -10,8 +10,6 @@
     <img alt="Tests" src="https://img.shields.io/badge/Tests-Jest%20%E2%9C%94-99425b?logo=jest&logoColor=white" />
     <img alt="Coverage" src="https://img.shields.io/badge/Coverage-83%25-brightgreen" />
     <img alt="Tests count" src="https://img.shields.io/badge/Tests-201-blue?logo=jest" />
-    <img alt="CI" src="https://github.com/boevxd/Carvix/actions/workflows/ci.yml/badge.svg" />
-    <img alt="Render" src="https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render&logoColor=white" />
     <img alt="License" src="https://img.shields.io/badge/license-MIT-1c1b17" />
   </p>
 </div>
@@ -20,117 +18,293 @@
 
 ## О проекте
 
-**Carvix** — учебно-демонстрационный full-stack проект: бэкенд + фронтенд для управления автопарком предприятия.
-Учёт техники, заявки на ТО и ремонт, аналитика для руководства, контроль запчастей и поставок.
+**Carvix** — full-stack веб-приложение для управления автопарком предприятия, автоматизации процессов технического обслуживания (ТО), ремонта транспортных средств (ТС) и финансового учета затрат.
 
-На текущий момент готов первый блок — **система авторизации и регистрации сотрудников** с ролями и подразделениями,
-JWT-сессией и личным кабинетом.
+Система обеспечивает полный цикл работы с заявками на ремонт: от создания заявки пользователем и автоматического распределения работ между механиками до фиксации стоимости, аналитики затрат (TCO) и прогнозирования расходов.
 
-| Часть | Стек |
-|-------|------|
-| **Backend** | Node.js, Express 4, `pg` (node-postgres), bcryptjs, jsonwebtoken, dotenv, cors |
-| **Frontend** | Vanilla JS + HTML5 + CSS3 (без сборщика) — Manrope + Cormorant Garamond, glass-morphism, анимации |
-| **БД** | PostgreSQL (DDL — `schema.sql`, демо-данные — `seed_data.sql`) |
-| **Хостинг** | Render: free Web Service + free PostgreSQL (одной командой через `render.yaml`) |
-| **Безопасность** | bcrypt-хэши паролей, JWT в `Authorization: Bearer …` |
+### Ключевые возможности
+
+- **Управление транспортными средствами** — учет ТС по подразделениям, маркам, моделям; маски ввода гос. и инвентарного номера
+- **Заявки на ремонт** — создание, назначение, изменение статусов, таймлайн истории статусов, встроенный чат
+- **Распределение работ** — ручное и автоматическое назначение механиков с учетом подразделения и загрузки
+- **Управление ремонтами** — старт, завершение, фиксация стоимости работ и запчастей, гарантийный срок
+- **Финансовый модуль** — бюджеты, расходы, TCO, план/факт, прогнозирование (Holt-Winters), импорт CSV
+- **Учет запчастей** — склад остатков, приходные накладные, поставщики
+- **Аудит** — журнал всех финансовых операций и изменений статусов
+- **Мультиязычность** — русский, английский, таджикский
+- **Ролевая модель** — 6 ролей с разграничением прав доступа
+- **Swagger API** — интерактивная документация REST API
+
+### Стек технологий
+
+| Уровень | Технология |
+|---------|-----------|
+| Backend | Node.js 18+, Express 4.x |
+| База данных | PostgreSQL 14+ (pg driver) |
+| Аутентификация | JWT (jsonwebtoken), bcryptjs |
+| Валидация | express-validator |
+| Frontend | Vanilla JavaScript + HTML5 + CSS3 (без сборщика) |
+| Тестирование | Jest + Supertest, покрытие 83% (201 тест) |
+| API-документация | Swagger UI + swagger-jsdoc |
+| Локализация | Кастомный i18n (ru / en / tg) |
+
+---
 
 ## Структура проекта
 
 ```
-.
-├── server.js              # Express-сервер (статика + /api/auth + /images)
-├── db.js                  # PG-пул с mysql2-совместимым адаптером ("?" → "$N")
-├── schema.sql             # PG DDL (14 таблиц, IF NOT EXISTS)
-├── seed.js                # авто-применяется при старте: создаёт таблицы + базовые роли/подразделения
-├── seed-demo.js           # `npm run seed:demo` — заливает полный набор демо-данных
-├── seed_data.sql          # SQL-скрипт демо-данных (PostgreSQL)
-├── render.yaml            # Конфиг Render: Web + Postgres в один клик
-├── routes/auth.js         # /api/auth/{roles, podrazdeleniya, register, login, me}
-├── middleware/auth.js     # JWT middleware
+carvix_d/
+├── server.js                  # Express-сервер, инициализация, маршруты
+├── db.js                      # PG-пул с mysql2-совместимым адаптером
+├── schema.sql                 # DDL: 22 таблицы, VIEW, индексы
+├── seed.js                    # Идемпотентная инициализация БД при старте
+├── seed-demo.js               # Демо-данные: сотрудники, ТС, заявки, ремонты
+├── seed_data.sql              # SQL-скрипт демо-данных
+├── swagger.js                 # Спецификация OpenAPI
+├── .env                       # Переменные окружения
+├── .env.example               # Шаблон .env
+├── jest.config.js             # Конфигурация тестов
+├── package.json
+│
+├── middleware/
+│   ├── auth.js                # JWT-verification middleware
+│   ├── rbac.js                # Role-Based Access Control
+│   └── rate-limit.js          # Rate limiting (login + API)
+│
+├── routes/
+│   ├── auth.js                # Авторизация, регистрация, роли, подразделения
+│   ├── zayavki.js             # CRUD заявок, назначение, автонаводка, статусы
+│   ├── remonty.js             # Ремонты: старт, завершение, стоимость
+│   ├── transport.js           # Транспорт, марки, модели
+│   ├── chat.js                # Чат заявки
+│   └── finance/
+│       ├── budgets.js         # Бюджеты подразделений
+│       ├── expenses.js        # Расходы, импорт CSV
+│       ├── reports.js         # TCO, дашборд, прогнозы
+│       ├── exports.js         # Экспорт Excel / PDF
+│       └── audit.js           # Журнал аудита
+│
 ├── public/
-│   ├── index.html         # страница Login / Register
-│   ├── dashboard.html     # личный кабинет после входа
-│   ├── styles.css
-│   └── script.js
-├── images/logo.png
-├── script_bd.txt          # ИСТОРИЧЕСКИЙ MySQL DDL (для архивных целей)
-├── .env.example
-└── package.json
+│   ├── index.html             # Страница входа / регистрации
+│   ├── dashboard.html         # Личный кабинет (ролевой интерфейс)
+│   ├── styles.css             # Общие стили
+│   ├── script.js              # Логика авторизации
+│   ├── app-roles.js           # Ролевой frontend: заявки, ремонты, чат
+│   ├── app-transport.js       # Frontend: транспорт, марки, модели
+│   ├── app-finance.js         # Frontend: финансы, отчеты
+│   └── i18n.js                # Локализация (ru/en/tg)
+│
+├── __tests__/                 # Автоматические тесты
+│   ├── helpers/
+│   │   ├── mockDb.js          # Мок БД для интеграционных тестов
+│   │   ├── auth.js            # Генератор JWT-токенов для тестов
+│   │   └── makeApp.js         # Фабрика Express-приложения
+│   ├── unit/                  # Unit-тесты middleware
+│   ├── integration/           # Интеграционные тесты эндпоинтов
+│   └── business-logic/        # Тесты бизнес-логики (Holt-Winters, CSV)
+│
+└── images/
+    └── logo.png
 ```
+
+---
 
 ## Локальный запуск
 
-> Требуется **Node.js ≥ 18** и **PostgreSQL ≥ 14**.
+### Требования
+
+- **Node.js** >= 18
+- **PostgreSQL** >= 14
+
+### Установка
 
 ```bash
-git clone https://github.com/boevxd/Carvix.git
-cd Carvix
-cp .env.example .env
-# отредактируйте .env (DB_USER, DB_PASSWORD …)
+# 1. Клонирование репозитория
+git clone https://github.com/Ysability/carvix_diplom.git
+cd carvix_d
 
+# 2. Переменные окружения
+cp .env.example .env
+# Отредактируйте .env: DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, JWT_SECRET
+
+# 3. Установка зависимостей
 npm install
 
-# Создаём БД (в psql или GUI)
+# 4. Создание базы данных (в psql)
 createdb carvix
 
+# 5. Запуск
 npm start
 ```
 
-При первом старте `seed.js` сам:
+При первом старте `seed.js` автоматически:
+1. Применит `schema.sql` (22 таблицы, VIEW, индексы)
+2. Создаст 6 ролей: Аналитик, Диспетчер, Механик, Главный механик, Директор, Пользователь
+3. Создаст 4 подразделения: Главное управление, Автопарк №1, Автопарк №2, Ремонтный цех
 
-1. Применит `schema.sql` (создаст 14 таблиц).
-2. Добавит **6 ролей** (`Аналитик / Диспетчер / Механик / Главный механик / Директор / Пользователь`).
-3. Добавит **4 подразделения** (`Главное управление / Автопарк №1 / Автопарк №2 / Ремонтный цех`).
+Приложение будет доступно по адресу: http://localhost:3000
 
-После старта откройте http://localhost:3000.
-
-### Залить демо-данные
+### Заливка демо-данных
 
 ```bash
 npm run seed:demo
 ```
 
-Скрипт **полностью очистит** таблицы и зальёт 12 сотрудников, 12 машин, 14 заявок, 8 ремонтов и т. д.
+Скрипт полностью очистит таблицы и создаст: 12 сотрудников, 12 ТС, 14 заявок, 8 ремонтов, 3 поставщика, 8 запчастей, бюджеты, расходы.
 
-## Деплой на Render
+---
 
-Проект полностью готов к **бесплатному** хостингу на Render: один Web Service + один free Postgres.
+## Ролевая модель
 
-### Вариант 1 — через `render.yaml` (рекомендуется)
+Система реализует **6 ролей** с разграничением прав доступа (RBAC):
 
-1. Залогиньтесь на https://render.com (через GitHub).
-2. **New +** → **Blueprint** → выберите репозиторий `boevxd/Carvix`.
-3. Render прочитает `render.yaml` и сам предложит создать:
-   - **PostgreSQL** `carvix-db` (free)
-   - **Web Service** `carvix` (free) с уже подключённым `DATABASE_URL`
-4. Нажмите **Apply** — через 2–3 минуты сайт поднимется на `https://carvix.onrender.com`.
+| Роль | Доступные разделы | Ключевые возможности |
+|------|-------------------|----------------------|
+| **Пользователь** | Мои заявки, Транспорт | Создание заявок только на ТС своего подразделения; просмотр своих заявок, статусов, чата |
+| **Механик** | Мои ремонты | Старт и завершение ремонта (стоимость работ, запчастей, гарантийный срок, комментарий); чат с пользователем |
+| **Диспетчер** | Распределение, Заявки, Транспорт | Автонаводка и ручное назначение механиков; изменение статусов заявок; склад запчастей |
+| **Главный механик** | Все разделы (кроме Журнала) | Полный доступ к ремонтам, финансам, бюджетам, TCO, назначениям; редактирование любых ремонтов |
+| **Директор** | Все разделы | Полный доступ, включая журнал аудита и редактирование любых данных |
+| **Аналитик** | Финансы, Журнал | Read-only доступ к отчетам, бюджетам, TCO, аудиту; экспорт Excel/PDF |
 
-### Вариант 2 — вручную
+### Алгоритм «Автонаводки»
 
-1. **New +** → **PostgreSQL** → план **Free** → создать `carvix-db`.
-2. **New +** → **Web Service** → подключить репозиторий.
-3. Настройки:
-   - **Build Command**: `npm install`
-   - **Start Command**: `node server.js`
-   - **Environment Variables**:
-     - `DATABASE_URL` → копируем из `Internal Database URL` Postgres-сервиса
-     - `JWT_SECRET` → длинная случайная строка
-     - `JWT_EXPIRES_IN` = `7d`
-     - `NODE_ENV` = `production`
-4. **Create Web Service** — после деплоя `seed.js` автоматически создаст таблицы и базовые роли/подразделения.
+`POST /api/zayavki/:id/auto-assign` — автоматическое назначение оптимального механика:
 
-### Залить демо-данные на Render
+1. **Local-pool**: поиск механиков того же подразделения, что и ТС из заявки
+2. **Global fallback**: если в своем подразделении нет — расширение на все подразделения
+3. **Сортировка**: `активные ремонты ASC` -> `ремонтов за 30 дн ASC` -> `ФИО ASC`
+4. **Результат**: создание записи в `remont`, статус заявки -> «В работе», запись в аудит с меткой `auto-assign`
 
-В дашборде Web Service → **Shell** → выполнить:
+---
+
+## API
+
+### Основные эндпоинты
+
+| Метод | Путь | Описание | Доступ |
+|-------|------|----------|--------|
+| `GET`  | `/api/auth/roles` | Список ролей | — |
+| `GET`  | `/api/auth/podrazdeleniya` | Список подразделений | — |
+| `POST` | `/api/auth/register` | Регистрация | — |
+| `POST` | `/api/auth/login` | Вход (rate limit: 5/15min) | — |
+| `GET`  | `/api/auth/me` | Текущий пользователь | JWT |
+| `GET`  | `/api/transport` | Список ТС | JWT + RBAC |
+| `POST` | `/api/transport` | Создание ТС | JWT + RBAC |
+| `PATCH`| `/api/transport/:id` | Редактирование ТС | JWT + RBAC |
+| `DELETE`| `/api/transport/:id` | Удаление ТС | JWT + RBAC |
+| `GET`  | `/api/zayavki` | Список заявок | JWT + RBAC |
+| `POST` | `/api/zayavki` | Создание заявки | JWT + RBAC |
+| `PATCH`| `/api/zayavki/:id` | Редактирование заявки | JWT + RBAC |
+| `POST` | `/api/zayavki/:id/auto-assign` | Автонаводка | JWT + Диспетчер |
+| `GET`  | `/api/zayavki/:id/history` | История статусов | JWT + RBAC |
+| `GET`  | `/api/remonty/my` | Мои ремонты | JWT + Механик |
+| `POST` | `/api/remonty/:id/start` | Старт ремонта | JWT + Механик |
+| `POST` | `/api/remonty/:id/finish` | Завершение ремонта | JWT + Механик |
+| `GET`  | `/api/zayavki/:id/chat` | Сообщения чата | JWT + RBAC |
+| `POST` | `/api/zayavki/:id/chat` | Отправка сообщения | JWT + RBAC |
+| `GET`  | `/api/finance/budgets` | Бюджеты | JWT + FinanceRead |
+| `GET`  | `/api/finance/expenses` | Расходы | JWT + FinanceRead |
+| `POST` | `/api/finance/expenses/import` | Импорт CSV | JWT + FinanceWrite |
+| `GET`  | `/api/finance/reports/tco` | TCO по ТС | JWT + FinanceRead |
+| `GET`  | `/api/finance/reports/plan-fact` | План/факт | JWT + FinanceRead |
+| `GET`  | `/api/finance/reports/dashboard` | KPI дашборд | JWT + FinanceRead |
+| `GET`  | `/api/finance/reports/forecast` | Прогноз Holt-Winters | JWT + FinanceRead |
+| `GET`  | `/api/finance/audit` | Журнал аудита | JWT + Директор/Аналитик |
+| `GET`  | `/api/docs` | Swagger UI | — |
+
+### Пример запроса
 
 ```bash
-node seed-demo.js
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"login":"ivanov","password":"password"}'
 ```
 
-## Тестовые учётные записи
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": 1,
+    "fio": "Иванов Иван Иванович",
+    "login": "ivanov",
+    "rol_nazvanie": "Директор",
+    "podrazdelenie_nazvanie": "Главное управление"
+  }
+}
+```
 
-После `npm run seed:demo` (или `node seed-demo.js` на Render) появятся 12 сотрудников.
-**Пароль у всех — `password`**.
+---
+
+## Тестирование
+
+Проект покрыт автоматическими тестами: **201 тест**, **83% покрытие** строк бэкенда.
+
+### Запуск
+
+```bash
+npm test                  # все тесты
+npm run test:coverage     # с HTML-отчетом покрытия
+npm run test:unit         # unit-тесты middleware
+npm run test:integration  # интеграционные тесты
+npm run test:business     # бизнес-логика
+npm run test:ci           # CI-режим
+```
+
+### Структура тестов
+
+| Каталог | Тестов | Что проверяется |
+|---------|--------|-----------------|
+| `__tests__/unit/` | 18 | JWT-middleware, RBAC (все роли x read/write) |
+| `__tests__/integration/auth` | 14 | login/register/me/roles — все HTTP-сценарии |
+| `__tests__/integration/expenses` | 22 | CRUD расходов, RBAC, CSV-импорт, audit-log |
+| `__tests__/integration/budgets` | 20 | CRUD бюджетов, bulk, copy, план/факт, RBAC |
+| `__tests__/integration/parts-receipts` | 15 | Приходные накладные, склад, транзакции |
+| `__tests__/integration/reports` | 17 | TCO, дашборд KPI, прогноз Holt-Winters |
+| `__tests__/integration/audit` | 5 | Журнал операций, фильтры, RBAC |
+| `__tests__/integration/zayavki` | 37 | Заявки, RBAC, ручное назначение, автонаводка |
+| `__tests__/integration/remonty` | 20 | Ремонты: start/finish, стоимости, audit |
+| `__tests__/business-logic/` | 33 | План/факт, CSV-парсер, JWT-tampering, Holt-Winters |
+| **Итого** | **201** | — |
+
+### Пороги покрытия
+
+```js
+// jest.config.js
+coverageThreshold: {
+  global: { branches: 60, functions: 70, lines: 70, statements: 70 }
+}
+```
+
+Текущие значения: statements 80%, branches 80%, functions 84%, lines 83%.
+
+---
+
+## Безопасность
+
+- **bcryptjs** — хэширование паролей с солью
+- **JWT** — stateless-аутентификация с секретным ключом (срок жизни 7 дней)
+- **RBAC** — проверка прав на каждом эндпоинте через middleware
+- **Rate limiting** — ограничение на вход (5 попыток / 15 мин) и API (100 запросов / 15 мин)
+- **SQL-инъекции** — параметризованные запросы через placeholder `?` (адаптирован под `$N` в pg)
+- **Валидация** — express-validator на всех входных данных
+
+---
+
+## Дизайн и пользовательский интерфейс
+
+- **Палитра**: белый / бежевый / серый
+- **Шрифты**: Manrope (основной) + Cormorant Garamond (заголовки)
+- **Эффекты**: glass-morphism карточки, floating labels, плывущие бежевые блобы фоном, точечная сетка с радиальной маской
+- **Анимации**: скользящий индикатор табов, logo-glide, shake при ошибке, fade-in появление элементов
+- **Локализация**: переключатель языка (RU / EN / TG) в UI, сохранение в localStorage
+- **Адаптивность**: Flexbox и Grid, поддержка разных размеров экранов
+
+---
+
+## Тестовые учетные записи
+
+После `npm run seed:demo` доступны 12 сотрудников. **Пароль у всех — `password`**.
 
 | Логин | ФИО | Роль |
 |-------|-----|------|
@@ -145,143 +319,19 @@ node seed-demo.js
 | `novikov` | Новиков Ю. П. | Механик |
 | `orlova` | Орлова С. Н. | Диспетчер |
 
-## API
+---
 
-| Метод | Путь | Описание |
-|-------|------|----------|
-| `GET`  | `/api/auth/roles`          | Список ролей |
-| `GET`  | `/api/auth/podrazdeleniya` | Список подразделений |
-| `POST` | `/api/auth/register`       | Регистрация (`fio`, `login`, `password`). Роль и подразделение проставляются по умолчанию: `Пользователь` / `Главное управление` |
-| `POST` | `/api/auth/login`          | Вход (`login`, `password`). Возвращает `{ token, user }` |
-| `GET`  | `/api/auth/me`             | Текущий пользователь (требует `Authorization: Bearer <token>`) |
+## Документация API (Swagger)
 
-### Пример
+Интерактивная документация доступна по адресу:
 
-```bash
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"login":"ivanov","password":"password"}'
+```
+http://localhost:3000/api/docs
 ```
 
-```json
-{
-  "token": "eyJhbGciOi…",
-  "user": {
-    "id": 1,
-    "fio": "Иванов Иван Иванович",
-    "login": "ivanov",
-    "rol_nazvanie": "Директор",
-    "podrazdelenie_nazvanie": "Главное управление"
-  }
-}
-```
+Включает описание всех эндпоинтов, моделей данных, примеры запросов и ответов.
 
-## Тесты и контроль качества
-
-Проект покрыт автоматическими тестами на **Jest + supertest** — **201 тест**, **83 % покрытия** строк бэкенда.
-
-### Запуск
-
-```bash
-npm test                  # все тесты
-npm run test:coverage     # с HTML-отчётом покрытия (coverage/lcov-report/index.html)
-npm run test:unit         # только unit (middleware)
-npm run test:integration  # интеграционные (HTTP + БД-моки)
-npm run test:business     # бизнес-логика (план/факт, CSV, JWT)
-npm run test:ci           # как на CI: --runInBand --ci + coverage
-```
-
-### Что покрыто
-
-| Каталог | Файлов | Тестов | Что проверяется |
-|---|---:|---:|---|
-| `__tests__/unit/` | 2 | 18 | JWT-middleware (5 веток), RBAC (Директор/Аналитик/Гл. механик/Пользователь × read/write) |
-| `__tests__/integration/auth` | 1 | 14 | login/register/me/roles/podrazdeleniya — все 400/401/409/200-сценарии |
-| `__tests__/integration/expenses` | 1 | 22 | CRUD расходов + RBAC + CSV-импорт + audit-log |
-| `__tests__/integration/budgets` | 1 | 20 | CRUD бюджетов + bulk + copy-from-prev-year + плана/факт + RBAC |
-| `__tests__/integration/parts-receipts` | 1 | 15 | накладные на запчасти, склад в транзакции, реверс при удалении |
-| `__tests__/integration/reports` | 1 | 17 | TCO-список, TCO-детальный, дашборд (KPI), прогноз Holt-Winters |
-| `__tests__/integration/audit` | 1 | 5 | журнал операций, фильтры, RBAC, пагинация |
-| `__tests__/integration/zayavki` | 1 | 37 | заявки + RBAC + ручное назначение + **автонаводка** (local/global/409) |
-| `__tests__/integration/remonty` | 1 | 20 | ремонты: start/finish, владелец-ров, стоимости, audit |
-| `__tests__/business-logic/` | 4 | 33 | план/факт, CSV-парсер, JWT-tampering, **Holt-Winters** (16 тестов) |
-| **Итого** | **14** | **201** | — |
-
-### Архитектура тестов
-
-* **`__tests__/helpers/mockDb.js`** — заглушка модуля `db.js`. Записывает все вызовы `pool.execute / pool.pool.query / transaction`, отдаёт настроенные ответы по regex-паттернам SQL-запроса. Это даёт настоящие интеграционные тесты эндпоинтов **без поднятия PostgreSQL**.
-* **`__tests__/helpers/auth.js`** — генератор JWT-токенов для четырёх ролей и негативных кейсов (просроченный, чужой секрет, tampered).
-* **`__tests__/helpers/makeApp.js`** — фабрика мини-Express-приложения (без `seed()`, без `listen()`).
-* **`__tests__/setup-env.js`** — изолирует тесты от боевого `.env` (отключает `dotenv.config()`, фиксирует `JWT_SECRET=carvix-test-secret-key`).
-
-### Пороги покрытия (ниже — CI падает)
-
-```js
-// jest.config.js
-coverageThreshold: {
-  global: { branches: 60, functions: 70, lines: 70, statements: 70 }
-}
-```
-
-Текущие значения: **statements 80 %, branches 80 %, functions 84 %, lines 83 %**. `middleware/auth.js` и `middleware/rbac.js` покрыты на **100 %**.
-
-### CI/CD
-
-`.github/workflows/ci.yml` запускает все тесты на двух версиях Node (18 и 20) при каждом push/PR и публикует HTML-отчёт о покрытии как артефакт. После успешного прохождения CI Render автоматически деплоит изменения с `main`.
-
-## Почему PostgreSQL, а не MySQL?
-
-Изначально проект писался под MySQL (`script_bd.txt` остался в репозитории как референс).
-При деплое на бесплатный план Render-а доступен только **PostgreSQL**, поэтому проект мигрирован:
-
-- `mysql2` → `pg`.
-- `db.js` сохраняет mysql2-совместимый интерфейс (`pool.execute`, `[rows]` деструктуризация, `?` плейсхолдеры) — роуты не пришлось переписывать.
-- `AUTO_INCREMENT` → `SERIAL`, `DATETIME` → `TIMESTAMP`, `INSERT … RETURNING id` вместо `result.insertId`.
-
-## Дизайн и анимации
-
-- Палитра **белый / бежевый / серый**, шрифты `Manrope` + `Cormorant Garamond`.
-- Glass-morphism карточка с тонкой светящейся гранью сверху.
-- Скользящий индикатор табов `Вход ↔ Регистрация` (CSS Grid + transform).
-- Floating-labels, иконки слева, eye-toggle паролей.
-- Плывущие беж-блобы фоном + точечная сетка с радиальной маской.
-- Декоративные пунктирные кольца `spin-slow` и shimmer на бренд-панели.
-- Чек-иконки в beige-плитках вместо обычных bullet-точек.
-- Микро-анимации: `logo-glide` у логотипа, `shake` при ошибке формы, `feat-in` появление пунктов.
-
-## Ролевая модель и рабочие места
-
-Система поддерживает **6 ролей**, каждая с уникальным интерфейсом:
-
-| Роль | Разделы | Ключевые возможности |
-|---|---|---|
-| **Пользователь** | Мои заявки | Создают заявки **только на ТС своего подразделения**, видят свои заявки и их статусы |
-| **Механик** | Мои ремонты | Стартует и закрывает ремонт с фиксацией стоимости работ и запчастей — видит только **свои** назначения |
-| **Диспетчер** | Распределение, Заявки | **Автонаводка** на свободных механиков (с учётом подразделения ТС и загрузки за 30 дней), ручное назначение, смена статусов |
-| **Главный механик** | все разделы | Кроме журнала — полный доступ к финансам, бюджетам, TCO, назначениям |
-| **Директор** | все разделы | Полный доступ, включая журнал аудита и редактирование любых ремонтов |
-| **Аналитик** | финансы + журнал | Read-only доступ к отчётам, бюджетам, TCO и аудиту |
-
-### Алгоритм «Автонаводки»
-
-`POST /api/zayavki/:id/auto-assign` — выбирает оптимального механика:
-
-1. **Local-pool**: механики, закреплённые за тем же подразделением, что и ТС из заявки.
-2. **Global fallback**: если в своём подразделении механиков нет — расширяемся на все подразделения.
-3. **Сортировка** внутри пула: `активные_ремонты ASC → ремонтов_за_30дн ASC → ФИО ASC`.
-4. **Результат**: создаётся запись в `remont`, статус заявки → «В работе», пишется аудит с меткой `auto-assign`.
-
-Кнопка «**Автонаводка всех**» в разделе П«Распределение» вызывает этот эндпоинт для каждой новой заявки в очереди.
-
-## Дальнейшее развитие
-
-- [x] Заявки на ремонт + роли Пользователь/Диспетчер/Механик + автонаводка
-- [x] Прогнозирование расходов (Holt-Winters)
-- [ ] Канбан для механиков (drag‑and‑drop между статусами)
-- [ ] Прикрепление фотографий к заявкам (S3 / Cloudinary)
-- [ ] OCR для бумажных накладных (Tesseract.js)
-- [ ] Управление складом
-- [ ] Роли и права на эндпоинтах (RBAC middleware)
+---
 
 ## Лицензия
 

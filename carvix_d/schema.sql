@@ -19,8 +19,7 @@ CREATE TABLE IF NOT EXISTS model (
 -- 3. Подразделение
 CREATE TABLE IF NOT EXISTS podrazdelenie (
   id        SERIAL PRIMARY KEY,
-  nazvanie  VARCHAR(255) NOT NULL,
-  adres     VARCHAR(255)
+  nazvanie  VARCHAR(255) NOT NULL
 );
 
 -- 4. Роль
@@ -124,8 +123,7 @@ CREATE TABLE IF NOT EXISTS remont (
   stoimost_rabot       NUMERIC(10,2),
   stoimost_zapchastey  NUMERIC(10,2),
   kommentariy          TEXT,
-  itog                 VARCHAR(255),
-  garantiyny_srok      INT CHECK (garantiyny_srok >= 0) -- гарантийный срок в днях
+  itog                 VARCHAR(255)
 );
 
 -- 13. Использование запчастей
@@ -223,22 +221,25 @@ CREATE TABLE IF NOT EXISTS finansoviy_log (
   kommentariy     TEXT
 );
 
+-- 22. Сообщения (чат между механиком и создателем заявки)
+CREATE TABLE IF NOT EXISTS soobscheniye (
+  id              SERIAL PRIMARY KEY,
+  zayavka_id      INT NOT NULL REFERENCES zayavka(id) ON DELETE CASCADE,
+  otpravitel_id   INT NOT NULL REFERENCES sotrudnik(id),
+  tekst           TEXT NOT NULL,
+  data_otpravki   TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_soobscheniye_zayavka ON soobscheniye(zayavka_id);
+
+-- Миграция: гарантийный срок на ремонт
+ALTER TABLE remont ADD COLUMN IF NOT EXISTS garantiya_do DATE;
+
 -- Индексы под аналитические запросы
 CREATE INDEX IF NOT EXISTS idx_prochiy_raskhod_data       ON prochiy_raskhod(data);
 CREATE INDEX IF NOT EXISTS idx_prochiy_raskhod_ts         ON prochiy_raskhod(ts_id);
 CREATE INDEX IF NOT EXISTS idx_byudzhet_period            ON byudzhet(god, mesyats);
 CREATE INDEX IF NOT EXISTS idx_remont_data_okonchaniya    ON remont(data_okonchaniya);
 CREATE INDEX IF NOT EXISTS idx_finansoviy_log_data        ON finansoviy_log(data_operatsii);
-
--- 22. Сообщения в чате заявки
-CREATE TABLE IF NOT EXISTS zayavka_soobshenie (
-  id             SERIAL PRIMARY KEY,
-  zayavka_id     INT NOT NULL REFERENCES zayavka(id) ON DELETE CASCADE,
-  avtor_id       INT NOT NULL REFERENCES sotrudnik(id),
-  tekst          TEXT NOT NULL,
-  data_sozdaniya TIMESTAMP DEFAULT NOW()
-);
-CREATE INDEX IF NOT EXISTS idx_zs_zayavka ON zayavka_soobshenie(zayavka_id);
 
 -- =========================================================
 -- VIEW для отчётов и аналитики

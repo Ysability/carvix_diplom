@@ -34,9 +34,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/zayavki', zayavkiRoutes);
-app.use('/api/zayavki/:id/chat', chatRoutes);
 app.use('/api/remonty', remontyRoutes);
 app.use('/api/transport', transportRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',

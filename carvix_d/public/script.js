@@ -156,7 +156,7 @@ forms.login.addEventListener('submit', async (e) => {
     localStorage.setItem('carvix_token', data.token);
     localStorage.setItem('carvix_user', JSON.stringify(data.user));
 
-    toast(`Добро пожаловать, ${data.user.fio.split(' ')[0]}!`, 'success');
+    toast(`Добро пожаловать, ${data.user.fio}!`, 'success');
     setTimeout(() => location.assign('/app.html'), 600);
   } catch (err) {
     shake(forms.login);

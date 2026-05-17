@@ -38,9 +38,7 @@ const DEFAULT_PODRAZDELENIYA = [
 
 async function applySchema() {
   const ddl = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-  const clean = ddl.trim();
-  if (!clean) return;
-  await pool.raw(clean);
+  await pool.raw(ddl);
 }
 
 async function ensureRows(table, items) {

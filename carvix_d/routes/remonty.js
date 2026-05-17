@@ -26,14 +26,6 @@ async function findStatusId(name) {
   return rows[0]?.id || null;
 }
 
-async function logStatus(zayavkaId, statusName, sotrudnikId, kommentariy) {
-  await pool.execute(
-    `INSERT INTO zayavka_status_istoriya (zayavka_id, status_nazvanie, sotrudnik_id, kommentariy)
-     VALUES (?, ?, ?, ?)`,
-    [zayavkaId, statusName, sotrudnikId, kommentariy || null]
-  );
-}
-
 async function logAction(tx, sotrudnikId, tipOp, remontId, summa, kommentariy) {
   await tx.execute(
     `INSERT INTO finansoviy_log
@@ -66,8 +58,7 @@ router.get('/my', authRequired, requireMekhanik, async (req, res) => {
       `SELECT r.id AS remont_id, r.zayavka_id,
               r.data_nachala, r.data_okonchaniya,
               r.stoimost_rabot, r.stoimost_zapchastey,
-              r.garantiyny_srok,
-              r.kommentariy, r.itog,
+              r.kommentariy, r.itog, r.garantiya_do,
               z.opisanie, z.prioritet,
               z.status_id, st.nazvanie AS status,
               tr.nazvanie AS tip_remonta,
@@ -143,8 +134,18 @@ router.patch('/:id/start', authRequired, requireMekhanik, async (req, res) => {
           [vRabote, r.zayavka_id]
         );
       }
-      await logStatus(r.zayavka_id, 'В работе', req.user.id, 'Начат ремонт');
       await logAction(tx, req.user.id, 'start', id, null, null);
+
+      // Логируем смену статуса в историю заявки
+      if (vRabote) {
+        await tx.execute(
+          `INSERT INTO zayavka_status_istoriya
+             (zayavka_id, status_id, status_nazvanie, sotrudnik_id, sotrudnik_fio, kommentariy)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [r.zayavka_id, vRabote, 'В работе', req.user.id, req.user.fio || null, 'Ремонт начат']
+        );
+      }
+
       return { code: 200, body: { id, started: true } };
     });
     return res.status(result.code).json(result.body);
@@ -169,18 +170,18 @@ router.patch('/:id/finish', authRequired, requireMekhanik, [
   param('id').isInt({ min: 1 }).withMessage('Некорректный id'),
   body('stoimost_rabot').isFloat({ min: 0 }).withMessage('Стоимость работ должна быть числом ≥ 0'),
   body('stoimost_zapchastey').isFloat({ min: 0 }).withMessage('Стоимость запчастей должна быть числом ≥ 0'),
-  body('garantiyny_srok').optional().isInt({ min: 0 }).withMessage('Гарантийный срок — целое число ≥ 0'),
   body('kommentariy').optional().trim().isLength({ max: 2000 }).withMessage('Комментарий — макс. 2000 символов'),
   body('itog').optional().trim().isLength({ max: 255 }).withMessage('Итог — макс. 255 символов'),
+  body('garantiya_do').optional().isISO8601().withMessage('Некорректная дата гарантии'),
   handleResult,
 ], async (req, res) => {
   try {
     const id = Number(req.params.id);
     const stoimost_rabot = Number(req.body?.stoimost_rabot);
     const stoimost_zapchastey = Number(req.body?.stoimost_zapchastey);
-    const garantiyny_srok = req.body?.garantiyny_srok != null ? Number(req.body.garantiyny_srok) : null;
     const kommentariy = req.body?.kommentariy || null;
     const itog = req.body?.itog || 'Проблема устранена';
+    const garantiya_do = req.body?.garantiya_do || null;
 
     if (!Number.isFinite(id)) {
       return res.status(400).json({ error: 'Некорректный id' });
@@ -219,11 +220,11 @@ router.patch('/:id/finish', authRequired, requireMekhanik, [
                 data_okonchaniya = NOW(),
                 stoimost_rabot = ?,
                 stoimost_zapchastey = ?,
-                garantiyny_srok = ?,
                 kommentariy = ?,
-                itog = ?
+                itog = ?,
+                garantiya_do = ?
           WHERE id = ?`,
-        [stoimost_rabot, stoimost_zapchastey, garantiyny_srok, kommentariy, itog, id]
+        [stoimost_rabot, stoimost_zapchastey, kommentariy, itog, garantiya_do, id]
       );
 
       const vyp = await findStatusId('Выполнена');
@@ -234,7 +235,6 @@ router.patch('/:id/finish', authRequired, requireMekhanik, [
         );
       }
 
-      await logStatus(r.zayavka_id, 'Выполнена', req.user.id, 'Ремонт завершён: ' + itog);
       await logAction(
         tx,
         req.user.id,
@@ -244,6 +244,19 @@ router.patch('/:id/finish', authRequired, requireMekhanik, [
         itog
       );
 
+      // Логируем смену статуса в историю заявки
+      const [[stRow]] = await tx.execute(
+        `SELECT id, nazvanie FROM status WHERE nazvanie = 'Выполнена' LIMIT 1`
+      );
+      if (stRow) {
+        await tx.execute(
+          `INSERT INTO zayavka_status_istoriya
+             (zayavka_id, status_id, status_nazvanie, sotrudnik_id, sotrudnik_fio, kommentariy)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [r.zayavka_id, stRow.id, 'Выполнена', req.user.id, req.user.fio, itog]
+        );
+      }
+
       return {
         code: 200,
         body: {
@@ -251,6 +264,7 @@ router.patch('/:id/finish', authRequired, requireMekhanik, [
           stoimost_rabot,
           stoimost_zapchastey,
           itog,
+          garantiya_do,
           status: 'Выполнена',
         },
       };

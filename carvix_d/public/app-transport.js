@@ -339,6 +339,7 @@
   function maskGosNomer(input) {
     input.placeholder = 'А123АА77';
     input.maxLength = 9;
+    input.classList.add('ts-input-plate');
     input.addEventListener('input', () => {
       let raw = input.value.toUpperCase();
       let result = '';
@@ -346,17 +347,17 @@
         let ch = latinToRus(raw[i]);
         const pos = result.length;
         if (pos === 0 || pos === 4 || pos === 5) {
-          // буква
           if (GOS_LETTERS.includes(ch)) result += ch;
         } else if (pos >= 1 && pos <= 3) {
-          // цифры (номер)
           if (/\d/.test(ch)) result += ch;
         } else if (pos >= 6) {
-          // цифры (регион)
           if (/\d/.test(ch)) result += ch;
         }
       }
       input.value = result;
+      // Visual validation: valid if 8-9 chars (А123АА77 or А123АА777)
+      input.classList.toggle('is-valid', result.length >= 8);
+      input.classList.toggle('is-invalid', result.length > 0 && result.length < 8);
     });
   }
 
