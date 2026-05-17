@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="990" viewBox="0 0 1250 990">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L9,3 z" fill="#000000"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1250" height="990" fill="#ffffff"/>
+<text x="625" y="16" font-family="Times New Roman, serif" font-size="14" text-anchor="middle" fill="#000000">Рисунок 2.1 — Физическая схема базы данных системы Carvix</text>
+<path d="M 125.0,57 L 125.0,101.0 L 125.0,101.0 L 125.0,145" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 230,127 L 245.0,127 L 245.0,253 L 260,253" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 230,285 L 245.0,285 L 245.0,147 L 260,147" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 230,285 L 245.0,285 L 245.0,271 L 260,271" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 230,285 L 365.0,285 L 365.0,663 L 500,663" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 230,285 L 365.0,285 L 365.0,823 L 500,823" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 230,215 L 245.0,215 L 245.0,129 L 260,129" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,57 L 485.0,57 L 485.0,93 L 500,93" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 365.0,57 L 365.0,200.0 L 365.0,200.0 L 365.0,343" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,57 L 485.0,57 L 485.0,325 L 500,325" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,57 L 485.0,57 L 485.0,343 L 500,343" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,57 L 605.0,57 L 605.0,129 L 740,129" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,57 L 605.0,57 L 605.0,715 L 740,715" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,57 L 605.0,57 L 605.0,803 L 740,803" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,57 L 605.0,57 L 605.0,519 L 740,519" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,57 L 725.0,57 L 725.0,899 L 980,899" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,199 L 485.0,199 L 485.0,111 L 500,111" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,199 L 485.0,199 L 485.0,805 L 500,805" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,395 L 485.0,395 L 485.0,165 L 500,165" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,395 L 605.0,395 L 605.0,93 L 740,93" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,465 L 485.0,465 L 485.0,129 L 500,129" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,465 L 725.0,465 L 725.0,785 L 980,785" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,553 L 485.0,553 L 485.0,539 L 500,539" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 470,553 L 605.0,553 L 605.0,625 L 740,625" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 710,485 L 725.0,485 L 725.0,253 L 740,253" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 710,485 L 845.0,485 L 845.0,643 L 980,643" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 605.0,57 L 605.0,164.0 L 605.0,164.0 L 605.0,271" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 710,57 L 725.0,57 L 725.0,75 L 740,75" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 710,57 L 725.0,57 L 725.0,359 L 740,359" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 710,57 L 725.0,57 L 725.0,501 L 740,501" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 710,253 L 725.0,253 L 725.0,235 L 740,235" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 710,253 L 725.0,253 L 725.0,377 L 740,377" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 710,253 L 845.0,253 L 845.0,881 L 980,881" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 950,607 L 965.0,607 L 965.0,625 L 980,625" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M 1085.0,767 L 1085.0,851.0 L 1085.0,851.0 L 1085.0,935" fill="none" stroke="#555555" stroke-width="1" marker-end="url(#arrow)"/>
+<rect x="20" y="20" width="210" height="60" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="20" y="20" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="125.0" y="38" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">marka</text>
+<text x="26" y="57" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="224" y="57" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="26" y="75" font-family="Arial, sans-serif" font-size="10"  fill="#000000">nazvanie</text>
+<text x="224" y="75" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<rect x="20" y="90" width="210" height="78" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="20" y="90" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="125.0" y="108" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">model</text>
+<text x="26" y="127" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="224" y="127" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="26" y="145" font-family="Arial, sans-serif" font-size="10"  fill="#000000">marka_id</text>
+<text x="224" y="145" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="26" y="163" font-family="Arial, sans-serif" font-size="10"  fill="#000000">nazvanie</text>
+<text x="224" y="163" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<rect x="20" y="178" width="210" height="60" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="20" y="178" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="125.0" y="196" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">rol</text>
+<text x="26" y="215" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="224" y="215" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="26" y="233" font-family="Arial, sans-serif" font-size="10"  fill="#000000">nazvanie</text>
+<text x="224" y="233" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<rect x="20" y="248" width="210" height="60" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="20" y="248" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="125.0" y="266" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">podrazdelenie</text>
+<text x="26" y="285" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="224" y="285" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="26" y="303" font-family="Arial, sans-serif" font-size="10"  fill="#000000">nazvanie</text>
+<text x="224" y="303" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<rect x="260" y="20" width="210" height="132" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="260" y="20" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="365.0" y="38" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">sotrudnik</text>
+<text x="266" y="57" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="464" y="57" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="266" y="75" font-family="Arial, sans-serif" font-size="10"  fill="#000000">fio</text>
+<text x="464" y="75" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<text x="266" y="93" font-family="Arial, sans-serif" font-size="10"  fill="#000000">login</text>
+<text x="464" y="93" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(100)</text>
+<text x="266" y="111" font-family="Arial, sans-serif" font-size="10"  fill="#000000">parol_hash</text>
+<text x="464" y="111" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<text x="266" y="129" font-family="Arial, sans-serif" font-size="10"  fill="#000000">rol_id</text>
+<text x="464" y="129" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="266" y="147" font-family="Arial, sans-serif" font-size="10"  fill="#000000">podrazdelenie_id</text>
+<text x="464" y="147" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<rect x="260" y="162" width="210" height="186" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="260" y="162" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="365.0" y="180" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">transportnoe_sredstvo</text>
+<text x="266" y="199" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="464" y="199" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="266" y="217" font-family="Arial, sans-serif" font-size="10"  fill="#000000">gos_nomer</text>
+<text x="464" y="217" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(50)</text>
+<text x="266" y="235" font-family="Arial, sans-serif" font-size="10"  fill="#000000">invent_nomer</text>
+<text x="464" y="235" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(50)</text>
+<text x="266" y="253" font-family="Arial, sans-serif" font-size="10"  fill="#000000">model_id</text>
+<text x="464" y="253" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="266" y="271" font-family="Arial, sans-serif" font-size="10"  fill="#000000">podrazdelenie_id</text>
+<text x="464" y="271" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="266" y="289" font-family="Arial, sans-serif" font-size="10"  fill="#000000">probeg</text>
+<text x="464" y="289" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT</text>
+<text x="266" y="307" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_vypuska</text>
+<text x="464" y="307" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">DATE</text>
+<text x="266" y="325" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tekuschee_sost.</text>
+<text x="464" y="325" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(100)</text>
+<text x="266" y="343" font-family="Arial, sans-serif" font-size="10"  fill="#000000">sozdatel_id</text>
+<text x="464" y="343" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<rect x="260" y="358" width="210" height="60" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="260" y="358" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="365.0" y="376" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">status</text>
+<text x="266" y="395" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="464" y="395" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="266" y="413" font-family="Arial, sans-serif" font-size="10"  fill="#000000">nazvanie</text>
+<text x="464" y="413" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(100)</text>
+<rect x="260" y="428" width="210" height="78" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="260" y="428" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="365.0" y="446" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">tip_remonta</text>
+<text x="266" y="465" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="464" y="465" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="266" y="483" font-family="Arial, sans-serif" font-size="10"  fill="#000000">nazvanie</text>
+<text x="464" y="483" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(100)</text>
+<text x="266" y="501" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kategoriya</text>
+<text x="464" y="501" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(100)</text>
+<rect x="260" y="516" width="210" height="96" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="260" y="516" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="365.0" y="534" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">postavshik</text>
+<text x="266" y="553" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="464" y="553" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="266" y="571" font-family="Arial, sans-serif" font-size="10"  fill="#000000">nazvanie</text>
+<text x="464" y="571" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<text x="266" y="589" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kontakty</text>
+<text x="464" y="589" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<text x="266" y="607" font-family="Arial, sans-serif" font-size="10"  fill="#000000">adres</text>
+<text x="464" y="607" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<rect x="500" y="20" width="210" height="186" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="500" y="20" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="605.0" y="38" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">zayavka</text>
+<text x="506" y="57" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="704" y="57" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="506" y="75" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_sozdaniya</text>
+<text x="704" y="75" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TIMESTAMP</text>
+<text x="506" y="93" font-family="Arial, sans-serif" font-size="10"  fill="#000000">sozdatel_id</text>
+<text x="704" y="93" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="111" font-family="Arial, sans-serif" font-size="10"  fill="#000000">ts_id</text>
+<text x="704" y="111" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="129" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tip_remonta_id</text>
+<text x="704" y="129" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="147" font-family="Arial, sans-serif" font-size="10"  fill="#000000">opisanie</text>
+<text x="704" y="147" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TEXT</text>
+<text x="506" y="165" font-family="Arial, sans-serif" font-size="10"  fill="#000000">status_id</text>
+<text x="704" y="165" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="183" font-family="Arial, sans-serif" font-size="10"  fill="#000000">prioritet</text>
+<text x="704" y="183" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT</text>
+<text x="506" y="201" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_rezhima</text>
+<text x="704" y="201" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TIMESTAMP</text>
+<rect x="500" y="216" width="210" height="222" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="500" y="216" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="605.0" y="234" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">remont</text>
+<text x="506" y="253" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="704" y="253" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="506" y="271" font-family="Arial, sans-serif" font-size="10"  fill="#000000">zayavka_id</text>
+<text x="704" y="271" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="289" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_nachala</text>
+<text x="704" y="289" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TIMESTAMP</text>
+<text x="506" y="307" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_okonchaniya</text>
+<text x="704" y="307" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TIMESTAMP</text>
+<text x="506" y="325" font-family="Arial, sans-serif" font-size="10"  fill="#000000">mekhanik_id</text>
+<text x="704" y="325" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="343" font-family="Arial, sans-serif" font-size="10"  fill="#000000">gl_mekhanik_id</text>
+<text x="704" y="343" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="361" font-family="Arial, sans-serif" font-size="10"  fill="#000000">stoimost_rabot</text>
+<text x="704" y="361" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC</text>
+<text x="506" y="379" font-family="Arial, sans-serif" font-size="10"  fill="#000000">stoimost_zapch.</text>
+<text x="704" y="379" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC</text>
+<text x="506" y="397" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kommentariy</text>
+<text x="704" y="397" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TEXT</text>
+<text x="506" y="415" font-family="Arial, sans-serif" font-size="10"  fill="#000000">itog</text>
+<text x="704" y="415" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<text x="506" y="433" font-family="Arial, sans-serif" font-size="10"  fill="#000000">garantiya_do</text>
+<text x="704" y="433" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">DATE</text>
+<rect x="500" y="448" width="210" height="150" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="500" y="448" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="605.0" y="466" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">zapchast</text>
+<text x="506" y="485" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="704" y="485" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="506" y="503" font-family="Arial, sans-serif" font-size="10"  fill="#000000">naimenovanie</text>
+<text x="704" y="503" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<text x="506" y="521" font-family="Arial, sans-serif" font-size="10"  fill="#000000">artikul</text>
+<text x="704" y="521" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(100)</text>
+<text x="506" y="539" font-family="Arial, sans-serif" font-size="10"  fill="#000000">postavshik_id</text>
+<text x="704" y="539" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="557" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tsena</text>
+<text x="704" y="557" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC(10,2)</text>
+<text x="506" y="575" font-family="Arial, sans-serif" font-size="10"  fill="#000000">ostatok</text>
+<text x="704" y="575" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT</text>
+<text x="506" y="593" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kategoriya</text>
+<text x="704" y="593" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(100)</text>
+<rect x="500" y="608" width="210" height="132" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="500" y="608" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="605.0" y="626" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">byudzhet</text>
+<text x="506" y="645" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="704" y="645" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="506" y="663" font-family="Arial, sans-serif" font-size="10"  fill="#000000">podrazdelenie_id</text>
+<text x="704" y="663" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="681" font-family="Arial, sans-serif" font-size="10"  fill="#000000">god</text>
+<text x="704" y="681" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT</text>
+<text x="506" y="699" font-family="Arial, sans-serif" font-size="10"  fill="#000000">mesyats</text>
+<text x="704" y="699" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT</text>
+<text x="506" y="717" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kategoriya</text>
+<text x="704" y="717" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(50)</text>
+<text x="506" y="735" font-family="Arial, sans-serif" font-size="10"  fill="#000000">plan_summa</text>
+<text x="704" y="735" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC(12,2)</text>
+<rect x="500" y="750" width="210" height="150" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="500" y="750" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="605.0" y="768" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">prochiy_raskhod</text>
+<text x="506" y="787" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="704" y="787" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="506" y="805" font-family="Arial, sans-serif" font-size="10"  fill="#000000">ts_id</text>
+<text x="704" y="805" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="823" font-family="Arial, sans-serif" font-size="10"  fill="#000000">podrazdelenie_id</text>
+<text x="704" y="823" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="506" y="841" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data</text>
+<text x="704" y="841" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">DATE</text>
+<text x="506" y="859" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kategoriya</text>
+<text x="704" y="859" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(50)</text>
+<text x="506" y="877" font-family="Arial, sans-serif" font-size="10"  fill="#000000">summa</text>
+<text x="704" y="877" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC(10,2)</text>
+<text x="506" y="895" font-family="Arial, sans-serif" font-size="10"  fill="#000000">opisanie</text>
+<text x="704" y="895" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TEXT</text>
+<rect x="740" y="20" width="210" height="168" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="740" y="20" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="845.0" y="38" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">zayavka_status_istoriya</text>
+<text x="746" y="57" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="944" y="57" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="746" y="75" font-family="Arial, sans-serif" font-size="10"  fill="#000000">zayavka_id</text>
+<text x="944" y="75" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="746" y="93" font-family="Arial, sans-serif" font-size="10"  fill="#000000">status_id</text>
+<text x="944" y="93" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="746" y="111" font-family="Arial, sans-serif" font-size="10"  fill="#000000">status_nazvanie</text>
+<text x="944" y="111" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(100)</text>
+<text x="746" y="129" font-family="Arial, sans-serif" font-size="10"  fill="#000000">sotrudnik_id</text>
+<text x="944" y="129" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="746" y="147" font-family="Arial, sans-serif" font-size="10"  fill="#000000">sotrudnik_fio</text>
+<text x="944" y="147" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<text x="746" y="165" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_izmeneniya</text>
+<text x="944" y="165" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TIMESTAMP</text>
+<text x="746" y="183" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kommentariy</text>
+<text x="944" y="183" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TEXT</text>
+<rect x="740" y="198" width="210" height="96" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="740" y="198" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="845.0" y="216" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">ispolzovanie_zapchastey</text>
+<text x="746" y="235" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">remont_id</text>
+<text x="944" y="235" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT PK, FK</text>
+<text x="746" y="253" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">zapchast_id</text>
+<text x="944" y="253" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT PK, FK</text>
+<text x="746" y="271" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kolichestvo</text>
+<text x="944" y="271" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT</text>
+<text x="746" y="289" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tsena_na_moment</text>
+<text x="944" y="289" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC(10,2)</text>
+<rect x="740" y="304" width="210" height="132" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="740" y="304" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="845.0" y="322" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">vlozhenie</text>
+<text x="746" y="341" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="944" y="341" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="746" y="359" font-family="Arial, sans-serif" font-size="10"  fill="#000000">zayavka_id</text>
+<text x="944" y="359" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="746" y="377" font-family="Arial, sans-serif" font-size="10"  fill="#000000">remont_id</text>
+<text x="944" y="377" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="746" y="395" font-family="Arial, sans-serif" font-size="10"  fill="#000000">put_faila</text>
+<text x="944" y="395" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(255)</text>
+<text x="746" y="413" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tip_faila</text>
+<text x="944" y="413" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(50)</text>
+<text x="746" y="431" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_zagruzki</text>
+<text x="944" y="431" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TIMESTAMP</text>
+<rect x="740" y="446" width="210" height="114" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="740" y="446" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="845.0" y="464" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">soobscheniye</text>
+<text x="746" y="483" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="944" y="483" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="746" y="501" font-family="Arial, sans-serif" font-size="10"  fill="#000000">zayavka_id</text>
+<text x="944" y="501" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="746" y="519" font-family="Arial, sans-serif" font-size="10"  fill="#000000">otpravitel_id</text>
+<text x="944" y="519" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="746" y="537" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tekst</text>
+<text x="944" y="537" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TEXT</text>
+<text x="746" y="555" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_otpravki</text>
+<text x="944" y="555" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TIMESTAMP</text>
+<rect x="740" y="570" width="210" height="150" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="740" y="570" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="845.0" y="588" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">prikhod_zapchasti</text>
+<text x="746" y="607" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="944" y="607" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="746" y="625" font-family="Arial, sans-serif" font-size="10"  fill="#000000">postavshik_id</text>
+<text x="944" y="625" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="746" y="643" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_prikhoda</text>
+<text x="944" y="643" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">DATE</text>
+<text x="746" y="661" font-family="Arial, sans-serif" font-size="10"  fill="#000000">nomer_nakl</text>
+<text x="944" y="661" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(50)</text>
+<text x="746" y="679" font-family="Arial, sans-serif" font-size="10"  fill="#000000">summa_obshaya</text>
+<text x="944" y="679" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC(12,2)</text>
+<text x="746" y="697" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kommentariy</text>
+<text x="944" y="697" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TEXT</text>
+<text x="746" y="715" font-family="Arial, sans-serif" font-size="10"  fill="#000000">sozdatel_id</text>
+<text x="944" y="715" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<rect x="740" y="730" width="210" height="168" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="740" y="730" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="845.0" y="748" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">finansoviy_log</text>
+<text x="746" y="767" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="944" y="767" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="746" y="785" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_operatsii</text>
+<text x="944" y="785" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TIMESTAMP</text>
+<text x="746" y="803" font-family="Arial, sans-serif" font-size="10"  fill="#000000">sotrudnik_id</text>
+<text x="944" y="803" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="746" y="821" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tip_operatsii</text>
+<text x="944" y="821" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(50)</text>
+<text x="746" y="839" font-family="Arial, sans-serif" font-size="10"  fill="#000000">obyekt_tablitsa</text>
+<text x="944" y="839" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">VARCHAR(50)</text>
+<text x="746" y="857" font-family="Arial, sans-serif" font-size="10"  fill="#000000">obyekt_id</text>
+<text x="944" y="857" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT</text>
+<text x="746" y="875" font-family="Arial, sans-serif" font-size="10"  fill="#000000">summa</text>
+<text x="944" y="875" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC(12,2)</text>
+<text x="746" y="893" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kommentariy</text>
+<text x="944" y="893" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">TEXT</text>
+<rect x="980" y="570" width="210" height="114" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="980" y="570" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="1085.0" y="588" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">prikhod_zapchasti_pozitsii</text>
+<text x="986" y="607" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="1184" y="607" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="986" y="625" font-family="Arial, sans-serif" font-size="10"  fill="#000000">prikhod_id</text>
+<text x="1184" y="625" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="986" y="643" font-family="Arial, sans-serif" font-size="10"  fill="#000000">zapchast_id</text>
+<text x="1184" y="643" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="986" y="661" font-family="Arial, sans-serif" font-size="10"  fill="#000000">kolichestvo</text>
+<text x="1184" y="661" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT</text>
+<text x="986" y="679" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tsena_za_edinicu</text>
+<text x="1184" y="679" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC(10,2)</text>
+<rect x="980" y="730" width="210" height="114" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="980" y="730" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="1085.0" y="748" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">tarif_rabot</text>
+<text x="986" y="767" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">id</text>
+<text x="1184" y="767" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">SERIAL PK</text>
+<text x="986" y="785" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tip_remonta_id</text>
+<text x="1184" y="785" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="986" y="803" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tsena_za_chas</text>
+<text x="1184" y="803" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC(10,2)</text>
+<text x="986" y="821" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_s</text>
+<text x="1184" y="821" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">DATE</text>
+<text x="986" y="839" font-family="Arial, sans-serif" font-size="10"  fill="#000000">data_po</text>
+<text x="1184" y="839" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">DATE</text>
+<rect x="980" y="844" width="210" height="96" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<rect x="980" y="844" width="210" height="24" fill="#e8e8e8" stroke="#000000" stroke-width="1.5"/>
+<text x="1085.0" y="862" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">remont_normy</text>
+<text x="986" y="881" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">remont_id</text>
+<text x="1184" y="881" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT PK, FK</text>
+<text x="986" y="899" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">mekhanik_id</text>
+<text x="1184" y="899" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT PK, FK</text>
+<text x="986" y="917" font-family="Arial, sans-serif" font-size="10"  fill="#000000">chasy</text>
+<text x="1184" y="917" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">NUMERIC(5,2)</text>
+<text x="986" y="935" font-family="Arial, sans-serif" font-size="10"  fill="#000000">tarif_id</text>
+<text x="1184" y="935" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="#333333">INT FK</text>
+<text x="20" y="960" font-family="Arial, sans-serif" font-size="10" fill="#000000">PK — первичный ключ    FK — внешний ключ</text>
+<text x="20" y="974" font-family="Arial, sans-serif" font-size="10" fill="#000000">Стрелки направлены от родительской таблицы (PK) к дочерней (FK)</text>
+</svg>
