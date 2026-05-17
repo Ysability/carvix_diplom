@@ -280,6 +280,7 @@
         'success'
       );
       onDone?.();
+      window.refreshNavBadges?.();
     } catch (e) {
       console.error('[autoAssign] error:', e);
       window.toast(e.message, 'error');
@@ -346,6 +347,7 @@
         window.toast(T('dispatch.assigned'), 'success');
         bg.remove();
         onDone?.();
+        window.refreshNavBadges?.();
       } catch (e) { window.toast(e.message, 'error'); }
     };
   }
@@ -386,6 +388,7 @@
         window.toast(T('common.saved'), 'success');
         bg.remove();
         onDone?.();
+        window.refreshNavBadges?.();
       } catch (e) { window.toast(e.message, 'error'); }
     };
   }
@@ -568,6 +571,7 @@
       }
       window.toast(T('dispatch.auto_all_done', { ok, fail }), fail ? 'error' : 'success');
       load();
+      window.refreshNavBadges?.();
     });
 
     load();

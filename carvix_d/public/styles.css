@@ -932,6 +932,53 @@ button { font-family: inherit; }
   .tabs { max-width: 100%; }
 }
 
+/* ============== Индикатор силы пароля ============== */
+.pwd-strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -4px 0 12px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity .3s var(--ease), max-height .3s var(--ease), margin .3s var(--ease);
+}
+.pwd-strength.is-visible {
+  opacity: 1;
+  max-height: 24px;
+  margin: -2px 0 14px;
+}
+.pwd-strength__bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--gray-100);
+  overflow: hidden;
+}
+.pwd-strength__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 4px;
+  transition: width .4s var(--ease), background .3s var(--ease);
+}
+.pwd-strength__fill[data-level="1"] { width: 25%; background: var(--danger); }
+.pwd-strength__fill[data-level="2"] { width: 50%; background: #e5a00d; }
+.pwd-strength__fill[data-level="3"] { width: 75%; background: #c4a034; }
+.pwd-strength__fill[data-level="4"] { width: 100%; background: var(--success); }
+.pwd-strength__label {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 70px;
+  text-align: right;
+  transition: color .3s var(--ease);
+}
+.pwd-strength__label[data-level="1"] { color: var(--danger); }
+.pwd-strength__label[data-level="2"] { color: #e5a00d; }
+.pwd-strength__label[data-level="3"] { color: #c4a034; }
+.pwd-strength__label[data-level="4"] { color: var(--success); }
+
 /* ============== Анимации появления полей формы ==============
    Срабатывают только при первом показе формы (animate-once),
    чтобы при переключении табов поля не перерендеривались. */

@@ -114,6 +114,7 @@ function startBadgePolling() {
   _badgeTimer = setInterval(refreshNavBadges, 60000);
 }
 function stopBadgePolling() { if (_badgeTimer) clearInterval(_badgeTimer); }
+window.refreshNavBadges = refreshNavBadges;
 
 /* ----------------- Pagination helper ----------------- */
 function renderPager(container, { total, limit, offset, onChange }) {

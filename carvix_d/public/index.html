@@ -135,13 +135,21 @@
             </label>
 
             <label class="field">
-              <input type="password" name="password" required minlength="6" autocomplete="new-password" placeholder=" " />
+              <input type="password" name="password" required minlength="6" autocomplete="new-password" placeholder=" " id="regPassword" />
               <span class="field__label" data-i18n="auth.password">Пароль</span>
               <button type="button" class="field__toggle" aria-label="Show password">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
               <span class="field__capslock" hidden>Caps Lock</span>
             </label>
+          </div>
+
+          <!-- Индикатор силы пароля -->
+          <div class="pwd-strength" id="pwdStrength">
+            <div class="pwd-strength__bar">
+              <span class="pwd-strength__fill" id="pwdFill"></span>
+            </div>
+            <span class="pwd-strength__label" id="pwdLabel"></span>
           </div>
 
           <label class="field">

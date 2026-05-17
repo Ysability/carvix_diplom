@@ -496,6 +496,12 @@
 
       // ---- Гарантия ----
       'repairs.warranty_label':  'Гарантия до',
+
+      // ---- Сила пароля ----
+      'pwd.weak':   'Слабый',
+      'pwd.fair':   'Средний',
+      'pwd.good':   'Хороший',
+      'pwd.strong': 'Надёжный',
     },
 
     en: {
@@ -983,6 +989,12 @@
 
       // ---- Warranty ----
       'repairs.warranty_label':  'Warranty until',
+
+      // ---- Password strength ----
+      'pwd.weak':   'Weak',
+      'pwd.fair':   'Fair',
+      'pwd.good':   'Good',
+      'pwd.strong': 'Strong',
     },
 
     tg: {
@@ -1461,6 +1473,12 @@
 
       // ---- Common extended ----
       'common.choose':             'интихоб кунед',
+
+      // ---- Қувваи рамз ----
+      'pwd.weak':   'Заиф',
+      'pwd.fair':   'Миёна',
+      'pwd.good':   'Хуб',
+      'pwd.strong': 'Боэътимод',
     },
   };
 

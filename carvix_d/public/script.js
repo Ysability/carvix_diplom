@@ -213,6 +213,54 @@ forms.register.addEventListener('submit', async (e) => {
   }
 });
 
+/* ---------- Индикатор силы пароля ---------- */
+(function () {
+  const input = document.getElementById('regPassword');
+  const wrap  = document.getElementById('pwdStrength');
+  const fill  = document.getElementById('pwdFill');
+  const label = document.getElementById('pwdLabel');
+  if (!input || !wrap || !fill || !label) return;
+
+  const T = window.t || ((k) => k);
+
+  const LABELS = {
+    1: () => T('pwd.weak')    || 'Слабый',
+    2: () => T('pwd.fair')    || 'Средний',
+    3: () => T('pwd.good')    || 'Хороший',
+    4: () => T('pwd.strong')  || 'Надёжный',
+  };
+
+  function getStrength(pw) {
+    if (!pw) return 0;
+    let score = 0;
+    if (pw.length >= 6)  score++;
+    if (pw.length >= 10) score++;
+    if (/[A-ZА-ЯЁ]/.test(pw) && /[a-zа-яё]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^A-Za-zА-Яа-яЁё0-9]/.test(pw)) score++;
+    if (score <= 1) return 1;
+    if (score <= 2) return 2;
+    if (score <= 3) return 3;
+    return 4;
+  }
+
+  input.addEventListener('input', () => {
+    const pw = input.value;
+    if (!pw) {
+      wrap.classList.remove('is-visible');
+      fill.removeAttribute('data-level');
+      label.removeAttribute('data-level');
+      label.textContent = '';
+      return;
+    }
+    const lvl = getStrength(pw);
+    wrap.classList.add('is-visible');
+    fill.setAttribute('data-level', lvl);
+    label.setAttribute('data-level', lvl);
+    label.textContent = LABELS[lvl]();
+  });
+})();
+
 /* ---------- Лёгкий parallax для блобов ---------- */
 const blobs = $$('.blob');
 window.addEventListener('mousemove', (e) => {
