@@ -79,24 +79,23 @@ async function refreshNavBadges() {
   try {
     const role = CURRENT_USER?.rol_nazvanie;
     if (!role) return;
-    const allowed = ['Директор','Аналитик','Главный механик','Диспетчер'];
-    if (!allowed.includes(role)) return;
 
-    const [zData, bData] = await Promise.all([
-      api('/api/zayavki?limit=1&status=1').catch(() => null),
-      api('/api/finance/budgets/plan-fakt?god=' + new Date().getFullYear()).catch(() => null),
-    ]);
-
-    // Заявки: кол-во со статусом «Новая» (status_id=1)
-    const newCount = zData?.total || 0;
-    setBadge('requests', newCount);
-
-    // Бюджеты: кол-во месяцев с превышением плана
-    let overCount = 0;
-    if (Array.isArray(bData)) {
-      bData.forEach(r => { if (Number(r.fakt_summa) > Number(r.plan_summa) && Number(r.plan_summa) > 0) overCount++; });
+    // Уведомления о новых заявках только для Диспетчера и Главного механика
+    if (['Главный механик','Диспетчер'].includes(role)) {
+      const zData = await api('/api/zayavki?limit=1&status=1').catch(() => null);
+      const newCount = zData?.total || 0;
+      setBadge('requests', newCount);
     }
-    setBadge('budgets', overCount);
+
+    // Бюджеты: кол-во месяцев с превышением плана (для ролей с доступом к бюджетам)
+    if (['Директор','Аналитик','Главный механик'].includes(role)) {
+      const bData = await api('/api/finance/budgets/plan-fakt?god=' + new Date().getFullYear()).catch(() => null);
+      let overCount = 0;
+      if (Array.isArray(bData)) {
+        bData.forEach(r => { if (Number(r.fakt_summa) > Number(r.plan_summa) && Number(r.plan_summa) > 0) overCount++; });
+      }
+      setBadge('budgets', overCount);
+    }
   } catch (_) { /* silent */ }
 }
 function setBadge(section, count) {
