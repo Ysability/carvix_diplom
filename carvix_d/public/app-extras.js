@@ -411,12 +411,15 @@
       head.appendChild(actions);
     }
 
-    // Кнопка «Прогноз расходов»
-    const fcBtn = document.createElement('button');
-    fcBtn.className = 'btn';
-    fcBtn.innerHTML = `📈 ${T('forecast.btn')}`;
-    fcBtn.onclick = openForecastDialog;
-    actions.appendChild(fcBtn);
+    // Кнопка «Прогноз расходов» — только для Главного механика
+    const _role = window.CURRENT_USER?.rol_nazvanie;
+    if (_role !== 'Директор' && _role !== 'Аналитик') {
+      const fcBtn = document.createElement('button');
+      fcBtn.className = 'btn';
+      fcBtn.innerHTML = `📈 ${T('forecast.btn')}`;
+      fcBtn.onclick = openForecastDialog;
+      actions.appendChild(fcBtn);
+    }
 
     // Кнопка «Редактор бюджетов»
     const editBtn = document.createElement('button');
